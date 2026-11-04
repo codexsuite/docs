@@ -84,6 +84,9 @@ async function addAddition(page: Page, ctx: SeedResult): Promise<void> {
   const body = page.locator("[data-testid^='write-addition-body-']").first();
   await body.waitFor();
   await body.fill(addition);
+  const saved = page.waitForResponse((r) => r.request().method() === "PATCH" && r.url().includes("/kb-additions/"));
+  await page.getByTestId("write-manuscript").focus();
+  await saved;
   await waitSaved(page);
 }
 
@@ -174,6 +177,7 @@ export const shots: ShotSpec[] = [
         (n) => document.querySelectorAll("[data-testid='write-kb-mention']").length > n,
         before,
       );
+      await waitSaved(page);
     },
   },
   {
@@ -191,7 +195,19 @@ export const shots: ShotSpec[] = [
       await addAddition(page, ctx);
       await openEntry(page, ctx, "Edith Marrow");
       await page.getByTestId("kb-tab-timeline").click();
-      await page.locator("[data-testid^='kb-timeline-note-']").first().waitFor();
+      const notes = page.locator("[data-testid^='kb-timeline-note-']");
+      await notes.first().getByText(addition).waitFor();
+      const edited = "From here Edith Marrow is head keeper, signs the logbook and trims the wick.";
+      await page.locator("[data-testid^='kb-timeline-edit-']").first().click();
+      await page.locator("[data-testid^='kb-timeline-edit-text-']").fill(edited);
+      await page.locator("[data-testid^='kb-timeline-edit-save-']").click();
+      await notes.first().getByText(edited).waitFor();
+      const second = "From here Edith Marrow keeps the key to the lens crate.";
+      await page.getByTestId("kb-timeline-add").click();
+      await page.getByTestId("kb-timeline-add-scene").selectOption(ctx.sceneIds["1.2"]);
+      await page.getByTestId("kb-timeline-add-text").fill(second);
+      await page.getByTestId("kb-timeline-add-submit").click();
+      await notes.nth(1).getByText(second).waitFor();
     },
   },
   {
