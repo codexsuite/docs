@@ -11,23 +11,23 @@ This page covers the bar at the top of every book, how to open a book, how to ju
 
 **Address:** `/` for the Library, `/books/<id>/plan` and the other book screens, `/account` for your account.
 
-<Shot name="ui-navigation-overview" alt="The Plan screen for Salt and Signal. The book bar runs across the top with the back arrow, the settings icon, the book title, the Plan, Write, References and Layout tabs and the account avatar. The Knowledge base sidebar is on the left." />
+<Shot name="ui-navigation-overview" alt="The Plan screen for Salt and Signal. The book bar runs across the top with the back arrow, the gear, the book title, the Plan, Write, References and Layout tabs and the account avatar. The Knowledge base sidebar is on the left." />
 
 ## The book bar
 
-Every book screen has the same left side. From left to right it holds:
+These items are on the bar of every book screen, from left to right:
 
 - A back arrow with no label. Its tooltip reads "Back to Library", or "Back to" and the series name when the book is in a series.
 - A gear. It opens [Book settings](/ui/book-settings/).
 - The cover, title and author of the book. On Plan, Write and Layout, a button beside them shows or hides the Knowledge base sidebar. The sidebar starts shown on Plan and Write and hidden on Layout.
 - The tabs **Plan**, **Write**, **References** and **Layout**. A thin divider separates References from the first two.
-- On the right, your avatar.
+- At the far right, your avatar.
 
-Each screen adds its own controls before the avatar. Plan, Write, References and Layout show the scope selector and word counts. Write also shows the save status, **Format** and **Focus**. Plan and Layout show the save status, and References does not.
+Each screen adds its own items between the tabs and the avatar. Plan and Write add a scope selector and word counts. References adds counts of sources, citations and quoted words. Layout adds the word count and a page estimate. Plan, Write, Layout and Book settings add the save status. Write also adds **Format** and **Focus**.
 
 References shows a count when sources need attention. Layout shows a count of the issues that block a print export. Both counts disappear at zero.
 
-If the book was shared with you to read, a **View only** chip replaces the save status. A book shared with you to comment shows **Comment only**. Hover the chip to see who shared the book. See [Sharing a book](/ui/sharing/).
+If the owner shared the book with you to read, a **View only** chip replaces the save status. If the owner shared it with you to comment, the chip reads **Comment only**. Hover the chip to see the owner's name. See [Sharing a book](/ui/sharing/).
 
 <Shot name="ui-navigation-view-only" alt="The Plan screen for Salt and Signal signed in as a reader, with a View only chip at the right end of the book bar." />
 
@@ -38,7 +38,7 @@ If the book was shared with you to read, a **View only** chip replaces the save 
 
 <Shot name="ui-navigation-library-tile" alt="The Working Coasts series screen with the tiles for Salt and Signal and Tide Tables." />
 
-A book opens on the screen you used last in it. Codex remembers this in your browser. If your browser has no record, it uses the screen the server has on record for the book, and otherwise Plan. Codex never reopens a book on Book settings.
+A book opens on the screen you used last in it. Codex remembers this in your browser. If your browser has no record, Codex opens the screen the server has on record for the book. If the server has none, Codex opens Plan. Codex never reopens a book on Book settings.
 
 ## Move between screens
 
@@ -46,10 +46,12 @@ Click a tab in the book bar. The highlighted Knowledge base entry stays highligh
 
 To go from a scene on Plan to the same scene in Write:
 
-1. Hover the scene card and click its **…** button.
-2. Choose **Open in Write**. To do this from the keyboard, press `Tab` to reach the scene's menu button, then `Enter`.
+1. Hover the scene card and click its **⋯** button.
+2. Choose **Open in Write**.
 
 <Shot name="ui-navigation-open-in-write" alt="The menu on scene 1.2 in Plan, listing Open in Write, Labels, Move to chapter, Merge into previous scene and Archive scene." />
+
+From the keyboard, press `Tab` until the scene's menu button has focus, then press `Enter`. Press `Tab` to reach **Open in Write**, then press `Enter`.
 
 Write opens at that scene, and the scene flashes. The address now ends in `#scene=1.2`. The draft panel in the shot below is open because the scene has an AI draft waiting. To apply that draft, see [Beats and AI drafts](/ui/ai-drafts/).
 
@@ -69,15 +71,15 @@ A book row opens the book on the screen it last used. A series row opens the ser
 
 <Shot name="ui-navigation-palette" alt="The command palette over the Library with the word Salt typed in the search field and Salt and Signal highlighted under Books." />
 
-The Library bar and the bar on the Account and Users pages also have a button that opens the palette. It shows ⌘K on every system, including Windows and Linux. Book screens have no button, only the shortcut.
+The Library bar and the bar on the Account, Change password, AI and Users pages also have a button that opens the palette. It shows ⌘K on every system, including Windows and Linux. Book screens have no button, only the shortcut.
 
 ## Search for a book
 
-The Library has a search box labelled "Search name or series…". It filters the shelf when you pause typing and puts your text in the address as `/?q=text`.
+The Library has a search box labelled "Search name or series…". It filters the shelf when you pause typing and puts your text in the address as `/?q=text`. See [Library](/ui/library/).
 
 ## Switch between light and dark
 
-Codex follows your operating system until you choose. Open the command palette and run **Toggle theme**. Codex saves the choice in your browser, so it applies to every screen and stays after a reload. It is not saved to your account, so another browser starts from its own setting.
+Codex follows your operating system until you choose. Open the command palette and run **Toggle theme**. Codex saves the choice in your browser, so it applies to every screen and stays after a reload. Codex does not save it to your account, so another browser starts from its own setting.
 
 ## Deep links
 
@@ -93,6 +95,7 @@ The address of a Codex screen can point at one place on it. Add the target after
 | `#<source>` on References | Selects a source. |
 | `#new` on References | Starts a new source. |
 | `#book`, `#series`, `#writing`, `#citations`, `#rules`, `#letters`, `#layout`, `#sharing`, `#archive` on Book settings | Scrolls to that section. |
+| `/#series=<id>` | Opens the series screen. |
 | `/?book=new` | Opens the New book dialog on the Library. |
 | `/?import=1` | Opens the Import dialog on the Library. |
 
@@ -104,7 +107,7 @@ An `<entry>` or `<source>` here is the id Codex puts in the address when you cli
 
 If the target is malformed, the book workspace shows **This link doesn't make sense** and says what is wrong. For example, `#scene=abc` gives `Scene "abc" is not a number such as 5.2.` and `#chapter=5.2` gives `Chapter "5.2" is not a number such as 5.`
 
-Click **Open the screen without the link target** to open the same screen with no target. Codex ignores a target it does not know, such as `#colour=red`, and shows no error.
+Click **Open the screen without the link target** to open the same screen with no target. Codex ignores a `name=value` target it does not know, such as `#colour=red`, and shows no error. A bare word it does not know, such as `#colour` on Plan, gives this same page with `"colour" does not mean anything on this screen.`
 
 <Shot name="ui-navigation-bad-link" alt="The error page for a malformed link: This link doesn't make sense, the sentence Scene abc is not a number such as 5.2, and a link that opens the screen without the target." />
 

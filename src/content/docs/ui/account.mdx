@@ -11,7 +11,7 @@ Use these pages to sign in, sign out, set your display name, change your passwor
 
 **Address:** `/login` to sign in, `/account` for your account, `/account/password` to change a one-time password.
 
-<Shot name="ui-account-overview" alt="The Account page with a Profile card, a Password card and an Agent access card with a token form." />
+<Shot name="ui-account-overview" alt="The Account page with Profile, Password, Agent access and Signed-in devices cards." />
 
 ## Sign in
 
@@ -21,7 +21,7 @@ Codex has no sign-up. An administrator adds your account and gives you a one-tim
 2. Enter your email and password.
 3. Click **Sign in**.
 
-Codex opens the Library. If you were sent to the sign-in page from another screen, it takes you back to that screen instead, as long as the address is on your Codex site.
+Codex opens the Library. If Codex sent you to the sign-in page from another screen, it takes you back to that screen instead, as long as the address is on your Codex site.
 
 <Shot name="ui-account-sign-in" alt="The Codex sign-in page with an Email field, a Password field and a Sign in button." />
 
@@ -37,7 +37,7 @@ Ten wrong passwords in a row lock the account for 15 minutes. An administrator c
 
 ### Replace a one-time password
 
-When an administrator adds you or resets your password, you sign in with a one-time password. Until you replace it, every screen sends you to `/account/password`. The page says "You signed in with a one-time password. Choose your own password to continue." Fill in the form described under [Change your password](#change-your-password). Codex then opens the Library.
+When an administrator adds you or resets your password, you sign in with a one-time password. Until you replace it, every screen sends you to `/account/password`. The page says "You signed in with a one-time password. Choose your own password to continue." Fill in the form described under [Change your password](#change-your-password). Enter the one-time password as your **Current password**. Codex then opens the Library.
 
 <Shot name="ui-account-one-time-password" alt="The Change password page with the sentence You signed in with a one-time password. Choose your own password to continue, above the three password fields." />
 
@@ -54,7 +54,7 @@ Your avatar, with your initials, is at the right end of every bar. Click it to o
 
 ## Change your display name
 
-Your email is shown on the Account page and you cannot change it there. To change your display name:
+The Account page shows your email, and you cannot change it there. To change your display name:
 
 1. Open **Account** from the menu.
 2. In **Profile**, edit **Display name**. It can hold up to 100 characters.
@@ -73,7 +73,7 @@ Your name appears on books you share and in the user list.
 
 Codex shows "Password changed. Your other sessions have been signed out." This session stays signed in. Every other browser and device has to sign in again.
 
-If the two new passwords differ, Codex shows "The new passwords do not match." If the first field is wrong, it shows "The current password is not right." The browser refuses a shorter new password before Codex sees it, and the hint under the field reads "At least 10 characters".
+If the two new passwords differ, Codex shows "The new passwords do not match." If the first field is wrong, it shows "The current password is not right." The browser refuses a new password under 10 characters before Codex sees it. The hint under the field reads "At least 10 characters". If the new password is the same as the current one, Codex shows "Choose a new password that differs from the current one."
 
 <Shot name="ui-account-password-mismatch" alt="The Password card with the message The new passwords do not match in red above the Change password button." />
 
@@ -95,7 +95,7 @@ An agent such as Claude Code reaches your books through Codex's MCP server. It s
 
 Codex shows the token once, with a **Copy** button. Under it is a ready-made `claude mcp add` command for Claude Code that includes the token. Copy what you need, then click **Done**. Codex stores only a hash of the token, so it cannot show it again. If you lose it, revoke the token and create a new one.
 
-<Shot name="ui-account-token-created" alt="The new token box after Create token, with the secret, a Copy button, a Done button and the claude mcp add command." />
+<Shot name="ui-account-token-created" alt="The new token box after Create token, with the token, a Copy button, a Done button and the claude mcp add command." />
 
 ### See and revoke tokens
 
