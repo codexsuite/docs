@@ -30,7 +30,7 @@ The worker claims jobs that the app queues in the database. It checks for a new 
 - Proofs, which are the exact-page PDFs from the Layout workspace.
 - Exports: the PDF for the printer, Word, EPUB, Markdown and the source archive.
 
-Each worker runs one export and one proof at a time. A running job records its step and progress in the database. If you stop the worker cleanly, a running job goes back to the queue. If the worker crashes, the job stays marked as running. A polling worker marks it failed once it has run for 10 minutes (proofs) or 45 minutes (exports). The page then shows "The worker stopped before the export finished. Export again to try once more." for an export, or "Re-render to try again" for a proof. Press Export again or Re-render.
+Each worker runs one export and one proof at a time. A running job records its step and progress in the database. If you stop the worker cleanly, a running job goes back to the queue. If the worker crashes, the job stays marked as running. A polling worker marks it failed once it has run for 10 minutes (proofs) or 45 minutes (exports). The page then shows "The worker stopped before the export finished. Export again to try once more." for an export, or "The worker stopped before the proof finished. Re-render to try again." for a proof. For a PDF for the printer, press "Export again with these settings" on the failed export. For any other export, start it again. For a proof, press Re-render.
 
 The asset worker, which makes the resized copies of uploaded images, runs in both containers, so uploads do not wait for the worker container.
 

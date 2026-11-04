@@ -5,11 +5,15 @@ sidebar:
   order: 4
 ---
 
+import { Code } from "@astrojs/starlight/components";
 import caddyfile from "../../../../examples/caddy/Caddyfile?raw";
 import caddyCompose from "../../../../examples/caddy/docker-compose.yml?raw";
 import { codexImage, workerImage } from "../../../config/site";
 
-This page takes the [quick start](/start/quickstart/) install and prepares it for long-term use. You add TLS, back up the three places Codex stores data, pin an image version and size the host for print runs.
+export const envPins = `CODEX_IMAGE=${codexImage}:<full commit SHA>
+CODEX_WORKER_IMAGE=${workerImage}:<full commit SHA>`;
+
+This page takes the [quick start](/start/quickstart/) install. You add TLS, back up the three places Codex stores data, pin an image version and size the host for print runs.
 
 ## Add TLS with Caddy
 
@@ -32,13 +36,9 @@ From now on, every `docker compose` command that starts or recreates containers 
 
 The files are in the docs repository: [Caddyfile](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) and [docker-compose.yml](https://github.com/codexsuite/docs/blob/main/examples/caddy/docker-compose.yml).
 
-```txt title="caddy/Caddyfile"
-{caddyfile}
-```
+<Code code={caddyfile} lang="txt" title="caddy/Caddyfile" />
 
-```yaml title="caddy/docker-compose.yml"
-{caddyCompose}
-```
+<Code code={caddyCompose} lang="yaml" title="caddy/docker-compose.yml" />
 
 Caddy sets these headers itself and ignores any copy a client sends. The `header_up` lines state them so the file shows what Codex needs. Caddy logs an "Unnecessary header_up" warning for each of the two lines when it validates the file. Expect those warnings. For Caddy's own options, see its [reverse_proxy reference](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy). Another proxy works if it sends the same two headers.
 
@@ -69,7 +69,7 @@ docker run --rm -v <project>_codex-blobs:/data:ro -v "$PWD":/backup alpine tar -
 docker run --rm -v <project>_codex-keys:/data:ro -v "$PWD":/backup alpine tar -czf /backup/codex-keys.tgz -C /data .
 ```
 
-To restore, put the three stores back in this order. The database restore needs Postgres running, and Codex and the worker must be stopped while you do it.
+To restore, put the three stores back in this order. The database restore needs Postgres running. Stop Codex and the worker while you do it.
 
 1. Create the containers and volumes without starting them, then start only Postgres. On a host that already runs Codex, run `docker compose stop codex worker` instead.
 
@@ -113,10 +113,7 @@ The images have two tags, `latest` and the full commit SHA of the build. `latest
 2. Pick a build. Ask the running app for its commit. `curl https://codex.example.com/health` returns a version such as `1.0.0+35618f3...`, and the part after the plus sign is the commit. Tags on [the app image page](https://github.com/codexsuite/codex/pkgs/container/codex) list the builds.
 3. Set the same SHA for both images in `.env`. The names below come from the images the quick start pulls.
 
-```sh
-CODEX_IMAGE={codexImage}:<full commit SHA>
-CODEX_WORKER_IMAGE={workerImage}:<full commit SHA>
-```
+<Code code={envPins} lang="sh" title=".env" />
 
 4. Pull and recreate. These commands include the Caddy file. If you did not add Caddy, leave out the second `-f` option.
 
@@ -127,11 +124,11 @@ docker compose -f docker-compose.yml -f caddy/docker-compose.yml up -d
 
 Use the same SHA for the app and the worker, because they share one database schema and one set of job rules. The web service applies database migrations when it starts, and the worker does not (`CODEX_DB_MIGRATE=false`). After an upgrade the worker can start before the web service has finished migrating. Its job loop logs the error and tries again every 2 seconds, so it recovers by itself once the schema is current.
 
-To go back, set the older SHAs and run the same two commands from step 4. Migrations are not reversed, so restore the database backup from before the upgrade when the newer version changed the schema.
+To go back, set the older SHAs and run the same two commands from step 4. Codex does not reverse migrations, so restore the database backup from before the upgrade when the newer version changed the schema.
 
 ## Run more than one web host
 
-Run one `codex` service. Live updates between processes go through a Postgres notification bridge. The product documents that bridge for one case: the worker's job progress reaching the web host. It does not describe web host to web host, so nothing here promises that several web hosts show each other's changes. Blob storage is also one folder on one disk, so extra web hosts would need a shared disk.
+Run one `codex` service. Live updates between processes go through a Postgres notification bridge. The product documents that bridge for events that other processes send to the web host, such as the worker's job progress. It does not describe web host to web host, so nothing here promises that several web hosts show each other's changes. Blob storage is also one folder on one disk, so extra web hosts would need a shared disk.
 
 ## Size the host
 

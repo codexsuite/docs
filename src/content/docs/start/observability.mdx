@@ -5,7 +5,7 @@ sidebar:
   order: 9
 ---
 
-Out of the box, Codex writes logs to the console of each container and sends nothing anywhere else. This page covers reading those logs, sending them to Seq, and sending traces, metrics and logs to an OpenTelemetry collector.
+By default, Codex writes logs to the console of each container and sends nothing anywhere else. This page covers reading those logs, sending them to Seq, and sending traces, metrics and logs to an OpenTelemetry collector.
 
 ## Read the logs
 
@@ -62,13 +62,13 @@ Codex exports all three signals over OpenTelemetry when `OTEL_EXPORTER_OTLP_ENDP
 
 Every signal carries `service.name`, `service.version` (the build, as `/health` reports it) and `service.instance.id`, which changes on every restart.
 
-Exporting runs in batches off the request path. If the collector is down, Codex drops the telemetry it could not send. Requests are not affected.
+Exporting runs in batches off the request path. If the collector is down, Codex drops the telemetry it could not send. Requests do not wait for the export.
 
 Do not set `CODEX_SEQ_URL` on a host whose collector forwards to Seq. Codex posts to Seq directly as well, so every record would arrive twice.
 
 ### Traces
 
-- Each request to `/api` and `/mcp` gets one server span, named by route template such as `GET /api/books/{id:guid}`. The path and query string are not recorded.
+- Each request to `/api` and `/mcp` gets one server span, named by route template such as `GET /api/books/{id:guid}`. Codex does not record the path or query string.
 - Each database command gets a child span with its SQL text and no parameter values.
 - Each outgoing call, such as one to your AI provider, gets a span with the scheme, host and path of the URL only.
 - MCP tool calls get `mcp.tool_call` spans, and export, proof and asset rendition jobs get `job.*` spans.
@@ -93,7 +93,7 @@ Logs go to the collector as well as to the console and Seq. A record written dur
 
 ## What spans and metrics leave out
 
-Span attributes and metric tags hold no email addresses, names, user IDs, tokens, passwords, AI keys, query strings, SQL parameter values or manuscript text. Metric tags are a tool name, a job kind and an outcome. Log lines are not covered by this rule. For example, Codex logs the admin email at warning level at first boot, and the logs reach the console, Seq and the collector.
+Span attributes and metric tags hold no email addresses, names, user IDs, tokens, passwords, AI keys, query strings, SQL parameter values or manuscript text. Metric tags are a tool name, a job kind and an outcome. This rule does not cover log lines. For example, Codex logs the admin email at warning level at first boot, and the logs reach the console, Seq and the collector.
 
 ## Next steps
 
