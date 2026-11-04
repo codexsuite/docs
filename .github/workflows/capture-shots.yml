@@ -1,0 +1,15 @@
+name: Capture shots
+
+# Placeholder. GitHub lists a dispatchable workflow only when the file is on the
+# default branch. TODO: the capture runner replaces this file on the feature branch.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Capture runs from the feature branch."
