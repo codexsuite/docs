@@ -155,6 +155,7 @@ async function main(): Promise<void> {
     await checkReferences(session, seed.bookIds.saltAndSignal, seed);
     await restoreFixtures(session, seed);
     await checkReferences(session, seed.bookIds.saltAndSignal, seed);
+    await checkReferences(session, seed.bookIds.saltAndSignal, seed);
   }
   console.log(`PASS ${part}`);
 }
