@@ -5,4 +5,100 @@ sidebar:
   order: 3
 ---
 
-{/* STUB */}
+import { Aside, Code, Steps } from "@astrojs/starlight/components";
+import Shot from "../../../components/Shot.astro";
+import compose from "../../../../examples/quickstart/docker-compose.yml?raw";
+import envExample from "../../../../examples/quickstart/.env.example?raw";
+import { docsRepo } from "../../../config/site";
+
+export const base = `${docsRepo}/raw/main/examples/quickstart`;
+export const download = `curl -LO ${base}/docker-compose.yml\ncurl -L ${base}/.env.example -o .env`;
+
+This page takes you from an empty folder to a signed-in admin. It uses the published images and a standalone Compose file with the app, the worker and Postgres 18.
+
+<Aside type="caution" title="Check your kernel before you print">
+  Printing needs Landlock ABI 4, which arrived in Linux 6.7. Everything else runs on an older kernel. Run the one-line check in [Requirements](/start/requirements/) first, so a PDF export does not fail later.
+</Aside>
+
+## Start Codex
+
+<Steps>
+
+1. Make a folder and download the two files into it.
+
+   <Code code={download} lang="sh" title="Terminal" />
+
+   The first file is the Compose file. The second becomes your `.env`.
+
+2. Open `.env` and set three values.
+
+   - `POSTGRES_PASSWORD` is the database password. Use letters and digits only, because it goes into a connection string.
+   - `CODEX_ADMIN_EMAIL` is the email you will sign in with.
+   - `CODEX_ADMIN_PASSWORD` is your password. It needs at least 10 characters.
+
+   Compose refuses to start if any of the three is empty.
+
+3. Start the stack.
+
+   <Code code="docker compose up -d" lang="sh" title="Terminal" />
+
+   Compose pulls the images, starts Postgres, and then starts the app and the worker. The app applies the database migrations when it starts.
+
+4. Check that the app is up.
+
+   <Code code="curl http://localhost:8080/health" lang="sh" title="Terminal" />
+
+   The answer is JSON with `status` set to `ok` and a `version` that names the commit you are running.
+
+5. Open `http://localhost:8080` and sign in with the email and password from `.env`.
+
+</Steps>
+
+<Shot name="start-quickstart-sign-in" alt="The Codex sign-in page with an email field, a password field and a Sign in button." />
+
+Codex has no sign-up. The first start creates your admin from the two `CODEX_ADMIN_` values, and you add everyone else from [User management](/ui/users/).
+
+After you sign in, Codex opens the Library.
+
+<Shot name="start-quickstart-library" alt="The Library after the first sign-in, with the New book button at the top." />
+
+## Remove the admin values
+
+You only need the two admin values for the first start. When you have signed in, remove them.
+
+1. Delete the `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` lines from the `codex` service in `docker-compose.yml`.
+2. Delete the same two lines from `.env`. If you only blank them, Compose stops with the message "Set CODEX_ADMIN_EMAIL in .env".
+3. Run `docker compose up -d` again. Compose recreates the app container without them.
+
+Your admin stays. A user who already has a password is never changed by these variables.
+
+## If the sign-in fails
+
+Codex gives one answer to every failed sign-in, whatever the cause.
+
+<Shot name="start-quickstart-refused" alt="The sign-in page showing the message: Incorrect email or password, or the account is locked for now." />
+
+The message is "Incorrect email or password, or the account is locked for now." You see the same message before the first admin exists. This happens if you set only one of the two admin values, because both must be set for either to take effect. Check both values in `.env`, run `docker compose up -d` again, and sign in once more.
+
+Ten wrong passwords in a row lock the account for 15 minutes.
+
+## The files
+
+Both files are in the [docs repository](https://github.com/codexsuite/docs/tree/main/examples/quickstart). The page below shows them as they are, so what you read matches what you download.
+
+### docker-compose.yml
+
+<Code code={compose} lang="yaml" title="docker-compose.yml" />
+
+### .env
+
+<Code code={envExample} lang="sh" title=".env" />
+
+The Compose file reads the image names from `CODEX_IMAGE` and `CODEX_WORKER_IMAGE` and defaults both to `latest`. The images have only the `latest` tag and one tag per commit, so a production install pins a commit tag. See [Install for production](/start/production/).
+
+The app listens on port 8080 over plain HTTP on every network interface. Postgres listens on 127.0.0.1 only.
+
+## Next
+
+- [Write your first book](/start/guides/first-book/).
+- [Put Codex behind TLS](/start/production/).
