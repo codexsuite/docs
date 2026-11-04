@@ -7,14 +7,15 @@
  * Use `pnpm shots:ci` to capture in hosted CI instead.
  */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { chromium, type Browser } from "playwright";
 import sharp from "sharp";
 import { signInFromFile } from "../lib/api.ts";
 import { down, up } from "../lib/stack.ts";
+import { alwaysMasked, textHash } from "./compare.ts";
 import { restoreFixtures, seedDemo } from "./seed.ts";
+import { signInViewer } from "./viewer.ts";
 import type { AdminSession, SeedResult, ShotSpec } from "./types.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -25,7 +26,7 @@ export const themes = ["light", "dark"] as const;
 export type Theme = (typeof themes)[number];
 export const maxBytes = 150 * 1024;
 export const viewport = { width: 1440, height: 900 };
-/** The clock every page sees. */
+/** The browser clock. The server renders its own dates from the real clock, so the comparison masks them. */
 const fixedTime = new Date("2026-01-15T10:00:00Z");
 
 export interface Options {
@@ -61,7 +62,7 @@ export async function encodeWebp(png: Buffer, name: string): Promise<Buffer> {
   throw new Error(`${name} stays over ${maxBytes / 1024} KB even at quality 40.`);
 }
 
-/** Throws when the text contains one of the secrets. Names the shot, never the secret. */
+/** Throws when the text contains one of the secrets. It never prints the secret. */
 export function assertNoSecrets(text: string, secrets: string[]): void {
   for (const secret of secrets) {
     if (secret.length >= 8 && text.includes(secret)) throw new Error("The capture log contains a credential. Remove the line that printed it.");
@@ -72,14 +73,15 @@ export function specFiles(): string[] {
   return readdirSync(specsDir).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts")).sort();
 }
 
-/** Loads the specs of one page, or of every page, and checks names against all specs. */
+/** Loads the specs of one page, or of every page, and checks names across the loaded files. */
 export async function loadSpecs(page: string): Promise<ShotSpec[]> {
   const files = specFiles();
   const wanted = page === "all" ? files.filter((f) => !f.startsWith("_")) : [`${page}.ts`];
   if (page !== "all" && !files.includes(wanted[0]!)) throw new Error(`No spec for page "${page}": scripts/shots/specs/${page}.ts does not exist.`);
   const seen = new Map<string, string>();
   const chosen: ShotSpec[] = [];
-  for (const file of files) {
+  // One page imports only its own file, so another page's mistake cannot fail this run. `pnpm test` checks every file.
+  for (const file of page === "all" ? files : wanted) {
     const key = file.replace(/\.ts$/, "");
     const mod = (await import(pathToFileURL(join(specsDir, file)).href)) as { shots?: ShotSpec[] };
     if (!Array.isArray(mod.shots)) throw new Error(`${file} does not export "shots".`);
@@ -108,14 +110,16 @@ function log(message: string): void {
 
 interface Captured {
   webp: Buffer;
+  /** Hash of the page text with times and secrets masked. */
   textHash: string;
   width: number;
   height: number;
 }
 
 /** One capture: a fresh browser context with the signed-in session copied in. */
-async function capture(browser: Browser, session: AdminSession, seed: SeedResult, spec: ShotSpec, theme: Theme): Promise<Captured> {
+async function capture(browser: Browser, baseUrl: string, cookie: string, seed: SeedResult, spec: ShotSpec, theme: Theme): Promise<Captured> {
   const context = await browser.newContext({
+    baseURL: baseUrl,
     viewport,
     locale: "en-US",
     timezoneId: "UTC",
@@ -125,16 +129,16 @@ async function capture(browser: Browser, session: AdminSession, seed: SeedResult
   });
   try {
     await context.addCookies(
-      session.cookie.split("; ").map((pair) => {
+      cookie.split("; ").map((pair) => {
         const i = pair.indexOf("=");
-        return { name: pair.slice(0, i), value: pair.slice(i + 1), url: session.baseUrl };
+        return { name: pair.slice(0, i), value: pair.slice(i + 1), url: baseUrl };
       }),
     );
     await context.addInitScript((t) => window.localStorage.setItem("codex.theme", t), theme);
     const page = await context.newPage();
     await page.clock.setFixedTime(fixedTime);
     const route = typeof spec.route === "function" ? spec.route(seed) : spec.route;
-    await page.goto(`${session.baseUrl}${route}`);
+    await page.goto(route);
     await page.addStyleTag({
       content: "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
     });
@@ -143,11 +147,15 @@ async function capture(browser: Browser, session: AdminSession, seed: SeedResult
     await page.evaluate(() => document.fonts.ready);
     const shown = await page.evaluate(() => document.documentElement.dataset.theme);
     if (shown !== theme) throw new Error(`Shot "${spec.name}" showed theme "${shown}" instead of "${theme}".`);
-    const text = await page.evaluate(() => document.body.innerText);
+    const selectors = [...alwaysMasked, ...(spec.mask ?? [])];
+    const { text, hidden } = await page.evaluate((masked) => {
+      const parts = [...document.querySelectorAll(["time", ...masked].join(","))].map((el) => (el as HTMLElement).innerText ?? el.textContent ?? "");
+      return { text: document.body.innerText, hidden: parts };
+    }, selectors);
     const png = await page.screenshot({ clip: spec.clip, animations: "disabled", caret: "hide" });
     const webp = await encodeWebp(png, `${spec.name}-${theme}`);
     const meta = await sharp(webp).metadata();
-    return { webp, textHash: createHash("sha256").update(text).digest("hex"), width: meta.width ?? 0, height: meta.height ?? 0 };
+    return { webp, textHash: textHash(text, hidden), width: meta.width ?? 0, height: meta.height ?? 0 };
   } finally {
     await context.close();
   }
@@ -170,28 +178,41 @@ export async function main(argv: string[]): Promise<void> {
   }
   const started = Date.now();
   try {
+    const credentials = JSON.parse(readFileSync(credentialsFile, "utf8")) as { adminPassword: string };
     // Sign in once. Every capture copies this session into a fresh context.
     const session = await signInFromFile(baseUrl, credentialsFile);
     const seed = await seedDemo(session);
+    const secrets = [session.cookie, credentials.adminPassword];
+    let viewerCookie: string | undefined;
     log(`Seeded the demo in ${((Date.now() - started) / 1000).toFixed(1)} s.`);
+    if (shots.some((s) => s.as === "viewer")) {
+      const viewer = await signInViewer(session, seed.viewer.id);
+      viewerCookie = viewer.cookie;
+      secrets.push(...viewer.secrets);
+      log("Signed in as the viewer.");
+    }
     const browser = await chromium.launch();
     try {
       for (const spec of shots) {
         const hashes: string[] = [];
         for (const theme of themes) {
           await restoreFixtures(session, seed);
-          const shot = await capture(browser, session, seed, spec, theme);
+          let shot: Captured;
+          try {
+            shot = await capture(browser, baseUrl, spec.as === "viewer" ? viewerCookie! : session.cookie, seed, spec, theme);
+          } catch (error) {
+            throw new Error(`Shot "${spec.name}" (${theme}) failed: ${error instanceof Error ? error.message : "unknown error"}`);
+          }
           hashes.push(shot.textHash);
           writeFileSync(join(options.out, `${spec.name}-${theme}.webp`), shot.webp);
           log(`${spec.name}-${theme}.webp ${shot.width}x${shot.height} ${(shot.webp.length / 1024).toFixed(1)} KB`);
         }
-        if (hashes[0] !== hashes[1]) throw new Error(`Shot "${spec.name}" shows different text in light and dark. The fixtures were not restored.`);
+        if (hashes[0] !== hashes[1]) throw new Error(`Shot "${spec.name}" shows different text in light and dark after masking times and secrets. Mask the region that varies with "mask", or check that the step leaves the same state in both themes.`);
       }
     } finally {
       await browser.close();
     }
-    const credentials = JSON.parse(readFileSync(credentialsFile, "utf8")) as { adminPassword: string };
-    assertNoSecrets(logLines.join("\n"), [session.cookie, credentials.adminPassword]);
+    assertNoSecrets(logLines.join("\n"), secrets);
     log(`Captured ${shots.length} shot(s) in both themes in ${((Date.now() - started) / 1000).toFixed(1)} s.`);
   } finally {
     if (!options.noStack) down();
