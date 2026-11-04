@@ -1,4 +1,4 @@
-import type { Page } from "playwright";
+import type { Locator, Page } from "playwright";
 import type { SeedResult, ShotSpec } from "../types.ts";
 
 /** Working with Codex: clearing quotes and citing. Salt and Signal has the Signals at Sea quote in scene 2.1, over the limit. */
@@ -12,6 +12,8 @@ const sentMask = [
   "[data-testid='refs-perm-remind-label']",
   "[data-testid='refs-perm-followed-up-label']",
 ];
+const quoteStart = "A signal station is judged by what it does";
+const quoteEnd = "in the survey's phrase, no memory.";
 const citedSentence = "The crates came off the train at Harrowmouth on a Tuesday.";
 
 /** Opens the Signals at Sea panel and waits for its verdict. */
@@ -60,30 +62,57 @@ async function makeOverdue(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("refs-row-reminder").first().waitFor();
 }
 
-/** Selects the sentence in scene 1.2, opens the slash menu over it and waits for the Source reference item. */
-async function selectAndOpenMenu(page: Page, ctx: SeedResult): Promise<void> {
-  await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=1.2`);
-  const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).getByTestId("prose-editor");
+/** Selects the text from the start of `first` to the end of `last` in a scene's editor, and returns the editor. */
+async function selectRange(page: Page, ctx: SeedResult, scene: string, first: string, last: string) {
+  await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=${scene}`);
+  const editor = page.getByTestId(`write-scene-${ctx.sceneIds[scene]}`).getByTestId("prose-editor");
   await editor.waitFor();
   await editor.click({ position: { x: 12, y: 8 } });
-  await editor.evaluate((element, wanted) => {
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    const nodes: { node: Node; start: number }[] = [];
-    let text = "";
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      nodes.push({ node, start: text.length });
-      text += node.textContent ?? "";
-    }
-    const at = text.indexOf(wanted);
-    if (at < 0) throw new Error("The sentence is not in the scene.");
-    const end = at + wanted.length;
-    const from = nodes.filter((n) => n.start <= at).pop()!;
-    const to = nodes.find((n) => end <= n.start + (n.node.textContent ?? "").length)!;
-    window.getSelection()!.setBaseAndExtent(from.node, at - from.start, to.node, end - to.start);
-    document.dispatchEvent(new Event("selectionchange"));
-  }, citedSentence);
+  await selectInEditor(editor, first, last);
+  return editor;
+}
+
+/** Selects the text from the start of `first` to the end of `last` in an already open editor. */
+async function selectInEditor(editor: Locator, first: string, last: string): Promise<void> {
+  await editor.evaluate(
+    (element, [startText, endText]) => {
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      const nodes: { node: Node; start: number }[] = [];
+      let text = "";
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        nodes.push({ node, start: text.length });
+        text += node.textContent ?? "";
+      }
+      const at = text.indexOf(startText);
+      const lastAt = text.indexOf(endText, Math.max(at, 0));
+      if (at < 0 || lastAt < 0) throw new Error("The text is not in the scene.");
+      const end = lastAt + endText.length;
+      const from = nodes.filter((n) => n.start <= at).pop()!;
+      const to = nodes.find((n) => end <= n.start + (n.node.textContent ?? "").length)!;
+      window.getSelection()!.setBaseAndExtent(from.node, at - from.start, to.node, end - to.start);
+      document.dispatchEvent(new Event("selectionchange"));
+    },
+    [first, last],
+  );
+}
+
+/** Selects the sentence in scene 1.2, opens the slash menu over it and waits for the Source reference item. */
+async function selectAndOpenMenu(page: Page, ctx: SeedResult): Promise<void> {
+  await selectRange(page, ctx, "1.2", citedSentence, citedSentence);
   await page.keyboard.type("/source");
   await page.getByTestId("prose-slash-item-source-reference").waitFor();
+}
+
+/** Withdraws the draft, asks for the paraphrase beat and generates its draft. Returns the beat id. */
+async function paraphraseDraft(page: Page, ctx: SeedResult): Promise<string> {
+  await withdrawDraft(page, ctx);
+  await page.getByTestId("refs-verdict-paraphrase").click();
+  const beat = page.locator("[data-testid^='write-beat-body-']").filter({ hasText: "Paraphrase the passage quoted from Signals at Sea" });
+  await beat.waitFor();
+  const beatId = (await beat.first().getAttribute("data-testid"))!.replace("write-beat-body-", "");
+  await page.getByTestId(`write-beat-generate-${beatId}`).click();
+  await page.getByTestId(`write-draft-apply-${beatId}`).waitFor();
+  return beatId;
 }
 
 export const shots: ShotSpec[] = [
@@ -186,13 +215,43 @@ export const shots: ShotSpec[] = [
     name: "work-clearing-paraphrase",
     route: sourceRoute,
     steps: async (page, ctx) => {
-      await withdrawDraft(page, ctx);
-      await page.getByTestId("refs-verdict-paraphrase").click();
-      const beat = page.locator("[data-testid^='write-beat-body-']").filter({ hasText: "Paraphrase the passage quoted from Signals at Sea" });
-      await beat.waitFor();
-      const beatId = (await beat.first().getAttribute("data-testid"))!.replace("write-beat-body-", "");
-      await page.getByTestId(`write-beat-generate-${beatId}`).click();
-      await page.locator("[data-testid^='write-draft-apply-']").first().waitFor();
+      await paraphraseDraft(page, ctx);
+    },
+  },
+  {
+    name: "work-clearing-paraphrased",
+    route: sourceRoute,
+    steps: async (page, ctx) => {
+      const beatId = await paraphraseDraft(page, ctx);
+      const draft = await page.getByTestId(`write-draft-text-${beatId}`).innerText();
+      const newText = draft.split(/\n+/).map((line) => line.trim()).filter(Boolean)[0]!;
+      await page.getByTestId(`write-draft-apply-${beatId}`).click();
+      await page.getByTestId(`write-draft-apply-${beatId}`).waitFor({ state: "detached" });
+      await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
+      await page.getByTestId(`write-marker-${ctx.useIds["signalsQuote"]}`).click();
+      await page.getByTestId("write-cite-remove").click();
+      await page.getByTestId(`write-marker-${ctx.useIds["signalsQuote"]}`).waitFor({ state: "detached" });
+      const editor = page.getByTestId(`write-scene-${ctx.sceneIds["2.1"]}`).getByTestId("prose-editor");
+      await editor.click({ position: { x: 12, y: 8 } });
+      await selectInEditor(editor, quoteStart, quoteEnd);
+      await page.keyboard.press("Backspace");
+      await selectInEditor(editor, newText, newText);
+      await page.keyboard.type("/source");
+      await page.getByTestId("prose-slash-item-source-reference").click();
+      await page.getByTestId(`write-cite-option-${ctx.sourceIds[signals]}`).click();
+      await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
+      await page.goto(sourceRoute(ctx));
+      await page.getByTestId("refs-verdict-reason").filter({ hasText: "Ready to sign off" }).waitFor();
+    },
+  },
+  {
+    name: "work-clearing-snoozed",
+    route: sourceRoute,
+    mask: sentMask,
+    steps: async (page, ctx) => {
+      await makeOverdue(page, ctx);
+      await page.getByTestId("refs-perm-remind-in-3").click();
+      await page.getByTestId("refs-reminders-chip").waitFor({ state: "detached" });
     },
   },
   {
