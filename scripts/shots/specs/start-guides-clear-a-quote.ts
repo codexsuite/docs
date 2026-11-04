@@ -61,7 +61,7 @@ export const shots: ShotSpec[] = [
     route: sourceRoute,
     steps: async (page, ctx) => {
       await openSource(page, ctx);
-      await page.getByTestId("refs-verdict-reason").getByText("Quoted prose", { exact: false }).waitFor();
+      await page.getByTestId("refs-verdict-reason").filter({ hasText: "Quoted prose" }).waitFor();
     },
   },
   {
