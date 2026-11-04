@@ -19,7 +19,7 @@ The book has one copyright risk, the quote from *Signals at Sea*. It blocks the 
 2. Choose a template in the second list. This book uses Novel (6 x 9).
 3. Choose a trim size in the list beside it.
 
-The Template tab on the right lists the options of the template, such as a drop cap on each chapter's first paragraph and a table of contents. Each one is Off or On. The Quick preview on the left redraws as you change them. It runs in your browser, so its line breaks can differ from the proof. Its status line reads `Quick · live`.
+The Template tab on the right lists the options of the template, such as a drop cap on each chapter's first paragraph and a table of contents. In Novel (6 x 9) each one is Off or On. Other templates also offer named choices, such as Typeface in Manuscript. The Quick preview on the left redraws as you change them. It runs in your browser, so its line breaks can differ from the proof. Its status line reads `Quick · live`.
 
 ## Proof a chapter
 
@@ -37,7 +37,7 @@ Download saves the proof as a PDF. Re-render makes it again. If you edit the cha
 
 Preflight lists what will go wrong in print. Select the Preflight tab. Issues are in three groups: Blocks export, Warnings and Notes. Each row names the problem and links to the place that fixes it, either Open in Write or Open in References.
 
-Here one issue blocks the export: `Signals at Sea: copyright risk (permission drafted)`. The words in brackets give the reason, and they change as the request moves. With no request, the row reads `copyright risk (quote over limit)`. Select Open in References and clear the quote. Other blocks include a missing image. Warnings include a figure below the target dpi of the image quality, an unknown directive, raw LaTeX the template skips, and a missing Knowledge base entry or reference.
+Here one issue blocks the export: `Signals at Sea: copyright risk (permission drafted)`. The words in brackets give the reason, and they change with the state of the request. With no request, the row reads `copyright risk (quote over limit)`. Select Open in References and clear the quote. Other blocks include a missing image. Warnings include a figure below the target dpi of the image quality, an unknown directive, raw LaTeX the template skips, and a missing Knowledge base entry or reference.
 
 <Shot name="start-guides-export-pdf-preflight" alt="The Preflight tab reading 1 issue blocks export, with the row Signals at Sea: copyright risk (permission drafted) and a link Open in References." />
 
@@ -53,7 +53,7 @@ If a risk blocks the book, the line reads `1 issue blocks export` and Queue expo
 
 <Shot name="start-guides-export-pdf-blocked" alt="The Export for printer dialog with the line 1 issue blocks export, the Signals at Sea row, and the checkbox Export a draft with DRAFT across every page." />
 
-Once you clear the risk, the line reads `Ready to export` and shows an estimated size, such as `About 1 MB`. Select Queue export.
+Once you clear the quote, the line reads `Ready to export` and shows an estimated size, such as `About 1 MB`. Select Queue export.
 
 <Shot name="start-guides-export-pdf-ready" alt="The Export for printer dialog with a 0.125 in bleed and Print 300 dpi chosen, reading Ready to export, and an enabled Queue export button." />
 
@@ -61,7 +61,7 @@ Once you clear the risk, the line reads `Ready to export` and shows an estimated
 
 The Exports tab opens when you queue the job. The worker picks it up within a few seconds. The row shows the step and a percentage while it runs, and a Cancel button. When it finishes, a message reads `Print finished.` and the row reads `Done`, with the page count and the file size.
 
-Select Download to save the PDF. Export again with these settings queues another job with the same bleed and quality. Log shows the output of the render, which helps when a job shows `Failed`.
+Select Download to save the PDF. Export again with these settings opens the Export for printer dialog with the same bleed, crop marks, image quality and draft setting. Select Queue export to start the job. Log shows the output of the render, which helps when a job shows `Failed`.
 
 <Shot name="start-guides-export-pdf-queued" alt="The Exports tab with one export, Done, 19 pages, 44 KB, with the buttons Download, Export again with these settings and Log." />
 
