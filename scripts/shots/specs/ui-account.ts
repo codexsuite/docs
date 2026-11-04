@@ -31,6 +31,21 @@ export const shots: ShotSpec[] = [
     },
   },
   {
+    name: "ui-account-one-time-password",
+    route: "/account",
+    steps: async (page, ctx) => {
+      const response = await page.request.post(`/api/admin/users/${ctx.viewer.id}/reset-password`, { data: {} });
+      if (!response.ok()) throw new Error(`reset-password answered ${response.status()}.`);
+      const { oneTimePassword } = (await response.json()) as { oneTimePassword: string };
+      await page.context().clearCookies();
+      await page.goto("/login");
+      await page.getByTestId("auth-login-email").fill(viewerUser.email);
+      await page.getByTestId("auth-login-password").fill(oneTimePassword);
+      await page.getByTestId("auth-login-submit").click();
+      await page.getByTestId("auth-password-must-change").waitFor();
+    },
+  },
+  {
     name: "ui-account-user-menu",
     route: "/",
     steps: async (page) => {

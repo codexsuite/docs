@@ -39,6 +39,8 @@ Ten wrong passwords in a row lock the account for 15 minutes. An administrator c
 
 When an administrator adds you or resets your password, you sign in with a one-time password. Until you replace it, every screen sends you to `/account/password`. The page says "You signed in with a one-time password. Choose your own password to continue." Fill in the form described under [Change your password](#change-your-password). Codex then opens the Library.
 
+<Shot name="ui-account-one-time-password" alt="The Change password page with the sentence You signed in with a one-time password. Choose your own password to continue, above the three password fields." />
+
 ## The account menu
 
 Your avatar, with your initials, is at the right end of every bar. Click it to open the menu. The menu shows your name and email, then:
@@ -71,17 +73,17 @@ Your name appears on books you share and in the user list.
 
 Codex shows "Password changed. Your other sessions have been signed out." This session stays signed in. Every other browser and device has to sign in again.
 
-If the two new passwords differ, Codex shows "The new passwords do not match." If the first field is wrong, it shows "The current password is not right." A short new password gives "The new password needs at least 10 characters."
+If the two new passwords differ, Codex shows "The new passwords do not match." If the first field is wrong, it shows "The current password is not right." The browser refuses a shorter new password before Codex sees it, and the hint under the field reads "At least 10 characters".
 
 <Shot name="ui-account-password-mismatch" alt="The Password card with the message The new passwords do not match in red above the Change password button." />
 
 ## Agent access
 
-An agent such as Claude Code reaches your books through Codex's MCP server. It signs in with a personal access token. A token acts as you, with only the access you give it. This card creates and revokes tokens.
+An agent such as Claude Code reaches your books through Codex's MCP server. It signs in with a personal access token. A token acts as you, with only the access you give it. Use this card to create and revoke tokens.
 
 ### Create a token
 
-1. In **Agent access**, enter a **Name** that tells you where the token will be used, such as "Claude Code on the desktop".
+1. In **Agent access**, enter a **Name** that tells you where you will use the token, such as "Claude Code on the desktop".
 2. Under **Can**, tick what the agent may do. **Read your books** is always on. The other three choices are:
    - **Edit outlines, prose and the Knowledge base**
    - **Change sources, uses and permission letters**
