@@ -37,18 +37,18 @@ To pick up a book where you stopped, ask for `resume_work`. It returns the scene
 
 ## Drafts stay pending until you decide
 
-An agent can start a draft with `draft_prose`, or hand in text it wrote with `submit_draft`. Either one lands in the same Apply, Retry and Discard panel you see in Write. The scene 1.2 draft below is one of those.
+An agent can start a draft with `draft_prose`, or hand in text it wrote with `submit_draft`. Either one lands in the same Apply, Retry and Discard panel you see in Write. The shot below shows that panel on the pending draft for scene 1.2.
 
 <Shot name="work-agents-draft" alt="Scene 1.2 of Salt and Signal in Write with a pending AI draft and the buttons Apply, Retry and Discard." />
 
-`draft_prose` never applies the draft. The agent applies or discards it with `resolve_draft`, which needs the scene's current version, so a draft cannot overwrite text you changed in the meantime. Both can be undone. If you want to read every draft first, tell the agent to stop at the pending draft. See [Drafting](/work/drafting/#apply-retry-or-discard-a-draft).
+`draft_prose` never applies the draft. The agent applies or discards it with `resolve_draft`. To apply, `resolve_draft` needs the scene's current version, and a stale version fails with `conflict`, so a draft cannot overwrite text you changed in the meantime. An undo can reverse an apply or a discard. If you want to read every draft first, tell the agent to stop at the pending draft. See [Drafting](/work/drafting/#apply-retry-or-discard-a-draft).
 
 ## Decisions that stay with you
 
-An agent cannot make these calls. Codex refuses them or leaves them to the screen.
+An agent cannot make these decisions. Codex refuses the tool call, or has no tool for the step.
 
-- **Sign off a source.** `record_clearance_decision` with `sign_off` fails with `blocked`, and nothing is written. The error carries the summary of uses and words and a link to References, where you select Mark as cleared. The Keeper's Ledger below is ready for that step.
-- **Accept fair use.** It fails the same way. The reason you give is stored with your decision.
+- **Sign off a source.** `record_clearance_decision` with `sign_off` fails with `blocked` and writes nothing. The error carries the summary of uses and words and a link to References, where you select Mark as cleared. The Keeper's Ledger below is ready for that step.
+- **Accept fair use.** It fails the same way, and Codex does not keep the reason the agent sends. In References, you type the reason in the fair use form, and the source keeps it.
 - **Record a granted permission.** `manage_permission` with `record_grant` needs the signed letter as a file, so it returns `blocked` with the link to References.
 - **Send the letter.** Codex does not send mail. The agent drafts the letter, you send it, and the agent then records `mark_sent`.
 
@@ -56,7 +56,7 @@ An agent cannot make these calls. Codex refuses them or leaves them to the scree
 
 An agent can take your decision back. `record_clearance_decision` with `reopen` removes a sign-off, and `not_a_quote` dismisses an unflagged quote. An undo cannot restore either.
 
-Sharing is also yours. There are no sharing tools. Moving a book into, between or out of series copies Knowledge base entries and an undo cannot reverse it, so those tools write nothing until the agent repeats the call with `confirm` set to true.
+Sharing is also yours. There are no sharing tools. To move a book, an agent calls `update_book` or `create_series`. Both refuse with `needs_confirmation` and write nothing until the agent repeats the call with `confirm` set to true. An undo cannot reverse a move, because a book that leaves a series gets a copy of its Knowledge base entries.
 
 ## Print readiness
 
@@ -64,9 +64,9 @@ At the last stage the agent calls `export_for_printer` with `mode` set to `prefl
 
 <Shot name="work-agents-preflight" alt="The Export for printer dialog of Salt and Signal reading 1 issue blocks export, with the Queue export button disabled." />
 
-The dialog and the tool use the same check. To clear the block, you or the agent work down the risk as described in [Clearing quotes and citing](/work/clearing/). The agent can draft the letter and track the reply. You send the letter and record the grant. See [Getting to print](/work/print/#error-a-risk-blocks-the-export) for the message.
+The dialog and the tool use the same check. To clear the block, you or the agent follow the steps in [Clearing quotes and citing](/work/clearing/). The agent can draft the letter and track the reply. You send the letter and record the grant. See [Getting to print](/work/print/#error-a-risk-blocks-the-export) for the message.
 
-A queued export is built by the worker and cannot be undone from the agent. It needs a host that can print. See [Requirements](/start/requirements/).
+The worker builds a queued export, and the agent cannot undo it. It needs a host that can print. See [Requirements](/start/requirements/).
 
 ## Prompts to start from
 

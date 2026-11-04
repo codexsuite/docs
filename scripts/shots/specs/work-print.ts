@@ -38,6 +38,20 @@ async function grantPermission(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("refs-perm-attachment").waitFor();
 }
 
+/** Picks APA and waits until the button reads as pressed. */
+async function chooseApa(page: Page): Promise<void> {
+  await page.getByTestId("settings-citation-style-apa").click();
+  await page.getByTestId("settings-citation-style-apa").and(page.locator('[aria-pressed="true"]')).waitFor();
+  await page.getByTestId("settings-citation-example").waitFor();
+}
+
+/** Opens the Export menu on the bibliography if it is not open. */
+async function openExportMenu(page: Page): Promise<void> {
+  if (!(await page.getByTestId("refs-export-permissions").isVisible())) await page.getByTestId("refs-export-toggle").click();
+  await page.getByTestId("refs-export-permissions").waitFor();
+  await page.getByTestId("refs-export-csljson").waitFor();
+}
+
 async function openReadyExport(page: Page, ctx: SeedResult): Promise<void> {
   await grantPermission(page, ctx);
   await openExport(page, ctx);
@@ -50,9 +64,12 @@ async function openReadyExport(page: Page, ctx: SeedResult): Promise<void> {
 export const shots: ShotSpec[] = [
   {
     name: "work-print-overview",
-    route: layoutRoute,
-    steps: async (page, ctx) => {
-      await openLayout(page, ctx);
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.1`,
+    steps: async (page) => {
+      // From Write, Preview in Layout continues on the Layout screen.
+      await page.getByTestId("write-format-button").click();
+      await page.getByTestId("write-format-preview").click();
+      await page.getByTestId("layout-page").waitFor();
       await page.getByTestId("layout-status-pages").waitFor(longWait);
     },
   },
@@ -97,9 +114,41 @@ export const shots: ShotSpec[] = [
     route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/settings#citations`,
     steps: async (page) => {
       await page.getByTestId("settings-citation-style").waitFor();
-      await page.getByTestId("settings-citation-style-apa").click();
-      await page.getByTestId("settings-citation-example").waitFor();
+      await chooseApa(page);
       await page.getByTestId("settings-citation-style").scrollIntoViewIfNeeded();
+    },
+  },
+  {
+    name: "work-print-bibliography-apa",
+    route: referencesRoute,
+    steps: async (page, ctx) => {
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/settings#citations`);
+      await page.getByTestId("settings-citation-style").waitFor();
+      await chooseApa(page);
+      await page.goto(referencesRoute(ctx));
+      await page.getByTestId("refs-view-bibliography").click();
+      await page.waitForFunction(
+        () => (document.querySelector('[data-testid="refs-bib-style"]') as HTMLSelectElement | null)?.value === "apa",
+      );
+      await page.getByTestId("refs-bib-entry").first().waitFor();
+    },
+  },
+  {
+    name: "work-print-publisher-export",
+    route: referencesRoute,
+    steps: async (page, ctx) => {
+      await grantPermission(page, ctx);
+      await page.goto(referencesRoute(ctx));
+      await page.getByTestId("refs-view-bibliography").click();
+      await page.getByTestId("refs-bib-entry").first().waitFor();
+      for (const [format, extension] of [["permissions", ".csv"], ["csljson", ".json"]] as const) {
+        await openExportMenu(page);
+        const download = page.waitForEvent("download");
+        await page.getByTestId(`refs-export-${format}`).click();
+        const name = (await download).suggestedFilename();
+        if (!name.endsWith(extension)) throw new Error(`The ${format} export was named ${name}, not ${extension}.`);
+      }
+      await openExportMenu(page);
     },
   },
   {
@@ -135,6 +184,27 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("layout-export-queue").click();
       await page.getByTestId("layout-tab-exports").click();
       await page.getByTestId("layout-export-done").waitFor(longWait);
+    },
+  },
+  {
+    name: "work-print-draft",
+    route: layoutRoute,
+    mask: ["[data-testid='layout-export-item']", "[data-testid='layout-export-running']"],
+    steps: async (page, ctx) => {
+      await openExport(page, ctx);
+      await page.getByTestId("layout-export-draft").check();
+      await page.getByTestId("layout-export-queue").click();
+      await page.getByTestId("layout-tab-exports").click();
+      await page.getByTestId("layout-export-done").waitFor(longWait);
+    },
+  },
+  {
+    name: "work-print-proof",
+    route: layoutRoute,
+    steps: async (page, ctx) => {
+      await openLayout(page, ctx);
+      await page.getByTestId("layout-mode-proof").click();
+      await page.getByTestId("layout-proof-pages").waitFor(longWait);
     },
   },
 ];
