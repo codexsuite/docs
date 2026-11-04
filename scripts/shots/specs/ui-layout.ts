@@ -62,6 +62,7 @@ async function addFigure(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("layout-page").waitFor();
   const png = await page.screenshot({ type: "png", clip: { x: 0, y: 0, width: 300, height: 200 } });
   const upload = await page.request.post(`/api/books/${ctx.bookIds.saltAndSignal}/assets`, {
+    headers: { "X-Codex-Client": "docs-shots" },
     multipart: { file: { name: "lamp-room.png", mimeType: "image/png", buffer: png } },
   });
   if (!upload.ok()) throw new Error(`asset upload failed with ${upload.status()}`);
