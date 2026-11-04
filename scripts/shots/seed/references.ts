@@ -23,7 +23,7 @@ const ledgerQuote =
 
 const ledgerParaphrase = "Penhallow records that the lamp was trimmed twice a night through every winter of the decade.";
 
-/** Invented. It runs past the default limit of 300 quoted words, so the source needs a permission letter. */
+/** Invented. It has 348 words, past the default limit of 300, and stays under the 2000 characters one citation takes, so the source needs a permission letter. */
 const signalsQuote = [
   "A signal station is judged by what it does on the worst night of the year, and the worst night is rarely the loudest one.",
   "On the coast the Okafor survey covered, the stations that failed did so in fog, when the lamp could be seen from nowhere and the horn could be heard from nowhere either.",
@@ -38,13 +38,6 @@ const signalsQuote = [
   "Where stations had no habit of notes, each new keeper repeated the mistakes of the last, and the survey found the same fault recorded under five different names.",
   "The most reliable predictor of a safe station was not the age of its lamp, nor the height of its tower, nor the pay of its keeper.",
   "It was whether the logbook held more than the hours. A station whose book held only hours had, in the survey's phrase, no memory.",
-  "A station with no memory could be rebuilt, but it could not be taught, and a coast full of such stations was a coast waiting for its worst night.",
-  "The survey recommended that the board require a page of observations each week, and that the page be read aloud at the yearly meeting.",
-  "The board accepted the first part and declined the second. The notes were written, and for a decade nobody read them.",
-  "When the readings began, in the fourteenth year, the room was quiet for a long time after the first one, and then a keeper at the back asked for it again.",
-  "Everything the survey later concluded about fog, about the lens, and about the loneliness of the northern stations came out of those pages.",
-  "It would be easy to say that the keepers were remarkable, but the survey disagreed. It found them ordinary people who had been given a book and a reason.",
-  "Give a person a book that asks for hours and they will write hours. Give them a book that asks what they saw and they will, in time, tell you everything.",
 ].join(" ");
 
 interface UserRow {
