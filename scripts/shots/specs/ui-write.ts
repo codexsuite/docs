@@ -224,7 +224,8 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await open(page, ctx);
       await page.getByTestId("write-find").fill("Tobias");
-      await page.locator("[data-testid='write-find-count']").waitFor();
+      // The count shows 0 until the first search frame runs, and Enter does nothing before then.
+      await page.getByTestId("write-find-count").filter({ hasText: /^[1-9]\d*$/ }).waitFor();
       await page.getByTestId("write-find").press("Enter");
       await page.locator("[data-testid='write-find-count']:has-text(' of ')").waitFor();
     },
