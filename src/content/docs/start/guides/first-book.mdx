@@ -7,7 +7,7 @@ sidebar:
 
 import Shot from "../../../../components/Shot.astro";
 
-This guide takes you from an empty Library to a book with a chapter, a scene and some prose. You need a signed-in Codex. If you have not set one up, follow the [quick start](/start/quickstart/) first.
+This guide creates a book with a chapter, a scene and some prose. You need a running Codex and an account signed in to it. If you have not set one up, follow the [quick start](/start/quickstart/) first.
 
 <Shot name="start-guides-first-book-overview" alt="The Plan of the new book Lamp Room Notes, with one chapter and one scene whose summary is filled in." />
 
@@ -16,9 +16,11 @@ This guide takes you from an empty Library to a book with a chapter, a scene and
 1. Open the Library at `/`.
 2. Select Create Novel. The `+ New book` tile does the same.
 3. Type a title. This guide uses `Lamp Room Notes`.
-4. Leave Series on None. A standalone book needs no series.
-5. Leave Target words at 80,000, or enter your own whole number above 0. You can change it later.
+4. Leave Series on `None (standalone)`.
+5. In Target words, enter `60000`. The field starts at 80,000 and takes any whole number above 0. You can change it later.
 6. Select Create book.
+
+To put the book in a series, open the series and select `+ Add book`. See [Series](/ui/series/).
 
 <Shot name="start-guides-first-book-new-book" alt="The New book dialog with the title Lamp Room Notes and a target of 60000 words." />
 
@@ -45,19 +47,19 @@ To rename the chapter, double-click its title, type the new title and press Ente
 
 <Shot name="start-guides-first-book-scene" alt="A new scene card in Chapter 1 with the cursor in its empty summary." />
 
-The summary saves by itself a few seconds after you stop typing. The save indicator at the top of the screen changes from Unsaved to Saved.
+Codex saves the summary 3 seconds after your first edit, and again when you click away from the card. The save indicator at the top of the screen changes from Unsaved to Saved.
 
 ## Write the scene
 
-1. Select Write in the bar at the top of the book. To open one particular scene, open its menu on the Plan (the three dots) and choose Open in Write.
+1. Select Write in the bar at the top of the book. To open one particular scene, hover over its card on the Plan, select the three dots and choose Open in Write.
 2. Click in the scene's text and type.
 
 <Shot name="start-guides-first-book-write" alt="The Write screen showing Chapter 1 with the first scene and a line of prose typed into it." />
 
-Codex saves the text as you type. Wait for the indicator to say Saved before you close the tab. If a save fails, the indicator says Unsaved, and Codex keeps your text in the browser until the next save works.
+Codex saves the text about every 3 seconds while you type, and when you click away. Wait for the indicator to say Saved before you close the tab. If the server fails a save, the indicator says Unsaved with a Retry button. With no connection it says `Offline · 1 change waiting`, and the edit saves by itself when the connection returns. Codex keeps your text in this browser until a save works.
 
 ## What to do next
 
 - Add more chapters and scenes, then drag them into order. See [Plan](/ui/plan/).
-- Add people and places to the Knowledge base so each scene links to them. See [Knowledge base](/ui/knowledge-base/).
+- Add people and places to the Knowledge base, then select + Codex on a scene card to link one to that scene. See [Knowledge base](/ui/knowledge-base/).
 - Start from a manuscript you already have instead. See [Import a manuscript](/start/guides/import/).

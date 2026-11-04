@@ -43,6 +43,7 @@ export const shots: ShotSpec[] = [
       await createBook(page);
       await addChapter(page);
       await addScene(page);
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
     },
   },
   {

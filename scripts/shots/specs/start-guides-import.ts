@@ -122,7 +122,8 @@ export const shots: ShotSpec[] = [
     route: "/",
     steps: async (page) => {
       await runImport(page);
-      await page.getByTestId("import-banner-text").waitFor();
+      await page.getByTestId("import-banner-skipped").click();
+      await page.getByTestId("import-banner-skipped-row").first().waitFor();
     },
   },
   {
