@@ -123,7 +123,11 @@ async function applyBeatDraft(page: Page, ctx: SeedResult): Promise<string> {
 /** J5 step 6: a hand edit after Apply. */
 async function editByHand(page: Page, ctx: SeedResult): Promise<string> {
   const beatId = await applyBeatDraft(page, ctx);
-  await editorOf(page, ctx, "1.1").click();
+  // The beat card fills the top of the editor and has fields of its own, so click in the last paragraph.
+  const editor = editorOf(page, ctx, "1.1");
+  const box = await editor.boundingBox();
+  if (box === null) throw new Error("The editor of scene 1.1 is not on screen.");
+  await editor.click({ position: { x: 12, y: box.height - 8 } });
   await page.keyboard.press("Control+End");
   await page.keyboard.type(" Tobias had counted them twice.");
   await page.locator("[data-testid='editing-save-status']:not([data-state='saved'])").waitFor();
