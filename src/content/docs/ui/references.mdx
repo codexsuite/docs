@@ -31,7 +31,7 @@ Every source has one of four statuses.
 - **Cleared.** You signed the source off and nothing has changed since.
 - **Not cited.** No marker in the book cites it. Uncited sources stay out of the bibliography.
 
-Each row shows the marker number, title and byline, kind, where it is used, a bar of quoted words, the licence, the status with its reason, and a reminder line when a reply is due. Below 1280 pixels wide the table hides Kind and Licence, below 1000 it hides Quoted, and below 860 it hides Used in. Search sources matches the title, authors and publisher. Group splits the table by Status, the default, or by Kind. None (book order) lists every source in marker order.
+Each row shows the marker number, title and byline, kind, where the book uses it, a bar of quoted words, the licence, the status with its reason, and a reminder line when a reply is due. Below 1280 pixels wide the table hides Kind and Licence, below 1000 it hides Quoted, and below 860 it hides Used in. Search sources matches the title, authors and publisher. Group splits the table by Status, the default, or by Kind. None (book order) lists every source in marker order.
 
 ## Open a source
 
@@ -59,7 +59,7 @@ A paraphrase counts no words. A use has one of five types: Quote, Paraphrase, Da
 
 Select Paraphrase instead in the verdict, or Paraphrase with AI on the quote under Used in the book. Paraphrase instead shows only when the source has no permission request. Write opens the scene with a Scene beat after the quote, and Codex fills in the beat's instruction. Select Generate prose, read the draft and select Apply. The draft goes under the quote, and the quoted words stay in the scene. Select the quote's marker, select Remove on the card, and delete the words. Then select the new text, type `/source`, choose Source reference and choose the source. A new citation counts as a paraphrase, so the quoted-word count drops and the verdict becomes Needs check with the reason `Ready to sign off`. Select Mark as cleared.
 
-The message on screen offers a shorter route, which is to change the use's type to Paraphrase under Used in the book. The marker stays on the words it already marks, so rewrite those words first.
+The toast in Write gives a shorter way. Rewrite the words under the marker, then change the use's type to Paraphrase under Used in the book.
 
 <Shot name="ui-references-paraphrase-beat" alt="Scene 2.1 with a Scene beat after the Signals at Sea quote and its generated draft ready to apply." />
 
@@ -111,11 +111,11 @@ A new source with no marker is Not cited until you cite it in Write.
 
 ## Import sources
 
-Select Import and choose a CSL JSON, BibTeX or RIS file. Zotero exports CSL JSON and BibTeX. Codex has no live Zotero link. Codex matches existing sources by ISBN, DOI, URL or key, so a source with none of these imports as a new source. Before it writes anything, Codex checks the file and shows a summary such as `2 new · 1 already in References · 1 skipped (no title)`. It lists each skipped item with its reason. The Import button is off when nothing is new.
+Select Import and choose a CSL JSON, BibTeX or RIS file. Zotero exports CSL JSON and BibTeX. Codex has no live Zotero link. Codex matches existing sources by ISBN, DOI, web address or key, so a source with none of these imports as a new source. Before it writes anything, Codex checks the file and shows a summary such as `2 new · 1 already in References · 1 skipped (no title)`. It lists each skipped item with its reason. The Import button is off when nothing is new.
 
 <Shot name="ui-references-import-preview" alt="The Import dialog with the summary for a four-item library file and the skipped item listed." />
 
-Select Import. The dialog reports how many were added. The new sources are Not cited.
+Select Import. The dialog reports how many sources Codex added. The new sources are Not cited.
 
 <Shot name="ui-references-imported" alt="The Import dialog after importing, showing the number of sources added." />
 
@@ -135,7 +135,7 @@ Re-check, in the Source details heading, tests the ISBN, DOI and web address aga
 
 ### Merge a duplicate
 
-Open the duplicate, open the panel menu and choose Merge into. Choose the source to keep. The dialog says how many uses move and that the duplicate is archived. Select Merge. The source you keep takes any detail it lacks. If uses moved and it was cleared, it goes back to Needs check. If both sources have a permission request, Codex answers `Both have a permission request. Withdraw one first.`
+Open the duplicate, open the panel menu and choose Merge into. Choose the source to keep. The dialog says how many uses move and that the duplicate is archived. Select Merge. The source you keep takes any detail it lacks. If uses moved and you had cleared it, it goes back to Needs check. If both sources have a permission request, Codex answers `Both have a permission request. Withdraw one first.`
 
 <Shot name="ui-references-merge" alt="The merge dialog on a duplicate copy of The Keeper's Ledger, with the target chosen and the summary line." />
 
@@ -188,7 +188,7 @@ The reason becomes `Ready to sign off`. Select Mark as cleared. The panel record
 
 A quote over the limit, a lyric or a figure needs the rights holder's permission, unless the source is in the public domain. A figure under a licence that allows reuse needs none. The tracker under the verdict shows the request's stage, which is Drafted, Sent, then Granted or Refused.
 
-1. Select Ask for permission, or Draft request. Codex drafts the letter from your uses: what you quote and where.
+1. Select Ask for permission, or Draft request. Codex drafts the letter from your uses, with what you quote and where.
 2. Type the rights holder's email in To, read the letter and edit it. Copy letter puts it on the clipboard.
 3. Send it yourself, then select Mark sent.
 
