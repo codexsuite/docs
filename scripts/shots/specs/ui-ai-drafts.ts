@@ -46,6 +46,12 @@ async function writeInstruction(page: Page, beatId: string, text: string): Promi
   await saved;
 }
 
+/** Removes the AI integration, so Write has no provider. */
+async function removeIntegration(page: Page, ctx: SeedResult): Promise<void> {
+  const removed = await page.request.delete(`/api/ai/integrations/${ctx.aiIntegrationId}`, { headers: { "x-codex-client": "docs" } });
+  if (!removed.ok()) throw new Error(`DELETE /api/ai/integrations/{id} answered ${removed.status()}.`);
+}
+
 const instruction = "Tobias Venn explains to Edith Marrow why the Fresnel lens turns so slowly.";
 const replyStart = "The lamp turned slowly";
 
@@ -137,10 +143,17 @@ async function editByHand(page: Page, ctx: SeedResult): Promise<string> {
   return beatId;
 }
 
-/** J5 step 7: Format, then Scene beats, then Hide. */
-async function hideBeats(page: Page, ctx: SeedResult): Promise<void> {
+/** J5 step 7, first half: opens Format with the Scene beats row. */
+async function openFormat(page: Page, ctx: SeedResult): Promise<string> {
   const beatId = await editByHand(page, ctx);
   await page.getByTestId("write-format-button").click();
+  await page.getByTestId("write-format-beats-hide").waitFor();
+  return beatId;
+}
+
+/** J5 step 7, second half: Scene beats, then Hide. */
+async function hideBeats(page: Page, ctx: SeedResult): Promise<void> {
+  const beatId = await openFormat(page, ctx);
   await page.getByTestId("write-format-beats-hide").click();
   await page.locator("[data-testid='write-manuscript'][data-hide-beats='true']").waitFor();
   await page.keyboard.press("Escape");
@@ -280,6 +293,7 @@ export const shots: ShotSpec[] = [
   { name: "ui-ai-drafts-retried", route: writeRoute("1.1"), steps: async (page, ctx) => void (await retry(page, ctx)) },
   { name: "ui-ai-drafts-beat-applied", route: writeRoute("1.1"), steps: async (page, ctx) => void (await applyBeatDraft(page, ctx)) },
   { name: "ui-ai-drafts-hand-edit", route: writeRoute("1.1"), steps: async (page, ctx) => void (await editByHand(page, ctx)) },
+  { name: "ui-ai-drafts-format-beats", route: writeRoute("1.1"), steps: async (page, ctx) => void (await openFormat(page, ctx)) },
   { name: "ui-ai-drafts-beats-hidden", route: writeRoute("1.1"), steps: hideBeats },
   // J6: fill an empty scene.
   {
@@ -288,6 +302,15 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       const id = await emptySceneOnPlan(page, ctx);
       await labelEmptyScene(page, id);
+    },
+  },
+  {
+    name: "ui-ai-drafts-empty-open",
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/plan`,
+    steps: async (page, ctx) => {
+      const id = await emptySceneOnPlan(page, ctx);
+      await labelEmptyScene(page, id);
+      await openEmptySceneInWrite(page, id);
     },
   },
   {
@@ -334,10 +357,21 @@ export const shots: ShotSpec[] = [
     name: "ui-ai-drafts-not-configured",
     route: writeRoute("1.2"),
     steps: async (page, ctx) => {
-      const removed = await page.request.delete(`/api/ai/integrations/${ctx.aiIntegrationId}`, { headers: { "x-codex-client": "docs" } });
-      if (!removed.ok()) throw new Error(`DELETE /api/ai/integrations/{id} answered ${removed.status()}.`);
+      await removeIntegration(page, ctx);
       await open(page, ctx, "1.2");
       await page.getByTestId("write-draft-connect").waitFor();
+    },
+  },
+  {
+    name: "ui-ai-drafts-continue-not-configured",
+    route: writeRoute("2.1"),
+    steps: async (page, ctx) => {
+      await removeIntegration(page, ctx);
+      await open(page, ctx, "2.1");
+      await caretOnNewLine(page, ctx, "2.1");
+      await page.keyboard.type("/cont");
+      await page.getByTestId("prose-slash-item-continue-writing").click();
+      await page.getByTestId("editing-toast").filter({ hasText: "Connect an AI provider in Settings to draft prose." }).waitFor();
     },
   },
   // A reader with the view role sees the beat and no draft controls.
