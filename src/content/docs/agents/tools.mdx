@@ -5,9 +5,9 @@ sidebar:
   order: 4
 ---
 
-Codex serves its tools, prompts and resources at `/mcp`. This page lists all of them. It is generated from the server's own definitions, so the names, scopes and descriptions are the ones your agent sees.
+Codex serves its tools, prompts and resources at `/mcp`. This page lists all of them. It is generated from the server's own definitions, so the names and descriptions are the ones your agent sees.
 
-The server has 48 tools, 4 prompts and 6 resources. To connect an agent, see [Connect an agent](/agents/connect/). To create a token with the scopes you need, see [Tokens and scopes](/agents/tokens/).
+The server defines 48 tools, 4 prompts and 6 resources. The tool `upload_image` is not offered at `/mcp`, so an agent sees 47 tools. To connect an agent, see [Connect an agent](/agents/connect/). To create a token with the scopes you need, see [Tokens and scopes](/agents/tokens/).
 
 ## Scopes
 
@@ -15,7 +15,7 @@ Every token holds `codex:read`. A tool called without its scope fails with `forb
 
 A call also needs a high enough role on the book it touches. A token with `codex:write` on a book shared to you for viewing fails with `forbidden`.
 
-`undo` also needs the scope of the tool whose write it reverses. Signing off a book and accepting fair use stay in the app, whatever scopes a token has.
+`undo` also needs the scope of the tool whose write it reverses. Signing off a source and accepting fair use stay in the app, whatever scopes a token has.
 
 {/* generated */}
 
@@ -30,7 +30,7 @@ A call also needs a high enough role on the book it touches. A token with `codex
 
 ## Tools
 
-A tool marked read only never changes anything. Arguments marked required must be set, and the others have defaults.
+A tool marked read only never changes anything.
 
 ### Reading
 
@@ -115,7 +115,7 @@ A tool marked read only never changes anything. Arguments marked required must b
 
 | Tool | Scope | What it does | Arguments |
 | --- | --- | --- | --- |
-| `upload_image`<br />Upload an image from this machine | `codex:write` | Uploads the PNG, JPEG or WebP file at `path` (on the machine this server runs on; at most 25 MB and 64 megapixels) to the book, or with scope "series" to its series. Returns the image id to pass to place_figure or set_opener, its pixel size and status (processing until its renditions are made). Call list_images first to skip files already uploaded. | `path` (required): Absolute path of the image file.<br />`book`: The book (default: the most recently edited book).<br />`scope`: book (default) or series.<br />`source`: Where the image came from (kept with it).<br />`prompt`: The prompt that generated it.<br />`licence`: Its licence. |
+| `upload_image`<br />Upload an image from this machine | `codex:write` | Uploads the PNG, JPEG or WebP file at `path` (on the machine this server runs on; at most 25 MB and 64 megapixels) to the book, or with scope "series" to its series. Returns the image id to pass to place_figure or set_opener, its pixel size and status (processing until its renditions are made). Call list_images first to skip files already uploaded.<br />Not offered at `/mcp`. Use `create_image_upload`. | `path` (required): Absolute path of the image file.<br />`book`: The book (default: the most recently edited book).<br />`scope`: book (default) or series.<br />`source`: Where the image came from (kept with it).<br />`prompt`: The prompt that generated it.<br />`licence`: Its licence. |
 | `create_image_upload`<br />Get a link to upload an image to | `codex:write` | For an image the server can't read from disk: returns a single-use upload_url for the book (or, with scope "series", its series), valid for 10 minutes. PUT the file to it, e.g. curl --fail -T &lt;file> &lt;upload_url>; the response is the image (its id goes to place_figure or set_opener). Declare the file's name, content_type (image/png, image/jpeg or image/webp) and exact size in bytes (at most 25 MB); a body of another size is refused. | `filename` (required): The file's name, e.g. part-1-opener.png.<br />`content_type` (required): image/png, image/jpeg or image/webp.<br />`bytes` (required): The file's size in bytes.<br />`book`: The book (default: the most recently edited book).<br />`scope`: book (default) or series.<br />`source`: Where the image came from (kept with it).<br />`prompt`: The prompt that generated it.<br />`licence`: Its licence. |
 | `list_images`<br />List a book's images<br />Read only | `codex:read` | The images the book can place: its own and its series', newest first, with status, size in bytes and pixels, and the effective dpi at `placement` in the book's layout. Match on filename and bytes to skip files already uploaded. | `book`: The book (default: the most recently edited book).<br />`filename`: Only images whose filename contains this.<br />`placement`: The placement the dpi is judged for: column (default), page, spread or float-top. |
 | `get_image`<br />Look at an image<br />Read only | `codex:read` | One image's status, size and effective dpi at `placement` in `book`'s layout (default: the image's own book). With view: true the result also carries the image itself (its web rendition, about 1600 px), so you can look at it to write alt text or a caption; until the rendition is made it carries none and says so. | `image` (required): The image's asset id.<br />`view`: Attach the image so you can see it.<br />`placement`: The placement the dpi is judged for: column (default), page, spread or float-top.<br />`book`: The book whose layout the dpi is judged in (needed for a series image). |
@@ -127,7 +127,7 @@ A tool marked read only never changes anything. Arguments marked required must b
 
 ## Prompts
 
-Prompts appear in an agent as commands. They only read, so they need `codex:read`. The writes they send the agent to make are checked against the token when the agent calls the tool.
+Prompts appear in an agent as commands. They only read, so they need `codex:read`. Codex checks each write against the token when the agent calls the tool.
 
 {/* generated */}
 
@@ -142,7 +142,7 @@ Prompts appear in an agent as commands. They only read, so they need `codex:read
 
 ## Resources
 
-Resources are read-only context an agent can pin. Each one returns what the matching tool returns. They need `codex:read`.
+Resources are read-only context an agent can pin. They need `codex:read`.
 
 {/* generated */}
 
@@ -163,27 +163,30 @@ Resources are read-only context an agent can pin. Each one returns what the matc
 
 | Setting | Default | What happens at the limit |
 | --- | --- | --- |
-| `CODEX_MCP_MAX_GENERATIONS` | 20 | `draft_prose` calls per token in an hour. The next call fails with `rate_limited`. |
+| `CODEX_MCP_MAX_GENERATIONS` | 20 | A token can start this many `draft_prose` calls in any hour. The next call fails with `rate_limited`. |
 
 {/* generated */}
 
 ## Errors
 
-A failed call returns a tool error. Its text is JSON with `ok` set to false and an `error` object that holds `code`, `message` and, for some errors, the extra fields below. A resource or prompt that fails is a protocol error whose message is "code: message".
+A failed call returns a tool error. Its text is JSON with `ok` set to false and an `error` object that holds `code`, `message` and, for some errors, the extra fields below. A resource or prompt that fails is a protocol error whose message is "code: message". The rows are written for this page and checked against the list of codes in the server.
 
 {/* generated */}
 
 | Code | When | Extra fields |
 | --- | --- | --- |
-| `not_found` | No match for a ref, including a number too big for any outline, or a book the user can neither own nor open through sharing | `candidates`: close matches |
-| `ambiguous` | A ref matches more than one thing, such as `"Product Engineering"` (it and its `(v1)`, or the user's own book and one shared with them) or a name two entries share | `candidates`; a book or series candidate names its `owner` (`{ id, display_name }`) |
-| `out_of_scope` | The entry exists, but not in the book's scope (the book and its series) | `candidates`: the entries found, `scope`: the book and series checked |
-| `stale_ref` | stdio only: a display number now names something other than it did at this session's last read | `candidates`: what it was, then what it is now |
-| `invalid` | A bad argument. This covers the SDK's own binding failures: a wrong type, a missing required argument, an unknown tool (`field: "name"`) | `field` |
-| `conflict` | A stale `expected_version`, or an undo after the prose moved on | `candidates`: the scene |
-| `blocked`, `needs_confirmation`, `not_configured`, `rate_limited` | Write tools: `blocked` for an undo already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`) | `rule` for `blocked`; `open_url` when the author has to act in the UI (`rule: author_decision`) |
-| `forbidden` | The token lacks the tool's scope (#32), or the user's role on the book is below what the call needs (#80; *Roles*) | `field`: the scope it needs (none for a role) |
-| `unauthorized` | stdio with `CODEX_MCP_TOKEN`: the token stopped working mid-session |  |
-| `internal_error` | A server fault, with a fixed message. The details go to the log |  |
+| `not_found` | No match for a ref, including a display number too big for any outline, or a book the token's user can neither own nor open through sharing. | `candidates`: close matches |
+| `ambiguous` | A ref matches more than one thing, such as a book you own and a book shared with you that have the same title, or a name two entries share. | `candidates`. A book or series candidate names its `owner`, with `id` and `display_name`. |
+| `out_of_scope` | The entry exists, but not in the book's scope, which is the book and its series. | `candidates`: the entries found. `scope`: the book and series checked. |
+| `stale_ref` | The server does not return this code at `/mcp`, because it keeps no session between calls. A display number such as `5.2` always means what it names at the time of the call. If the outline can change between calls, pass ids. | None |
+| `invalid` | A bad argument: a wrong type, a missing required argument, or an unknown tool name. A call to a tool that `/mcp` does not offer also fails this way. | `field` |
+| `conflict` | The `expected_version` is out of date, or an undo comes after the prose has changed again. | `candidates`: the scene |
+| `blocked` | An undo that cannot run because it is already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`). Also a change only the author can make in the app (`author_decision`). | `rule`. `open_url` when the author has to act in the app. |
+| `needs_confirmation` | Moving a book into or between series copies the Knowledge base of the series it leaves, and an undo cannot reverse that. Nothing is written until the call is repeated with `confirm` set to true. | None |
+| `not_configured` | The server lacks a setting the tool needs. The message names it, for example `CODEX_BLOB_ROOT` for images and permission letters. | None |
+| `rate_limited` | The token has started its limit of `draft_prose` calls in the last hour. See Limits above. | None |
+| `forbidden` | The token lacks the scope the tool needs, or the token's user has a role on the book below what the call needs. A view-only role fails every write. | `field`: the scope it needs. Nothing for a role. |
+| `unauthorized` | A missing, unknown, revoked or expired token, or one whose user is disabled. At `/mcp` this is an HTTP 401 with `WWW-Authenticate: Bearer realm="codex"`, not a tool error. | None |
+| `internal_error` | A server fault. The message is fixed, and the details go to the server log. | None |
 
 {/* generated */}

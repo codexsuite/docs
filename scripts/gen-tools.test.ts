@@ -64,6 +64,20 @@ public static class McpErrorCodes
     public const string Invalid = "invalid";
     public const string StaleRef = "stale_ref";
 }`,
+  "src/Codex.Application/Mcp/ImageTools.cs": `
+public static class ImageTools
+{
+    public const string UploadImage = "list_things";
+    public const string CreateImageUpload = "other_thing";
+}`,
+  "src/Codex.Application/Mcp/McpTransportTools.cs": `
+public static class McpTransportTools
+{
+    static void F()
+    {
+        var hidden = IsStdio(context.Services) ? ImageTools.CreateImageUpload : ImageTools.UploadImage;
+    }
+}`,
   "src/Codex.Application/Mcp/McpGenerationBudget.cs": `
 public sealed class McpGenerationBudget
 {
@@ -151,10 +165,19 @@ test("GeneratedPageListsEveryTool", () => {
   assert.match(page, /`limit` \\\| with/);
 });
 
-test("GeneratedPageListsEveryTool: the committed page lists 48 tools", () => {
+test("GeneratedPageListsEveryTool: the committed page lists the tools its intro counts", () => {
   const page = readFileSync(join(repoRoot, "src/content/docs/agents/tools.mdx"), "utf8");
   const tools = page.slice(page.indexOf("\n## Tools"), page.indexOf("\n## Prompts"));
-  assert.equal(tools.split("\n").filter((l) => l.startsWith("| `")).length, 48);
+  const rows = tools.split("\n").filter((l) => l.startsWith("| `")).length;
+  assert.equal(Number(/defines (\d+) tools/.exec(page)?.[1]), rows);
+});
+
+test("GeneratedPageListsEveryTool: a tool that /mcp does not offer says so", () => {
+  const model = readProduct(writeProduct());
+  assert.equal(model.tools.find((t) => t.name === "list_things")!.notAtMcp, "other_thing");
+  const page = renderPage(model);
+  assert.match(page, /The tool `list_things` is not offered at `\/mcp`, so an agent sees 1 tools\./);
+  assert.match(page, /Not offered at `\/mcp`\. Use `other_thing`\./);
 });
 
 test("GeneratedPageListsEveryTool: a tool added to the product is found", () => {
@@ -178,8 +201,8 @@ test("ErrorTableCoversEveryCode", () => {
   const model = readProduct(writeProduct());
   const page = renderPage(model);
   for (const code of ["not_found", "invalid", "stale_ref"]) assert.ok(page.includes(`\`${code}\``), code);
-  const noRow = files["docs/mcp.md"]!.replace("| `stale_ref` | Number moved | |\n", "");
-  assert.throws(() => readProduct(writeProduct({ "docs/mcp.md": noRow })), /stale_ref has no row/);
+  const newCode = files["src/Codex.Application/Mcp/McpErrorCodes.cs"]!.replace(/\}\s*$/, '    public const string BrandNew = "brand_new";\n}');
+  assert.throws(() => readProduct(writeProduct({ "src/Codex.Application/Mcp/McpErrorCodes.cs": newCode })), /brand_new has no row/);
 });
 
 test("ErrorTableCoversEveryCode: the committed page has every code in the product list", () => {

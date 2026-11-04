@@ -28,11 +28,9 @@ const mcpDoc = "docs/mcp.md";
 
 function skipString(s: string, i: number): number {
   let j = i;
-  let interpolated = 0;
   let verbatim = false;
   while (s[j] === "$" || s[j] === "@") {
-    if (s[j] === "$") interpolated++;
-    else verbatim = true;
+    if (s[j] === "@") verbatim = true;
     j++;
   }
   if (s.startsWith('"""', j)) {
@@ -184,7 +182,8 @@ export interface Tool {
   scope: string;
   extraScopes: string[];
   readOnly: boolean;
-  destructive: boolean;
+  /** The name of the tool that replaces this one at /mcp, when the tool is not offered there. */
+  notAtMcp?: string;
   group: string;
 }
 
@@ -323,19 +322,93 @@ function docGroups(doc: string): Map<string, string> {
   return map;
 }
 
-function docErrors(doc: string): ErrorRow[] {
-  const lines = doc.split("\n");
-  const at = lines.findIndex((l) => /^## Errors/.test(l));
-  if (at === -1) throw new Error("docs/mcp.md has no Errors section");
-  const rows: ErrorRow[] = [];
-  for (const line of lines.slice(at + 1)) {
-    if (/^## /.test(line)) break;
-    if (!line.startsWith("|")) continue;
-    const cells = line.split(/(?<!\\)\|/).slice(1, -1).map((c) => c.trim());
-    const codes = [...(cells[0] ?? "").matchAll(/`([a-z_]+)`/g)].map((c) => c[1]!);
-    if (codes.length) rows.push({ codes, when: cells[1] ?? "", extra: cells[2] ?? "" });
-  }
-  return rows;
+/**
+ * What each error code means to a reader of /mcp. Written for this page and traced to the product code, not copied from
+ * docs/mcp.md, which is a developer document. readProduct throws for any code the server can return that has no row here.
+ */
+const errorRows: ErrorRow[] = [
+  {
+    codes: ["not_found"],
+    when: "No match for a ref, including a display number too big for any outline, or a book the token's user can neither own nor open through sharing.",
+    extra: "`candidates`: close matches",
+  },
+  {
+    codes: ["ambiguous"],
+    when: "A ref matches more than one thing, such as a book you own and a book shared with you that have the same title, or a name two entries share.",
+    extra: "`candidates`. A book or series candidate names its `owner`, with `id` and `display_name`.",
+  },
+  {
+    codes: ["out_of_scope"],
+    when: "The entry exists, but not in the book's scope, which is the book and its series.",
+    extra: "`candidates`: the entries found. `scope`: the book and series checked.",
+  },
+  {
+    codes: ["stale_ref"],
+    when: "The server does not return this code at `/mcp`, because it keeps no session between calls. A display number such as `5.2` always means what it names at the time of the call. If the outline can change between calls, pass ids.",
+    extra: "None",
+  },
+  {
+    codes: ["invalid"],
+    when: "A bad argument: a wrong type, a missing required argument, or an unknown tool name. A call to a tool that `/mcp` does not offer also fails this way.",
+    extra: "`field`",
+  },
+  {
+    codes: ["conflict"],
+    when: "The `expected_version` is out of date, or an undo comes after the prose has changed again.",
+    extra: "`candidates`: the scene",
+  },
+  {
+    codes: ["blocked"],
+    when: "An undo that cannot run because it is already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`). Also a change only the author can make in the app (`author_decision`).",
+    extra: "`rule`. `open_url` when the author has to act in the app.",
+  },
+  {
+    codes: ["needs_confirmation"],
+    when: "Moving a book into or between series copies the Knowledge base of the series it leaves, and an undo cannot reverse that. Nothing is written until the call is repeated with `confirm` set to true.",
+    extra: "None",
+  },
+  {
+    codes: ["not_configured"],
+    when: "The server lacks a setting the tool needs. The message names it, for example `CODEX_BLOB_ROOT` for images and permission letters.",
+    extra: "None",
+  },
+  {
+    codes: ["rate_limited"],
+    when: "The token has started its limit of `draft_prose` calls in the last hour. See Limits above.",
+    extra: "None",
+  },
+  {
+    codes: ["forbidden"],
+    when: "The token lacks the scope the tool needs, or the token's user has a role on the book below what the call needs. A view-only role fails every write.",
+    extra: "`field`: the scope it needs. Nothing for a role.",
+  },
+  {
+    codes: ["unauthorized"],
+    when: "A missing, unknown, revoked or expired token, or one whose user is disabled. At `/mcp` this is an HTTP 401 with `WWW-Authenticate: Bearer realm=\"codex\"`, not a tool error.",
+    extra: "None",
+  },
+  {
+    codes: ["internal_error"],
+    when: "A server fault. The message is fixed, and the details go to the server log.",
+    extra: "None",
+  },
+];
+
+/**
+ * McpTransportTools.Filter leaves one tool out of tools/list on each transport. Returns the tool that /mcp (HTTP) leaves
+ * out, mapped to the one it offers instead.
+ */
+function readNotAtMcp(product: string): Map<string, string> {
+  const src = read(product, `${mcpDir}/McpTransportTools.cs`);
+  const m = /var hidden = IsStdio\([^)]*\)\s*\?\s*ImageTools\.(\w+)\s*:\s*ImageTools\.(\w+);/.exec(src);
+  if (!m) throw new Error(`Cannot read which tool each transport hides from ${mcpDir}/McpTransportTools.cs`);
+  const images = read(product, `${mcpDir}/ImageTools.cs`);
+  const name = (id: string): string => {
+    const v = new RegExp(`const string ${id}\\s*=\\s*"(\\w+)"`).exec(images)?.[1];
+    if (!v) throw new Error(`Cannot read ImageTools.${id}`);
+    return v;
+  };
+  return new Map([[name(m[2]!), name(m[1]!)]]);
 }
 
 function productCommit(product: string): string {
@@ -371,6 +444,7 @@ export function readProduct(product: string): ProductModel {
     }
   }
 
+  const notAtMcp = readNotAtMcp(product);
   const groups = docGroups(doc);
   const tools: Tool[] = [];
   const prompts: Prompt[] = [];
@@ -390,7 +464,7 @@ export function readProduct(product: string): ProductModel {
         scope,
         extraScopes: [...(extra.get(name) ?? [])].filter((s) => s !== scope),
         readOnly: namedArg(t.attr.args, "ReadOnly") === "true",
-        destructive: namedArg(t.attr.args, "Destructive") === "true",
+        notAtMcp: notAtMcp.get(name),
         group: groups.get(name) ?? otherGroup,
       });
     }
@@ -431,7 +505,7 @@ export function readProduct(product: string): ProductModel {
     tools: tools.filter((t) => t.scope === scope).map((t) => t.name),
   }));
 
-  // Every code the server can return needs a row in the product's own Errors table.
+  // Every code the server can return needs a row in errorRows.
   const apiCodes = constants(read(product, apiErrorCodesFile));
   const errorConsts = constants(read(product, errorCodesFile));
   const codes: string[] = [];
@@ -440,10 +514,11 @@ export function readProduct(product: string): ProductModel {
     // McpErrorCodes.FromApiCode turns "validation" into "invalid".
     codes.push(code === "validation" ? "invalid" : code);
   }
-  const errors = docErrors(doc);
   for (const code of new Set(codes)) {
-    if (!errors.some((e) => e.codes.includes(code))) throw new Error(`Error code ${code} has no row in the Errors table of ${mcpDoc}`);
+    if (!errorRows.some((e) => e.codes.includes(code))) throw new Error(`Error code ${code} has no row in errorRows in scripts/gen-tools.ts`);
   }
+  // A row for a code the server no longer has drops off the page.
+  const errors = errorRows.filter((e) => e.codes.every((c) => codes.includes(c)));
 
   const budget = read(product, budgetFile);
   const setting = /const string Setting = "(\w+)"/.exec(budget)?.[1];
@@ -492,9 +567,9 @@ sidebar:
 export function renderPage(m: ProductModel): string {
   const out: string[] = [frontmatter, ""];
   out.push(
-    `Codex serves its tools, prompts and resources at \`/mcp\`. This page lists all of them. It is generated from the server's own definitions, so the names, scopes and descriptions are the ones your agent sees.`,
+    `Codex serves its tools, prompts and resources at \`/mcp\`. This page lists all of them. It is generated from the server's own definitions, so the names and descriptions are the ones your agent sees.`,
     "",
-    `The server has ${m.tools.length} tools, ${m.prompts.length} prompts and ${m.resources.length} resources. To connect an agent, see [Connect an agent](/agents/connect/). To create a token with the scopes you need, see [Tokens and scopes](/agents/tokens/).`,
+    `The server defines ${m.tools.length} tools, ${m.prompts.length} prompts and ${m.resources.length} resources.${m.tools.filter((t) => t.notAtMcp).map((t) => ` The tool \`${t.name}\` is not offered at \`/mcp\`, so an agent sees ${m.tools.length - m.tools.filter((x) => x.notAtMcp).length} tools.`).join("")} To connect an agent, see [Connect an agent](/agents/connect/). To create a token with the scopes you need, see [Tokens and scopes](/agents/tokens/).`,
     "",
     "## Scopes",
     "",
@@ -502,13 +577,13 @@ export function renderPage(m: ProductModel): string {
     "",
     "A call also needs a high enough role on the book it touches. A token with `codex:write` on a book shared to you for viewing fails with `forbidden`.",
     "",
-    "`undo` also needs the scope of the tool whose write it reverses. Signing off a book and accepting fair use stay in the app, whatever scopes a token has.",
+    "`undo` also needs the scope of the tool whose write it reverses. Signing off a source and accepting fair use stay in the app, whatever scopes a token has.",
     "",
     table(["Scope", "Tools"], m.scopes.map((s) => [`\`${s.scope}\``, s.tools.map((t) => `\`${t}\``).join(", ")])),
     "",
     "## Tools",
     "",
-    "A tool marked read only never changes anything. Arguments marked required must be set, and the others have defaults.",
+    "A tool marked read only never changes anything.",
     "",
   );
   const groups = [...new Set(m.tools.map((t) => t.group))];
@@ -522,7 +597,7 @@ export function renderPage(m: ProductModel): string {
         tools.map((t) => [
           `\`${t.name}\`${t.title ? `<br />${cell(t.title)}` : ""}${t.readOnly ? "<br />Read only" : ""}`,
           [t.scope, ...t.extraScopes].map((s, i) => (i ? `also \`${s}\` for some calls` : `\`${s}\``)).join(", "),
-          cell(t.description),
+          cell(t.description) + (t.notAtMcp ? `<br />Not offered at \`/mcp\`. Use \`${t.notAtMcp}\`.` : ""),
           paramCell(t.params),
         ]),
       ),
@@ -532,7 +607,7 @@ export function renderPage(m: ProductModel): string {
   out.push(
     "## Prompts",
     "",
-    "Prompts appear in an agent as commands. They only read, so they need `codex:read`. The writes they send the agent to make are checked against the token when the agent calls the tool.",
+    "Prompts appear in an agent as commands. They only read, so they need `codex:read`. Codex checks each write against the token when the agent calls the tool.",
     "",
     table(
       ["Prompt", "What it does", "Arguments"],
@@ -541,7 +616,7 @@ export function renderPage(m: ProductModel): string {
     "",
     "## Resources",
     "",
-    "Resources are read-only context an agent can pin. Each one returns what the matching tool returns. They need `codex:read`.",
+    "Resources are read-only context an agent can pin. They need `codex:read`.",
     "",
     table(
       ["Resource", "What it holds", "Format"],
@@ -552,12 +627,12 @@ export function renderPage(m: ProductModel): string {
     "",
     table(
       ["Setting", "Default", "What happens at the limit"],
-      [[`\`${m.limit.setting}\``, m.limit.defaultValue, "`draft_prose` calls per token in an hour. The next call fails with `rate_limited`."]],
+      [[`\`${m.limit.setting}\``, m.limit.defaultValue, "A token can start this many `draft_prose` calls in any hour. The next call fails with `rate_limited`."]],
     ),
     "",
     "## Errors",
     "",
-    'A failed call returns a tool error. Its text is JSON with `ok` set to false and an `error` object that holds `code`, `message` and, for some errors, the extra fields below. A resource or prompt that fails is a protocol error whose message is "code: message".',
+    'A failed call returns a tool error. Its text is JSON with `ok` set to false and an `error` object that holds `code`, `message` and, for some errors, the extra fields below. A resource or prompt that fails is a protocol error whose message is "code: message". The rows are written for this page and checked against the list of codes in the server.',
     "",
     table(
       ["Code", "When", "Extra fields"],
