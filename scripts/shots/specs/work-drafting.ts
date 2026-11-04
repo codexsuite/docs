@@ -30,7 +30,7 @@ async function applyDraft(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
 }
 
-/** Types a sentence at the end of scene 1.2 by hand and waits until it is saved. */
+/** Types a sentence at the start of scene 1.2 by hand and waits until it is saved. */
 async function editByHand(page: Page, ctx: SeedResult): Promise<void> {
   const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).getByTestId("prose-editor");
   await editor.click({ position: { x: 12, y: 8 } });
@@ -136,7 +136,7 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await confirmRestore(page, ctx);
       await page.getByTestId("write-history-confirm").click();
-      await page.getByTestId("editing-toast-undo").waitFor();
+      await page.getByTestId("editing-toast").filter({ hasText: "Restored the version" }).waitFor();
     },
   },
   {
@@ -145,7 +145,7 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await confirmRestore(page, ctx);
       await page.getByTestId("write-history-confirm").click();
-      await page.getByTestId("editing-toast-undo").waitFor();
+      await page.getByTestId("editing-toast").filter({ hasText: "Restored the version" }).waitFor();
       await page.locator("[data-testid^='write-history-row-']").filter({ hasText: "Restored" }).first().waitFor();
       const rows = page.locator("[data-testid^='write-history-row-']");
       const before = await rows.count();

@@ -62,14 +62,13 @@ async function makeOverdue(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("refs-row-reminder").first().waitFor();
 }
 
-/** Selects the text from the start of `first` to the end of `last` in a scene's editor, and returns the editor. */
+/** Selects the text from the start of `first` to the end of `last` in a scene's editor. */
 async function selectRange(page: Page, ctx: SeedResult, scene: string, first: string, last: string) {
   await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=${scene}`);
   const editor = page.getByTestId(`write-scene-${ctx.sceneIds[scene]}`).getByTestId("prose-editor");
   await editor.waitFor();
   await editor.click({ position: { x: 12, y: 8 } });
   await selectInEditor(editor, first, last);
-  return editor;
 }
 
 /** Selects the text from the start of `first` to the end of `last` in an already open editor. */
