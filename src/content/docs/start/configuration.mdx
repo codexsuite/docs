@@ -7,14 +7,14 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-Codex reads its settings from environment variables that start with `CODEX_`. This page lists every one that an operator sets. The product README holds the same table, and a nightly check fails when the two differ.
+Codex reads its settings from environment variables that start with `CODEX_`. This page lists every one that an operator sets. The product README holds the same table, and a nightly check fails when the two list different variables or groups.
 
 In Compose, set a variable under `environment` for the service that needs it. The [quick start](/start/quickstart/) file already sets the ones you need to begin. The examples below use the same `- NAME=value` form.
 
-The `codex` (web) service takes the Database, First admin, Files and keys, Worker, AI, MCP and Logging groups. The `worker` service takes Database, Files and keys, Worker, Print and Logging. Set the Print group on the worker, because it runs PDF runs and has Tectonic. The web image needs the Print variables only for Quick preview and template thumbnails.
+The `codex` (web) service takes the Database, First admin, Files and keys, Worker, AI, MCP and Logging groups. The `worker` service takes Database, Files and keys, Worker, Print and Logging. Set the Print group on the worker, because it builds PDFs and has Tectonic. The web image needs the Print variables only for Quick preview and template thumbnails.
 
 <Aside type="caution" title="Printing needs Landlock ABI 4">
-  Print features need Landlock ABI 4, which arrived in Linux 6.7. `codex-sandbox` refuses to run without it, and no variable turns it off. On an older kernel, including WSL2 on kernel 6.6, these features fail. In the web process, Quick preview and template thumbnails. In the worker, proofs, Export for printer, and Word and EPUB export. Markdown export and the source archive do not use the sandbox, so they still work. [Requirements](/start/requirements/) has a command that tests your host.
+  Print features need Landlock ABI 4, which arrived in Linux 6.7. `codex-sandbox` refuses to run without it, and no variable turns it off. On an older kernel, including WSL2 on kernel 6.6, these features fail. In the web process, Quick preview and template thumbnails fail. In the worker, proofs, Export for printer, and Word and EPUB export fail. Markdown export and the source archive do not use the sandbox, so they still work. [Requirements](/start/requirements/) has a command that tests your host.
 </Aside>
 
 ## Database
@@ -57,7 +57,7 @@ Default: none.
 - CODEX_ADMIN_EMAIL=admin@example.com
 ```
 
-Set it once on a new install. Remove both variables after your first sign-in. A user who already has a password is left alone, so keeping them does no harm, but the password then sits in your Compose file for nothing.
+Set it once on a new install. Remove both variables after your first sign-in. Codex does not change a user who already has a password, so keeping the variables does no harm. The password stays in your Compose file, though.
 
 ### `CODEX_ADMIN_PASSWORD`
 
@@ -69,7 +69,7 @@ Default: none.
 - CODEX_ADMIN_PASSWORD=choose-a-long-passphrase
 ```
 
-Codex refuses to start when the password is too weak to accept. See [Users and sign-in](/start/sign-in/) for what happens after the first sign-in.
+Codex refuses to start when the password is shorter than 10 or longer than 128 characters. See [Users and sign-in](/start/sign-in/) for what happens after the first sign-in.
 
 ## Files and keys
 
@@ -91,7 +91,7 @@ Mount a volume there and include it in your backups. [Files and the worker](/sta
 
 The folder for the key ring that encrypts the AI keys users save. Store it outside the database, so a database dump alone cannot decrypt the keys.
 
-Default: none. Without it, AI keys cannot be saved, and saving one returns "AI integrations need a key folder."
+Default: none. Without it, Codex cannot save AI keys, and saving one returns "AI integrations need a key folder."
 
 ```
 - CODEX_DATA_PROTECTION_DIR=/data/keys
@@ -103,7 +103,7 @@ Set it on the web and worker services, on a volume you keep. If you lose the fol
 
 ### `CODEX_ROLE`
 
-Which half of the app this process is. `web` serves the app and claims no print jobs. `worker` claims render and export jobs. `all` does both in one process.
+What this process does. `web` serves the app and claims no print jobs. `worker` claims render and export jobs. `all` does both in one process.
 
 Default: `web`.
 
@@ -123,13 +123,13 @@ Default: `true`. The worker image does not change it.
 - CODEX_EVENTS_LISTEN=false
 ```
 
-Set it to `false` on the worker. Otherwise its own quote-flag scanner rescans every save.
+Set it to `false` on the worker. The worker starts neither the quote-flag scanner nor the book events relay, so listening only holds one database connection for nothing.
 
 ## AI
 
 ### `CODEX_AI_ALLOW_LOCAL_ENDPOINTS`
 
-Lets users point an AI integration at `http://` and private-network addresses, such as Ollama or LM Studio. Only the value `true` turns it on. Codex reads it on every call, so a change needs no restart. Link-local addresses stay refused either way.
+Lets users point an AI integration at `http://` and private-network addresses, such as Ollama or LM Studio. Only the value `true` turns it on. Codex reads it on every call, so a change needs no restart. Codex refuses link-local addresses either way.
 
 Default: off.
 
@@ -177,7 +177,7 @@ Default: a folder named `codex-render` in the temp folder.
 - CODEX_RENDER_WORK=/var/cache/codex/render
 ```
 
-Set it to put the work on a larger disk. A full book at print resolution needs room.
+Set it to put the work on a larger disk.
 
 ### `CODEX_RENDER_TIMEOUT_SECONDS`
 
@@ -195,7 +195,7 @@ Raise it when a long book fails on a slow host. [Troubleshooting](/start/trouble
 
 The largest PDF a run may write, in megabytes. A bigger PDF fails the run, even if Tectonic finished.
 
-Default: `1024`.
+Default: `1024`, sized for a full book at 300 dpi.
 
 ```
 - CODEX_RENDER_MAX_PDF_MB=512
@@ -205,7 +205,7 @@ Lower it to protect a small disk. Raise it only if a book with many full-page im
 
 ### `CODEX_RENDER_MAX_PROCS`
 
-The process and thread limit for a run. The kernel counts every process and thread of the user, so a shared host needs headroom.
+The process and thread limit for a run. The kernel counts every process and thread of the user, so raise the limit when that user runs other services.
 
 Default: `4096`.
 
@@ -217,7 +217,7 @@ The worker container runs little else, so you set this only when the worker shar
 
 ### `CODEX_TECTONIC`
 
-The path to Tectonic, or a name Codex looks up on `PATH`. Codex looks it up when a run starts, so a host without Tectonic still starts and answers "not configured" when asked to render.
+The path to Tectonic, or a name Codex looks up on `PATH`. Codex looks it up when a run starts, so Codex still starts on a host without Tectonic. Each render then fails with the message "Print rendering needs tectonic, which is not installed on this server (set CODEX_TECTONIC)."
 
 Default: `tectonic`.
 
@@ -279,7 +279,7 @@ Raise it if an agent hits `rate_limited` during normal work. Lower it to cap wha
 
 ## Logging
 
-Logs go to the console, so `docker logs` works. Set both variables below to send them to a Seq server as well.
+Logs go to the console, so `docker logs` works. Set `CODEX_SEQ_URL` to send them to a Seq server as well, and `CODEX_SEQ_API_KEY` if that server requires a key.
 
 ### `CODEX_SEQ_URL`
 
