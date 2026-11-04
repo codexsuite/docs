@@ -5,16 +5,16 @@ sidebar:
   order: 1
 ---
 
-These are the terms the screens, the guides and the agent tools use. They are in the order you meet them when you set up a book.
+These are the terms the screens, the guides and the agent tools use.
 
 ## Books and structure
 
-- **Series.** A group of books. A series holds a style guide and settings that copy down to its books. See [Series](/ui/series/).
+- **Series.** A group of books. A series holds a style guide and settings that a book uses unless it sets its own. See [Series](/ui/series/).
 - **Book.** One manuscript. A book holds acts, chapters and scenes, and has its own Knowledge base, sources and settings.
 - **Act.** The top level of a book's outline. It holds chapters. In Salt and Signal, The Light is an act.
-- **Chapter.** A division of an act. It holds scenes and has a number, a title and a summary.
+- **Chapter.** A division of an act. It holds scenes and has a title, a summary and usually a number.
 - **Scene.** The smallest unit you write in. A scene has a display number such as 1.2, which means the second scene of chapter 1. Its text saves as you type.
-- **Beat.** A short instruction inside a scene that tells Codex what the next stretch of text should do. You can write the text yourself or ask for a draft. See [Beats and AI drafts](/ui/ai-drafts/).
+- **Beat.** An instruction to the model, written in plain words, that sits in the scene where the new text should go. You can write the text under it yourself or ask for a draft. See [Beats and AI drafts](/ui/ai-drafts/).
 - **Draft.** Text Codex generates from a beat or from the end of a scene. A draft stays pending until you apply or discard it.
 
 ## Research and clearing
@@ -23,7 +23,7 @@ These are the terms the screens, the guides and the agent tools use. They are in
 - **Alias.** Another name for an entry. Write underlines an entry's name and each of its aliases in your text.
 - **Source.** A work you quote or cite, such as a book or an article. A source holds the title, author, publisher, year and its licence. See [References](/ui/references/).
 - **Use.** One place in a scene where you cite a source. A use has a kind (quote, paraphrase, data, figure or lyric), an optional locator such as "pp. 41-43", and a marker number.
-- **Clearance.** Whether you may print what you quote. Codex gives each source a status of risk, needs check, cleared or not cited, and lists what blocks print. Only you sign off a source.
+- **Clearance.** Whether you may print what you quote. Codex gives each source a status of Copyright risk, Needs check, Cleared or Not cited, and lists what blocks print. An agent cannot sign off a source. You do that in References.
 
 ## Print
 
@@ -33,7 +33,7 @@ These are the terms the screens, the guides and the agent tools use. They are in
 
 ## Running Codex
 
-- **Worker.** The second container. It claims render and export jobs, so proofs and PDF exports need it. See [Files and the worker](/start/worker/).
+- **Worker.** The `codex-worker` container. It claims proof and export jobs, so proofs and every export, including Word, EPUB and Markdown, need it. See [Files and the worker](/start/worker/).
 
 ## Agents
 

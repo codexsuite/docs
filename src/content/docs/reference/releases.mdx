@@ -7,14 +7,14 @@ sidebar:
 
 This page lists notable changes on the main branch of Codex. It has no entries yet.
 
-Codex publishes only two image tags, `latest` and a commit SHA. An entry names the commit it describes, so you can pin that SHA in production. See [Install for production](/start/production/).
+Codex publishes only two image tags, `latest` and a commit SHA. An entry names the full SHA of the commit it describes, so you can pin that image tag in production. See [Install for production](/start/production/).
 
 ## Entry format
 
-Each entry has a heading with the date and the short commit SHA, then one line per change, grouped as Added, Changed or Fixed:
+Each entry has a heading with the date and the full commit SHA, then one line per change, grouped as Added, Changed or Fixed:
 
 ```md
-## YYYY-MM-DD (abc1234)
+## YYYY-MM-DD (<full commit SHA>)
 
 ### Added
 
@@ -22,7 +22,7 @@ Each entry has a heading with the date and the short commit SHA, then one line p
 
 ### Changed
 
-- A behavior that works differently now.
+- A behaviour that works differently now.
 
 ### Fixed
 

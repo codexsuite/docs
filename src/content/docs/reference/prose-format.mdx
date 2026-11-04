@@ -5,13 +5,13 @@ sidebar:
   order: 3
 ---
 
-Codex stores the body of every scene, and every inline scene summary, as plain Markdown with a few extensions. You meet this text in three places. The Source view in Write shows it. A Markdown export contains it. An agent reads and changes it with `edit_prose`.
+Codex stores the body of every scene, and every inline scene summary, as plain Markdown with a few extensions. The Source view in Write shows this text. The source archive export holds it, one file per scene. An agent reads it with `read_manuscript` and changes it with `edit_prose`. A Markdown manuscript export is different. It is written for a reader, so it has no embeds and no `kb:`, `chapter:` or `ref:` links.
 
 ## Switch between the two views
 
 Write shows a scene as Rich text by default. Press `Ctrl+/` to switch the field to Source, which shows the Markdown, and press it again to switch back. Both views edit the same text.
 
-## What Codex keeps the same
+## How Codex writes Markdown
 
 Codex writes Markdown in one canonical form:
 
@@ -19,11 +19,11 @@ Codex writes Markdown in one canonical form:
 - One newline at the end of a body that has text. An empty body has no characters at all.
 - LF line ends and no trailing spaces.
 
-If you paste text that is not canonical, Codex tidies it and keeps everything in it. Text Codex does not understand becomes an opaque block that is written back unchanged.
+If you paste text that is not canonical, Codex tidies it and keeps everything in it. Codex keeps text it does not understand as a separate block and writes it back unchanged.
 
 ## Blocks
 
-A block ends at a blank line. A paragraph also ends at a line that starts with `::` or a line that starts with three backticks.
+A block ends at a blank line. A paragraph also ends at a line that starts with `::` but not `:::`, or a line that starts with three backticks.
 
 | You write | You get |
 |---|---|
@@ -32,7 +32,8 @@ A block ends at a blank line. A paragraph also ends at a line that starts with `
 | `> quote` | A block quote. Put `>` before each line. |
 | `- item` | A bullet list. Indent the content of an item by two spaces. |
 | `1. item` | A numbered list. The first number is the start and the rest count up. |
-| `---` alone on a line | A horizontal rule. |
+| A list inside an item | A nested list. Indent it by the item's marker width, 2 under `- ` and 3 under `1. `, with no blank line between items. |
+| `---` alone on a line | A horizontal rule. `***` and `___` read the same, and Codex writes them as `---`. |
 | A line of cells between bars | A table, with a header row and a delimiter row of `---`, `:---`, `:---:` or `---:`. |
 | `::pagebreak` | A page break in print. |
 | `:::aside` ... `:::` | A container. The other names are `readaloud` and `sidebar{title="..."}`. A container cannot hold another container. |
@@ -41,7 +42,7 @@ A block ends at a blank line. A paragraph also ends at a line that starts with `
 
 Print flags a comment with text after the closing `-->` on its line, and a comment that never closes, because both can hide your text.
 
-Some lines are embeds that Codex creates for you. `::beat{id="..."}` marks a beat, `::kb-addition{id="..."}` a Knowledge base addition and `::figure{id="..."}` a figure. Do not type these by hand. Codex refuses to save an id that does not belong to the scene.
+Some lines are embeds that Codex creates for you. `::beat{id="..."}` marks a beat, `::kb-addition{id="..."}` a Knowledge base addition and `::figure{id="..."}` a figure. Do not type these by hand. `::spell{kb="..."}` and `::statblock{kb="..."}` place a Knowledge base entry in print. Codex refuses to save an id that does not belong to the scene.
 
 ### Tables
 
@@ -59,20 +60,22 @@ A raw LaTeX block or span passes through to templates that use LaTeX. Other outp
 |---|---|
 | `*text*` | Italic. |
 | `**text**` | Bold. |
+| `***text***` | Bold italic. |
 | `~~text~~` | Strikethrough. |
 | `` `text` `` | Code. |
 | `[Name](kb:<entry id>)` | A mention of a Knowledge base entry. |
 | `[Title](chapter:<chapter id>)` | A link to a chapter. |
 | `[passage](ref:<use id>)` | A passage that cites a source. See [References](/ui/references/). |
+| `[^](ref:<use id>)` | A source marker with no words of its own. |
 | `[text](https://example.com)` | An external link. Codex accepts `http://`, `https://` and `mailto:` targets. |
 | `` `\DndDropCapLine{F}`{=latex} `` | An inline raw LaTeX chip. |
 
 An id in a `kb:`, `chapter:` or `ref:` link is a UUID. A link with any other id stays plain text. Link text cannot hold an unescaped `[` or `]`.
 
-Put a backslash before `\`, `*`, `_`, `[` or `]` to write it as plain text.
+Put a backslash before `\`, `*`, `_`, `` ` ``, `[` or `]` to write it as plain text.
 
-A scene summary is simpler. It is one paragraph that holds plain text, bold, italic, code and mentions.
+A scene summary is one paragraph that holds plain text, bold, italic, code and mentions. It has no newline at the end.
 
 ## What an agent can change
 
-An agent edits a scene with `edit_prose`. Each edit gives the exact old text and the new text, and the call needs the scene's current version. The call is all or nothing. It fails when an old text is missing, or when it matches more than once and the edit gives no occurrence. An agent cannot add a `::beat`, `::kb-addition` or `ref:` id. See [Tool reference](/agents/tools/).
+An agent edits a scene with `edit_prose`. Each edit gives the exact old text and the new text, and the call needs the scene's current version. The call is all or nothing. It fails when an old text is missing, or when it matches more than once and the edit gives no occurrence. An agent cannot add a `::beat`, `::kb-addition` or `::figure` line, or a `ref:` id. See [Tool reference](/agents/tools/).
