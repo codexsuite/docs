@@ -329,7 +329,7 @@ function docGroups(doc: string): Map<string, string> {
 const errorRows: ErrorRow[] = [
   {
     codes: ["not_found"],
-    when: "No match for a ref, including a display number too big for any outline, or a book the token's user can neither own nor open through sharing.",
+    when: "No match for a ref, including a display number too big for any outline, or a book the token's user does not own and cannot open through sharing.",
     extra: "`candidates`: close matches",
   },
   {
@@ -354,13 +354,13 @@ const errorRows: ErrorRow[] = [
   },
   {
     codes: ["conflict"],
-    when: "The call clashes with the current state. Examples: the `expected_version` is out of date, an undo comes after the prose has changed again, a draft is no longer pending, a category name is taken, a category still has live entries, a permission letter has no request to act on, or an export of the book is already running.",
+    when: "The call clashes with the current state. Examples: the `expected_version` is out of date, an undo comes after the prose has changed again, a draft is no longer pending, a category name is taken, a category still has live entries, a source has no permission request to act on, or an export of the book is already running.",
     extra: "`candidates` holds the scene only when `expected_version` is out of date. Other conflicts have none, and a draft conflict names the draft.",
   },
   {
     codes: ["blocked"],
-    when: "The call is refused. Reasons: an undo that is already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`), a copyright decision only the author can make in the app (`author_decision`), signing off a source that is still a copyright risk (`copyright_risk`), recording a permission grant, which needs a signed letter as a file (`signed_letter_is_a_file`), and a print export with open blocks in queue mode.",
-    extra: "`rule` is there when the tool sets one. The export refusal has none. `open_url` is there when the author has to act in the app.",
+    when: "Codex refuses the call. Examples: an undo that is already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`), or an undo of `create_book` while an export of the book runs. Codex also refuses when a copyright decision only the author can make in the app (`author_decision`) is pending, when you sign off a source that is still a copyright risk (`copyright_risk`), and when you record a permission grant without a signed letter as a file (`signed_letter_is_a_file`). Codex also refuses a print export with open blocks in queue mode. `draft_prose` fails this way when the provider declines to write the passage before the first chunk, and the message says to reword the beat and try again.",
+    extra: "`rule` is there when the tool sets one, and the print export, provider and archive refusals have none. `open_url` comes with `author_decision` and `copyright_risk`. For `signed_letter_is_a_file` the link is in the message.",
   },
   {
     codes: ["needs_confirmation"],
@@ -389,7 +389,7 @@ const errorRows: ErrorRow[] = [
   },
   {
     codes: ["internal_error"],
-    when: "A fault in the server, or a model provider that is busy, unreachable or refuses the request before the first chunk of a draft. For a server fault the message is fixed and the details go to the server log. For a provider the message is its own, such as \"X is busy right now. Try again in a moment.\", so retry later.",
+    when: "A fault in the server, or a model provider that is busy, cannot be reached or cannot use the request before the first chunk of a draft. For a server fault the message is fixed and the details go to the server log. For a provider the message says what to do: try again when it is busy or cannot be reached, and check the model and the beat when it cannot use the request.",
     extra: "None",
   },
 ];
