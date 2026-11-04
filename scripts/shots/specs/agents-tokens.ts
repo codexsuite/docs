@@ -34,6 +34,8 @@ export const shots: ShotSpec[] = [
   {
     name: "agents-tokens-secret",
     route: "/account",
+    // The box also prints the claude mcp add command, which holds the secret.
+    mask: ["[role=status] code"],
     steps: async (page) => {
       await openAgentAccess(page);
       await createToken(page, "Claude Code on my laptop", ["write"], "90 days");
