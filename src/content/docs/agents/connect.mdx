@@ -5,4 +5,97 @@ sidebar:
   order: 2
 ---
 
-{/* STUB */}
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+To connect an agent, create a token in Codex, then give your MCP client the server address and the token.
+
+Address: `https://<your-codex>/mcp`, with the token in an `Authorization: Bearer` header. Replace `<your-codex>` with the address you open Codex at. The quick start serves it at `http://localhost:8080`.
+
+## Create a token
+
+1. Open your account at `/account` and find the Agent access section.
+2. Enter a name that says where the token will live, such as `Claude Code on my laptop`.
+3. Tick the scopes the agent needs. Read is always on. [Tokens and scopes](/agents/tokens/) explains each one.
+4. Choose when the token expires, then select Create token.
+5. Copy the token now. Codex shows it once and keeps only a hash.
+
+The token starts with `cdx_pat_`. Treat it like a password.
+
+The box that shows the token also prints a ready `claude mcp add` command with your address and token filled in. You can copy that command instead of typing the one below.
+
+## Add the server to your client
+
+<Tabs>
+  <TabItem label="Claude Code">
+    Run this in a terminal. Replace the address and the token.
+
+    ```sh
+    claude mcp add --transport http codex https://<your-codex>/mcp \
+      --header "Authorization: Bearer cdx_pat_<your token>"
+    ```
+
+    This stores the server for the current project only. Add `--scope user` to make it available in every project. Do not use `--scope project` with a real token, because it writes the token into `.mcp.json`, which you may commit. To share the file with a team, read the token from an environment variable instead:
+
+    ```json
+    {
+      "mcpServers": {
+        "codex": {
+          "type": "http",
+          "url": "https://<your-codex>/mcp",
+          "headers": { "Authorization": "Bearer ${CODEX_TOKEN}" }
+        }
+      }
+    }
+    ```
+
+    Claude Code documents these options in [Connect Claude Code to tools via MCP](https://code.claude.com/docs/en/mcp).
+  </TabItem>
+  <TabItem label="Cursor">
+    Add the server to `~/.cursor/mcp.json` for all projects, or to `.cursor/mcp.json` in one project.
+
+    ```json
+    {
+      "mcpServers": {
+        "codex": {
+          "url": "https://<your-codex>/mcp",
+          "headers": { "Authorization": "Bearer ${env:CODEX_TOKEN}" }
+        }
+      }
+    }
+    ```
+
+    Set `CODEX_TOKEN` in your shell profile to the token, then restart Cursor. Cursor documents this format in [Model Context Protocol](https://cursor.com/docs/context/mcp).
+  </TabItem>
+  <TabItem label="Other clients">
+    Any MCP client that supports the Streamable HTTP transport and custom headers works. Give it the address `https://<your-codex>/mcp` and the header `Authorization: Bearer cdx_pat_<your token>`. Codex does not serve a stdio connection.
+  </TabItem>
+</Tabs>
+
+## Check the connection
+
+In Claude Code, run `claude mcp list`, or type `/mcp` in a session. The `codex` server shows as connected. Then ask the agent a question that needs a tool:
+
+```text
+List my books in Codex.
+```
+
+The agent calls `list_books` and answers with your Library. In the running example it finds the Working Coasts series with Salt and Signal and Tide Tables.
+
+## If the connection fails
+
+A request without a working token gets HTTP 401. The response carries `WWW-Authenticate: Bearer realm="codex"` and this message:
+
+```text
+Send a Codex personal access token: Authorization: Bearer cdx_pat_…. Create one under Account → Agent access.
+```
+
+Codex answers 401 when the header is missing, is not a bearer token, or holds a token that is unknown, revoked or expired. It also answers 401 when the token's user is disabled. Check these in order.
+
+1. The header is `Authorization: Bearer cdx_pat_...` with one space and no quotes in the stored value.
+2. The token is the one you copied, with all of its characters.
+3. The token is in the list under Agent access and has not expired. If it was revoked or expired, create a new one.
+4. The address ends in `/mcp` and points at your Codex, not at the sign-in page.
+
+Claude Code does not check a token when you add the server, so a wrong token shows up only when it connects. A request to `/mcp` with `GET` or `DELETE` returns 405, because the server is stateless. Clients do not send those methods for this server.
+
+If the connection works but a tool fails with `forbidden`, the token lacks a scope or your role on the book is too low. [Tokens and scopes](/agents/tokens/) covers both.
