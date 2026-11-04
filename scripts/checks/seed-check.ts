@@ -61,10 +61,10 @@ async function throwawayBook(session: AdminSession): Promise<SeedBook> {
 /** The checks the brief names for the references module. */
 async function checkReferences(session: AdminSession, bookId: string, seed: ReferencesSeed): Promise<void> {
   const signalsId = seed.sourceIds["Signals at Sea"]!;
-  const detail = await expectOk<{ quotedWords: number; limit: number; checks: { id: string; status: string }[]; permission: { status: string } | null }>(
+  const detail = await expectOk<{ quotedWords: number; limit: number; checks: { key: string; status: string }[]; permission: { status: string } | null }>(
     session, "GET", `/api/references/${signalsId}`);
   if (!(detail.quotedWords > detail.limit)) fail(`QuoteShowsOverPublisherLimit: ${detail.quotedWords} words against a limit of ${detail.limit}.`);
-  if (!detail.checks.some((c) => c.id === "words" && c.status === "danger")) fail("QuoteShowsOverPublisherLimit: the words check is not red.");
+  if (!detail.checks.some((c) => c.key === "words" && c.status === "danger")) fail("QuoteShowsOverPublisherLimit: the words check is not red.");
   if (detail.permission?.status !== "draft") fail("QuoteShowsOverPublisherLimit: the permission letter is not a draft.");
   console.log("PASS QuoteShowsOverPublisherLimit");
 
@@ -150,6 +150,7 @@ async function main(): Promise<void> {
   if (part === "all") {
     requireIds("sceneIds", seed.sceneIds, 12);
     requireIds("entryIds", seed.entryIds, 4);
+    await checkReferences(session, seed.bookIds.saltAndSignal, seed);
     await restoreFixtures(session, seed);
   }
   console.log(`PASS ${part}`);
