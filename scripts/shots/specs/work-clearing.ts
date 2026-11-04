@@ -6,7 +6,12 @@ import type { SeedResult, ShotSpec } from "../types.ts";
 const signals = "Signals at Sea";
 const referencesRoute = (ctx: SeedResult) => `/books/${ctx.bookIds.saltAndSignal}/references`;
 const sourceRoute = (ctx: SeedResult) => `${referencesRoute(ctx)}#${ctx.sourceIds[signals]}`;
-const sentMask = ["[data-testid='refs-perm-sent-label']", "[data-testid='refs-perm-responded-label']", "[data-testid='refs-perm-remind-label']"];
+const sentMask = [
+  "[data-testid='refs-perm-sent-label']",
+  "[data-testid='refs-perm-responded-label']",
+  "[data-testid='refs-perm-remind-label']",
+  "[data-testid='refs-perm-followed-up-label']",
+];
 const citedSentence = "The crates came off the train at Harrowmouth on a Tuesday.";
 
 /** Opens the Signals at Sea panel and waits for its verdict. */
@@ -45,6 +50,14 @@ async function recordGrant(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("refs-perm-credit-input").fill("Quoted from Signals at Sea by R. Okafor, used by permission of Tidewater Review.");
   await page.getByTestId("refs-perm-grant-submit").click();
   await page.getByTestId("refs-perm-attachment").waitFor();
+}
+
+/** From the sent state, sets the reminder to today so the reply counts as overdue. */
+async function makeOverdue(page: Page, ctx: SeedResult): Promise<void> {
+  await markSent(page, ctx);
+  await page.getByTestId("refs-perm-remind").fill(new Date().toISOString().slice(0, 10));
+  await page.getByTestId("refs-reminders-chip").waitFor();
+  await page.getByTestId("refs-row-reminder").first().waitFor();
 }
 
 /** Selects the sentence in scene 1.2, opens the slash menu over it and waits for the Source reference item. */
@@ -130,6 +143,57 @@ export const shots: ShotSpec[] = [
     route: sourceRoute,
     mask: sentMask,
     steps: recordGrant,
+  },
+  {
+    name: "work-clearing-overdue",
+    route: sourceRoute,
+    mask: sentMask,
+    steps: makeOverdue,
+  },
+  {
+    name: "work-clearing-followed-up",
+    route: sourceRoute,
+    mask: sentMask,
+    steps: async (page, ctx) => {
+      await makeOverdue(page, ctx);
+      await page.getByTestId("refs-perm-followed-up").click();
+      await page.getByTestId("refs-perm-followed-up-label").waitFor();
+    },
+  },
+  {
+    name: "work-clearing-refused",
+    route: sourceRoute,
+    mask: sentMask,
+    steps: async (page, ctx) => {
+      await markSent(page, ctx);
+      await page.getByTestId("refs-perm-refused").click();
+      await page.getByTestId("refs-perm-refuse-note").fill("The Review does not license long extracts.");
+      await page.getByTestId("refs-perm-refuse-submit").click();
+      await page.getByTestId("refs-verdict-cut").waitFor();
+    },
+  },
+  {
+    name: "work-clearing-replace-letter",
+    route: sourceRoute,
+    mask: sentMask,
+    steps: async (page, ctx) => {
+      await recordGrant(page, ctx);
+      await page.getByTestId("refs-perm-attachment-remove").click();
+      await page.getByTestId("refs-perm-attachment-confirm").waitFor();
+    },
+  },
+  {
+    name: "work-clearing-paraphrase",
+    route: sourceRoute,
+    steps: async (page, ctx) => {
+      await withdrawDraft(page, ctx);
+      await page.getByTestId("refs-verdict-paraphrase").click();
+      const beat = page.locator("[data-testid^='write-beat-body-']").filter({ hasText: "Paraphrase the passage quoted from Signals at Sea" });
+      await beat.waitFor();
+      const beatId = (await beat.first().getAttribute("data-testid"))!.replace("write-beat-body-", "");
+      await page.getByTestId(`write-beat-generate-${beatId}`).click();
+      await page.locator("[data-testid^='write-draft-apply-']").first().waitFor();
+    },
   },
   {
     name: "work-clearing-cleared",

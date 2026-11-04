@@ -11,6 +11,13 @@ async function openDraft(page: Page, ctx: SeedResult): Promise<void> {
   await page.locator("[data-testid^='write-draft-apply-']").first().waitFor();
 }
 
+/** Adds Tobias Venn to the beat's context and waits for his chip. */
+async function addTobiasVenn(page: Page, ctx: SeedResult): Promise<void> {
+  await page.locator("[data-testid^='write-beat-context-add-']").first().click();
+  await page.getByTestId(`write-beat-context-option-${ctx.entryIds["Tobias Venn"]}`).click();
+  await page.locator("[data-testid^='write-beat-context-'][title^='Remove from']").first().waitFor();
+}
+
 /** Applies the pending draft and waits until the draft panel is gone. */
 async function applyDraft(page: Page, ctx: SeedResult): Promise<void> {
   await openDraft(page, ctx);
@@ -48,9 +55,7 @@ export const shots: ShotSpec[] = [
     route: writeRoute,
     steps: async (page, ctx) => {
       await openDraft(page, ctx);
-      await page.locator("[data-testid^='write-beat-context-add-']").first().click();
-      await page.getByTestId(`write-beat-context-option-${ctx.entryIds["Tobias Venn"]}`).click();
-      await page.locator("[data-testid^='write-beat-context-'][title^='Remove from']").first().waitFor();
+      await addTobiasVenn(page, ctx);
     },
   },
   {
@@ -58,6 +63,10 @@ export const shots: ShotSpec[] = [
     route: writeRoute,
     steps: async (page, ctx) => {
       await openDraft(page, ctx);
+      await addTobiasVenn(page, ctx);
+      await page.locator("[data-testid^='write-draft-retry-']").first().click();
+      await page.locator("[data-testid^='write-draft-meta-']").filter({ hasText: "attempt 2" }).first().waitFor();
+      await page.locator("[data-testid^='write-draft-apply-']").first().waitFor();
       await page.locator("[data-testid^='write-draft-sent-']").first().click();
       await page.locator("[data-testid^='write-draft-sent-popover-']").first().waitFor();
     },
@@ -84,6 +93,23 @@ export const shots: ShotSpec[] = [
       await confirmRestore(page, ctx);
       await page.getByTestId("write-history-confirm").click();
       await page.getByTestId("editing-toast-undo").waitFor();
+    },
+  },
+  {
+    name: "work-drafting-undone",
+    route: writeRoute,
+    steps: async (page, ctx) => {
+      await confirmRestore(page, ctx);
+      await page.getByTestId("write-history-confirm").click();
+      await page.getByTestId("editing-toast-undo").waitFor();
+      await page.locator("[data-testid^='write-history-row-']").filter({ hasText: "Restored" }).first().waitFor();
+      const rows = page.locator("[data-testid^='write-history-row-']");
+      const before = await rows.count();
+      await page.getByTestId("editing-toast-undo").last().click();
+      await page.waitForFunction(
+        (n) => document.querySelectorAll("[data-testid^='write-history-row-']").length > n,
+        before,
+      );
     },
   },
   {

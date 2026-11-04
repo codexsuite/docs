@@ -7,9 +7,9 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-This page follows one quote in Salt and Signal from the page to a permission on file. Scene 2.1 quotes *Signals at Sea* by R. Okafor (Tidewater Review, 1978). The quote runs to 348 words, and the publisher allows 300. Mara Quill cannot print the book with it until she has permission or a shorter quote.
+This page follows one quote in Salt and Signal until its permission is on file. Scene 2.1 quotes *Signals at Sea* by R. Okafor (Tidewater Review, 1978). The quote runs to 348 words, and the publisher allows 300. Mara Quill cannot print the book with it until she has permission or a shorter quote.
 
-You need a book with at least one source in References. For a short version of the permission steps, see [Clear a quote for print](/start/guides/clear-a-quote/). Codex does not give legal advice. It counts words, keeps the paper trail and blocks print export while a risk is open.
+You need a book with at least one source in References. For a short version of the permission steps, see [Clear a quote for print](/start/guides/clear-a-quote/). Codex does not give legal advice. It counts words, records each request and reply, and blocks print export while a risk is open.
 
 <Shot name="work-clearing-overview" alt="The References screen of Salt and Signal. The Signals at Sea row is marked Copyright risk and the summary strip says that one risk blocks print export." />
 
@@ -18,12 +18,12 @@ You need a book with at least one source in References. For a short version of t
 To cite a source, mark the passage in Write.
 
 1. Open the scene in Write and select the words you are quoting or paraphrasing.
-2. Type `/` and choose Source reference.
+2. Type `/` and choose Source reference. With nothing selected, Codex cites the sentence before the caret.
 3. Pick the source from the list. Type in the search box to narrow it.
 
 Mara cites *The Keeper's Ledger* for the first sentence of scene 1.2. The words become a numbered marker. The number follows the order of the markers in the book, so adding one in an early scene shifts the later numbers by one.
 
-<Shot name="work-clearing-cite" alt="Scene 1.2 in Write with a sentence selected and the source picker open, listing The Keeper's Ledger and Signals at Sea." />
+<Shot name="work-clearing-cite" alt="Scene 1.2 in Write with the source picker open, listing The Keeper's Ledger and Signals at Sea." />
 
 If the source is not in References yet, choose New source in the picker. Codex opens the Add source form with a note that it will return to Write. Look the book up by its ISBN or fill in the fields, and save. Codex returns you to the scene with the passage cited. Pasting the same ISBN again offers the record you already have instead of a duplicate.
 
@@ -31,27 +31,29 @@ To remove a citation, select its marker and choose Remove on the card. The words
 
 ## Read the marker
 
-Select a marker to open its card. The card names the source, shows its status and gives the reason. For a quote it also shows the count, as in `348 of 300 quoted words`. The marker's colour follows the status. Choose Open in References to go to the source.
+Select a marker to open its card. The card names the source, shows its status, gives the reason and shows the count, as in `348 of 300 quoted words`. The marker's colour follows the status. Choose Open in References to go to the source.
 
 <Shot name="work-clearing-marker" alt="The marker card for the Signals at Sea quote in scene 2.1. It shows Copyright risk, the reason and 348 of 300 quoted words." />
 
 ## Read the verdict
 
-In References, select the source. The panel starts with the verdict. The verdict has a status, a reason and one next step.
+In References, select the source. The panel starts with the verdict. The verdict has a status, a reason and a note on what to do next.
 
 For the Signals at Sea quote, the status is Copyright risk and the reason reads `Quoted prose: 348 of 300 words`. Under it, Codex says `Over the limit for quoting without permission. Shorten, paraphrase, or ask.`
 
 <Shot name="work-clearing-over-limit" alt="The Signals at Sea panel in References. The verdict reads Copyright risk, Quoted prose 348 of 300 words, with the buttons Ask for permission and Paraphrase instead." />
 
-The limit is a setting of the book. To change it, open [Book settings](/ui/book-settings/), find Quoted prose under Citations, and set how many words you may quote from one source without permission. Codex rechecks every source in the book when you change it.
+The limit is a setting of the book. To change it, open [Book settings](/ui/book-settings/), find Quoted prose under Publisher rules in Citations & permissions, and set how many words you may quote from one source without permission. Codex rechecks every source in the book when you change it.
 
-You have three ways out of a risk. You can cut the quote, replace it with a paraphrase, or ask for permission.
+You have three ways out of this risk. You can cut the quote, replace it with a paraphrase, or ask for permission.
 
 ## Shorten or paraphrase
 
-To cut the quote, open the passage from the source's use list and edit it in Write. When the count falls under the limit, the verdict changes to Needs check.
+To cut the quote, open the passage from the source's use list and edit it in Write. When the count is at or under the limit, the verdict changes to Needs check.
 
-To rewrite it with a model, select Paraphrase instead. Codex opens the scene in Write with a Scene beat after the quote that asks for the same ideas in your own words. Generate, read the draft and apply it as described in [Drafting](/work/drafting/#apply-retry-or-discard-a-draft). Then switch the use from Quote to Paraphrase in References. The quoted-word count drops, and the verdict becomes Needs check with the reason `Ready to sign off`.
+To rewrite it with a model, select Paraphrase instead in the verdict, or Paraphrase with AI on the use. Codex opens the scene in Write with a Scene beat after the quote that asks for the same ideas in your own words. Generate, read the draft and apply it as described in [Drafting](/work/drafting/#apply-retry-or-discard-a-draft). The draft goes under the quote, and the quoted words stay in the scene. Replace the quote with the new text. Then switch the use from Quote to Paraphrase in References. The quoted-word count drops, and the verdict becomes Needs check with the reason `Ready to sign off`.
+
+<Shot name="work-clearing-paraphrase" alt="Scene 2.1 in Write with a Scene beat under the Signals at Sea quote that asks for a paraphrase, and its pending draft." />
 
 ## Ask for permission
 
@@ -63,13 +65,17 @@ To rewrite it with a model, select Paraphrase instead. Codex opens the scene in 
 
 <Shot name="work-clearing-letter" alt="The drafted permission letter for Signals at Sea in the Permission section, with an address field and the buttons Copy letter and Mark sent." />
 
-The status stays Copyright risk, and the reason reads `Permission asked, no reply`. Codex notes the day you sent it. Until the reply arrives the risk still blocks print export.
+The status stays Copyright risk, and the reason reads `Permission asked, no reply`. Codex notes the day you sent it. Mark sent also sets a reminder 14 days ahead. Until the reply arrives the risk still blocks print export.
 
 <Shot name="work-clearing-sent" alt="The Permission section after Mark sent, showing Permission asked and the day it was sent." />
 
 ### Follow up
 
-When the reply is late, the References screen shows a chip such as `1 reply overdue`, and the source's row says `Reminder due`. Open the source. Choose Remind me again in 3 days or 7 days, or pick a date with Remind me on. Select Copy follow-up to get a short, polite chaser that quotes the date of your first request. Select Mark followed up when you send it. Codex does not email anyone.
+When the reply is late, the References screen shows a chip such as `1 reply overdue`, and the source's row says `Reminder due`. Open the source. Choose Remind me again in 3 days or 7 days, or pick a date with Remind me on. Select Copy follow-up to copy a short note that gives the date of your first request. Select Mark followed up when you send it. Codex does not email anyone.
+
+<Shot name="work-clearing-overdue" alt="The References screen with the chip 1 reply overdue and Reminder due on the Signals at Sea row." />
+
+<Shot name="work-clearing-followed-up" alt="The Permission section after Mark followed up, with the day recorded." />
 
 ### Record the reply
 
@@ -80,21 +86,25 @@ When the rights holder replies, choose Granted or Refused.
 3. Add terms and a fee if the letter sets them. The fee is a number, zero or more. A bad number shows `The fee must be a number, zero or more.` and records nothing.
 4. Select Record grant.
 
-<Shot name="work-clearing-granted" alt="The Permission section after Record grant. The signed letter is attached and the credit line for Signals at Sea is shown." />
+<Shot name="work-clearing-granted" alt="The Permission section after Record grant. It shows the signed letter and the credit line for Signals at Sea." />
 
-The risk lifts to Needs check, with the reason `Ready to sign off`. The credit line appears in the bibliography. To replace the letter, remove the attachment with its cross, confirm, and attach the new file.
+The status changes to Needs check, with the reason `Ready to sign off`. The credit line appears in the bibliography. To replace the letter, remove the attachment with its cross, confirm, and attach the new file.
 
-If the rights holder refuses, select Refused and type a note if you want one. The source stays a Copyright risk with the reason `Permission refused`. The next step becomes Cut or replace the passage, which opens the quote in Write with its marker card open. Remove the citation there, or write a paraphrase. The refused request stays on file, and you can draft a new one with Draft a new request.
+<Shot name="work-clearing-replace-letter" alt="The signed letter for Signals at Sea with its cross selected and the button Remove this letter." />
+
+If the rights holder refuses, select Refused, type a note if you want one, and select Record refusal. The source stays a Copyright risk with the reason `Permission refused`. The next step becomes Cut or replace the passage, which opens the quote in Write with its marker card open. Remove the citation there, or write a paraphrase. The refused request stays on file, and you can draft a new one with Draft a new request.
+
+<Shot name="work-clearing-refused" alt="The Signals at Sea panel after Record refusal. The verdict reads Copyright risk, Permission refused, with the button Cut or replace the passage." />
 
 To take back a request you sent by mistake, select Withdraw. The risk stays.
 
 ## Mark the source cleared
 
-When every check passes, the verdict says `Ready to sign off`. Select Mark as cleared. Codex records your name and the day. The status becomes Cleared, and the count in the summary strip goes up.
+When every check passes, the verdict says `Ready to sign off`. Select Mark as cleared. Codex records your name and the day. The status becomes Cleared, and the count in the summary strip goes up. To take the clearance back yourself, select Reopen.
 
 <Shot name="work-clearing-cleared" alt="The Signals at Sea panel after Mark as cleared. The status reads Cleared and a line records who signed it off." />
 
-A clearance reopens when something changes under it. A new passage that cites the source, or a restored scene that brings a citation back, sets the status to Needs check with the reason `New uses since cleared`. Read the new passage, then select Clear again.
+Codex reopens a clearance when the book cites the source again. A new passage that cites the source, or a restored scene that brings a citation back, sets the status to Needs check with the reason `New uses since cleared`. Read the new passage, then select Clear again.
 
 Print export stays blocked while any source in the book is a Copyright risk. Once none is, go on to [Getting to print](/work/print/).
 
