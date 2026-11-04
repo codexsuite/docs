@@ -13,7 +13,7 @@ Write shows the whole manuscript as one continuous page, chapter after chapter. 
 
 <Shot name="ui-write-overview" alt="Write showing scene 1.1 of Salt and Signal, with the gutter to the right of the text, the minimap at the far right and the book bar above." />
 
-Each scene has a gutter to the right of its text with its number, labels, summary, linked entries, a Label button and its word count. The minimap on the right has a tick for each scene and a mark for each chapter. Select it, or drag on it, to jump. An empty scene shows a hollow tick, and a scene with a draft waiting is highlighted. The toolbar has a chapter list with arrows, the scene you are reading, and Find in manuscript. The Scope list, Format and Focus are in the book bar.
+Each scene has a gutter to the right of its text with its number, labels, summary, linked entries, a Label button and its word count. The minimap on the right has a tick for each scene and a mark for each chapter. Select it, or drag on it, to jump. An empty scene shows a hollow tick, and a scene with a draft waiting shows a highlighted tick. The toolbar has a chapter list with arrows, the scene you are reading, and Find in manuscript. The Scope list, Format and Focus are in the book bar.
 
 ## Write and edit
 
@@ -25,7 +25,7 @@ Type `@` after a space to mention an entry. The list narrows as you type. Choose
 
 <Shot name="ui-write-mention" alt="Scene 1.1 after choosing Tobias Venn, with a mention in the text." />
 
-Type `/` after a space to open the `/` menu. It lists Scene beat, Continue writing, Codex addition, Mention entry, Chapter reference, Source reference, Figure, Split scene here, Block quote, Table and Divider. Source reference is dimmed until you select a passage or the sentence before the caret has text.
+Type `/` after a space to open the `/` menu. It lists Scene beat, Continue writing, Codex addition, Mention entry, Chapter reference, Source reference, Figure, Split scene here, Block quote, Table and Divider. The menu dims Source reference until you select a passage or the sentence before the caret has text.
 
 <Shot name="ui-write-slash-menu" alt="The slash menu open in scene 1.1 with its items grouped under AI, Codex and Insert." />
 
@@ -49,7 +49,7 @@ The Scope list narrows Write to a whole act, one chapter or one scene. The count
 
 <Shot name="ui-write-scope" alt="Write scoped to chapter 1, with only scenes 1.1 and 1.2 shown." />
 
-Format sets the text width (Narrow, Medium, Wide), paragraphs (Spaced, Indented), whether scene beats and summaries show, whether Codex names are underlined, and the Preview pane. Codex remembers these settings per book in your browser. Preview in Layout opens [Layout](/ui/layout/) at the scene you are in.
+Format sets the text width (Narrow, Medium, Wide), paragraphs (Spaced, Indented), whether scene beats and summaries show, whether Codex underlines names, and the Preview pane. Codex remembers these settings per book in your browser. Preview in Layout opens [Layout](/ui/layout/) at the scene you are in.
 
 <Shot name="ui-write-format" alt="The Format list open with Narrow and Indented chosen. The list runs past the right edge of the window, so Wide does not show." />
 
@@ -61,7 +61,7 @@ Select Focus in the book bar to hide the sidebar, toolbar, minimap and gutters. 
 
 ## Find and replace
 
-Type in Find in manuscript to mark every match in the prose, beats and AI drafts of the scope. The count shows how many. Press `Enter` for the next match and `Shift+Enter` for the previous one. Press `Esc` to clear the search. Find does not search summaries, and the toolbar that holds it is hidden in Focus.
+Type in Find in manuscript to mark every match in the prose, beats and AI drafts of the scope. The count shows how many. Press `Enter` for the next match and `Shift+Enter` for the previous one. Press `Esc` to clear the search. Find does not search summaries, and Focus hides the toolbar that holds it.
 
 <Shot name="ui-write-find" alt="Tobias in Find at 1 of 3, with the word marked in scene 1.2 and in its beat." />
 
@@ -69,7 +69,7 @@ To replace, type the text in Find, then select Replace and type the new text. Se
 
 <Shot name="ui-write-replace" alt="The Replace panel with Tobias in Find, Toby in Replace with, and the matches listed." />
 
-Select a match and then Replace to change that one, or Replace all to change every one that can change. Codex does not change a passage inside a cited quote or paraphrase, and it does not change a match that spans a link. Those matches say `Locked: inside a cited passage` or `Locked: spans a link`. A match in a pending AI draft stays as it is, and the panel says, for example, `1 in a pending draft. Replace all skips them.` A mention keeps its link when you change its text, and the Knowledge base entry keeps its name. A toast reports what changed, for example `Replaced 3 in 2 scenes`, and offers Undo, which takes back the whole Replace all as one action. If some text cannot be saved first, the toast says `Some text could not be saved, so nothing was replaced.`
+Select a match and then Replace to change that one, or Replace all to change every one that can change. Codex does not change a passage inside a cited quote or paraphrase, and it does not change a match that spans a link. Those matches say `Locked: inside a cited passage` or `Locked: spans a link`. A match in a pending AI draft stays as it is, and the panel says, for example, `1 in a pending draft. Replace all skips them.` A mention keeps its link when you change its text, and the Knowledge base entry keeps its name. A toast reports what changed, for example `Replaced 3 in 2 scenes`, and offers Undo, which takes back the whole Replace all as one action. If Codex cannot save some text first, the toast says `Some text could not be saved, so nothing was replaced.`
 
 <Shot name="ui-write-replace-locked" alt="The Replace panel with midnight in Find, and the match inside the cited quote in scene 1.1 marked Locked: inside a cited passage." />
 
@@ -83,7 +83,7 @@ Select a match and then Replace to change that one, or Replace all to change eve
 
 ## Go back to an earlier version
 
-Every scene keeps its history. To see it, point at a scene's heading in the gutter, open the three-dot menu and choose Version history. A panel opens on the right and lists versions, newest first, with the time, how the text came about and the word count. The labels are Edited, AI draft applied, Imported, Restored, Edited by an agent and Replaced by another session. The current version has a Current tag.
+Every scene keeps its history. To see it, point at a scene's heading in the gutter, open the three-dot menu and choose Version history. A panel opens on the right and lists versions, newest first, with the time, how the text came about and the word count. The labels are Edited, AI draft applied, Imported, Restored and Replaced by another session. An agent's edit reads `Edited by` and the agent's name, for example `Edited by claude-code`, or `Edited by an agent` if it gave no name. The current version has a Current tag.
 
 <Shot name="ui-write-history" alt="Version history for scene 1.2 listing Edited with the Current tag, AI draft applied and an earlier Edited version." />
 
@@ -125,7 +125,7 @@ If another tab or person saves a scene you have open, the book bar says `Updated
 
 <Shot name="ui-write-reloaded" alt="The scene after Reload, showing the text saved in the other tab." />
 
-If you keep typing instead, your save goes through and the last save wins. Codex keeps the other text as a version called Replaced by another session, so you can restore it.
+If you keep typing instead, Codex saves your text over the other text and keeps the other text as a version called Replaced by another session, so you can restore it.
 
 ## Books shared with you
 
