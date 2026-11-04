@@ -5,4 +5,86 @@ sidebar:
   order: 6
 ---
 
-{/* STUB */}
+import Shot from "../../../components/Shot.astro";
+
+This page takes Salt and Signal from a finished draft to a PDF for the printer. Salt and Signal still has one open copyright risk, the *Signals at Sea* quote from [Clearing quotes and citing](/work/clearing/). Mara Quill works down that risk, checks the bibliography, pages the book in the template `novel-6x9` and queues the export.
+
+You need edit access to the book and a worker that can print. Printing needs a host with Landlock ABI 4. See [Requirements](/start/requirements/). For the same route as one short guide, see [Export a print-ready PDF](/start/guides/export-pdf/). For every control on the Layout screen, see [Layout](/ui/layout/).
+
+<Shot name="work-print-overview" alt="The Layout screen of Salt and Signal showing a page of chapter 1 in the Quick preview, with the template Novel (6 x 9)." />
+
+## Pick a template
+
+A template sets the page size, margins, fonts and options such as a drop cap or a table of contents. Salt and Signal uses Novel (6 × 9), the template `novel-6x9`, pinned to v1.0.0. To choose another one, open Book settings and select the Layout and print section, or use the template list on the Layout screen. Show templates lists the built-in templates and yours.
+
+<Shot name="work-print-template" alt="The Layout and print section of Book settings, showing the template Novel (6 x 9), its version and the trim sizes." />
+
+A book keeps the version of a template that it was first set to. When a newer version exists, the section says so and lists what changed. Select Preview to see your book with the new version, then Apply to switch. Other books stay on their version. See [Print templates](/ui/templates/).
+
+## Page the prose while you write
+
+To see your prose as printed pages without leaving Write, open the Format menu and set Preview to Show. A pane opens beside the prose with a Quick preview of the scene or chapter and an estimate such as `≈ 3 pages`. Select Preview in Layout to continue on the Layout screen with the same template and trim.
+
+<Shot name="work-print-write-preview" alt="Write showing scene 1.1 with the preview pane open beside the prose, set in the template Novel (6 x 9) and headed with the page estimate." />
+
+The Quick preview is an approximation. The proof and the export use the same tools as the printed result.
+
+## Read preflight
+
+Preflight lists what will go wrong in print. On the Layout screen, select the Preflight tab. It has three groups, Blocks export, Warnings and Notes. Each row says what is wrong and links to the place that fixes it.
+
+<Shot name="work-print-preflight" alt="The Preflight tab of Layout reading 1 issue blocks export, with the row Signals at Sea: copyright risk and the link Open in References." />
+
+A copyright risk blocks the export. So does a missing image. A figure below the template's resolution, an unknown directive and raw LaTeX that the template skips are warnings.
+
+### Error: a risk blocks the export
+
+Select Export for printer while the risk is open. The dialog reads `1 issue blocks export`, lists the *Signals at Sea* row and disables Queue export. Codex checks the book again when you open the dialog.
+
+<Shot name="work-print-blocked" alt="The Export for printer dialog with the line 1 issue blocks export, the Signals at Sea row and the checkbox Export a draft with DRAFT across every page." />
+
+A request to the server for a final export gets the same answer. Codex refuses it with HTTP 422, the code `blocked` and the message `1 issue blocks export. Fix it or export a draft.` With more than one risk the message reads, for example, `3 issues block export. Fix them or export a draft.` Nothing is queued.
+
+You have two ways out. Clear the risk, or tick Export a draft. A draft export puts the word DRAFT on every page and records the blocks on the export row, so it is for reading and not for the printer.
+
+## Clear the last risk
+
+Mara has permission from Tidewater Review. In References, she selects *Signals at Sea*, enters the rights holder's address, sends the letter and records the grant with the signed letter and a credit line. The steps are in [Clearing quotes and citing](/work/clearing/#ask-for-permission). The verdict changes to Needs check, the Risk chip reads 0, and the strip reads `Ready for print export`.
+
+<Shot name="work-print-gate" alt="The References screen of Salt and Signal with the strip reading Ready for print export and no risk left." />
+
+The other ways to clear a risk are to cut the quote or to paraphrase it. Both are in the same page.
+
+## Check the bibliography and the citation style
+
+Select Bibliography on the References screen to preview the bibliography for the book. It lists the sources that a passage cites, in the style chosen in the Style list. A credit line from a granted permission shows under its source.
+
+<Shot name="work-print-bibliography" alt="The References screen in Bibliography view, listing The Keeper's Ledger and Signals at Sea with the credit line for Signals at Sea." />
+
+The Style list on the bibliography changes how it reads. The default for the book is a setting. To change it, open Book settings, go to Citations and choose a style. The styles are Chicago, APA and Harvard. Salt and Signal starts on Chicago. The example under the buttons shows how an entry reads in that style, and the bibliography reformats at once.
+
+<Shot name="work-print-citation-style" alt="The Citations section of Book settings with APA chosen and an example entry formatted in that style." />
+
+For the publisher, References can also export the permissions log as CSV and the sources as CSL JSON. Select Export on the bibliography and choose the format. The permissions log lists each source with its authors, year and credit line.
+
+## Export for printer
+
+1. Open Layout and select Export for printer.
+2. Choose a Bleed, None, 3 mm or 0.125 in.
+3. Tick Crop marks if you want them. They need a bleed.
+4. Choose Image quality, Print 300 dpi or Screen 150 dpi.
+5. Wait for `Ready to export`, then select Queue export.
+
+<Shot name="work-print-ready" alt="The Export for printer dialog with a 0.125 in bleed and Print 300 dpi chosen, reading Ready to export, with an enabled Queue export button." />
+
+The Exports tab opens. The worker picks the job up within a few seconds and the row shows the step and a percentage. When it ends, the row reads `Done` with the page count and file size.
+
+<Shot name="work-print-exports" alt="The Exports tab with one finished export and the buttons Download, Export again with these settings and Log." />
+
+Select Download to save the PDF. If a job shows `Failed`, select Log. A message that starts `The print sandbox could not start:` means the host lacks Landlock ABI 4. See [Troubleshooting](/start/troubleshooting/#an-export-or-a-proof-fails).
+
+A queued job renders the template version it started with, even if you upgrade the template while the job waits.
+
+## Ask an agent to check
+
+An agent can run the same check. `export_for_printer` with `mode` set to `preflight` lists the blocks and queues nothing. See [Writing with an agent](/work/agents/).
