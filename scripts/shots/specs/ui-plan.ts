@@ -13,15 +13,6 @@ async function openBoard(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId(`plan-chapter-${ctx.chapterIds["1"]}`).waitFor();
 }
 
-/** Expands the act that holds the given chapter, because the third act starts collapsed. */
-async function expandAct(page: Page, ctx: SeedResult, actTitle: string, chapter: string): Promise<void> {
-  const chapterCard = page.getByTestId(`plan-chapter-${ctx.chapterIds[chapter]}`);
-  if ((await chapterCard.count()) === 0) {
-    await page.getByTestId(`plan-act-toggle-${ctx.actIds[actTitle]}`).click();
-  }
-  await chapterCard.waitFor();
-}
-
 async function openSceneMenu(page: Page, ctx: SeedResult, scene: string): Promise<void> {
   const id = ctx.sceneIds[scene];
   await page.getByTestId(`plan-scene-${id}`).hover();
