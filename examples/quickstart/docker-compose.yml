@@ -1,0 +1,67 @@
+# Codex quick start. Run it with: docker compose up -d
+# Copy .env.example to .env and set the three required values first.
+services:
+  codex:
+    image: ${CODEX_IMAGE:-ghcr.io/codexsuite/codex:latest}
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - CODEX_DB_CONNECTION=Host=postgres;Port=5432;Database=codex;Username=postgres;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      # Where the app encrypts the AI keys that users save. Keep this volume, because the keys cannot be read without it.
+      - CODEX_DATA_PROTECTION_DIR=/data/keys
+      # The first admin. The app creates this user on first boot. Remove both lines after you have signed in.
+      - CODEX_ADMIN_EMAIL=${CODEX_ADMIN_EMAIL:?Set CODEX_ADMIN_EMAIL in .env}
+      - CODEX_ADMIN_PASSWORD=${CODEX_ADMIN_PASSWORD:?Set CODEX_ADMIN_PASSWORD in .env}
+      # Uploaded files, renditions and exports. The worker shares this volume.
+      - CODEX_BLOB_ROOT=/data/blobs
+    volumes:
+      - codex-blobs:/data/blobs
+      - codex-keys:/data/keys
+
+  worker:
+    image: ${CODEX_WORKER_IMAGE:-ghcr.io/codexsuite/codex-worker:latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - CODEX_DB_CONNECTION=Host=postgres;Port=5432;Database=codex;Username=postgres;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      - CODEX_BLOB_ROOT=/data/blobs
+      - CODEX_DATA_PROTECTION_DIR=/data/keys
+      # The web service applies the database migrations. The worker only claims jobs.
+      - CODEX_DB_MIGRATE=false
+      # Claims render and export jobs and skips the services that only the web process runs.
+      - CODEX_ROLE=worker
+      - CODEX_EVENTS_LISTEN=false
+    volumes:
+      - codex-blobs:/data/blobs
+      - codex-keys:/data/keys
+
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    command: ["postgres", "-c", "timezone=UTC", "-c", "log_timezone=UTC"]
+    environment:
+      - TZ=UTC
+      - POSTGRES_DB=codex
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      # Loopback only, so the database is not reachable from other machines.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # PostgreSQL 18 images keep the cluster under /var/lib/postgresql.
+      - codex-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d codex"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  codex-pgdata:
+  codex-blobs:
+  codex-keys:

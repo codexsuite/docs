@@ -1,0 +1,20 @@
+# Added to the quick start by scripts/lib/stack.ts for capture and checks. Not part of the quick start.
+# CODEX_DOCS_STACK_DIR is the absolute path of this directory, set by the stack helper.
+services:
+  codex:
+    environment:
+      # The fake model is plain http on a private address, which the app refuses by default.
+      - CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true
+    depends_on:
+      fake-model:
+        condition: service_started
+
+  fake-model:
+    image: node:24-alpine
+    command: ["node", "/srv/fake-model.mjs"]
+    volumes:
+      - ${CODEX_DOCS_STACK_DIR:?set by scripts/lib/stack.ts}/fake-model.mjs:/srv/fake-model.mjs:ro
+
+  postgres:
+    # The stack reaches the database over the compose network, so no host port is published.
+    ports: !reset []

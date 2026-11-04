@@ -1,0 +1,54 @@
+name: Quick start check
+
+# Runs the literal quick start with the published images and an empty database. Needs Landlock ABI 4, which
+# ubuntu-24.04 runners provide. Pinned so the kernel does not move under a runner upgrade.
+on:
+  push:
+    branches: [main, feat/cdx-1-docs-site]
+  pull_request:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quickstart-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quickstart:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Runner kernel and Landlock ABI
+        run: |
+          uname -r
+          python3 -c "import ctypes; print('Landlock ABI', ctypes.CDLL(None, use_errno=True).syscall(444, None, 0, 1))"
+          docker --version
+          docker compose version
+
+      - name: Validate the compose file
+        run: |
+          POSTGRES_PASSWORD=x CODEX_ADMIN_EMAIL=a@example.test CODEX_ADMIN_PASSWORD=xxxxxxxxxxxx docker compose -f examples/quickstart/docker-compose.yml config --quiet
+
+      - name: Check the quick start
+        run: pnpm tsx scripts/checks/quickstart.ts
+
+      - name: Remove anything left behind
+        if: always()
+        run: |
+          docker ps -aq | xargs -r docker rm -f
+          docker volume ls -q | xargs -r docker volume rm
