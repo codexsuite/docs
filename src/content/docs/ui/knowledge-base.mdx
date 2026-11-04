@@ -7,9 +7,9 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-The Knowledge base is where a book keeps its people, places and ideas. Each entry has a name, aliases, a summary, longer notes and a timeline of facts that change as the book goes on. Codex uses entries to underline names in your text, to link scenes, and to send an AI draft the entry's name and summary.
+The Knowledge base lists the people, places and ideas in a book. Each entry has a name, aliases, a summary, longer notes and a timeline of facts that change as the book goes on. Codex uses entries to underline names in your text, to link scenes, and to send the entry's name and summary with an AI draft.
 
-**Address:** the Knowledge base has no page of its own. Its sidebar sits on the left of the Plan (`/books/<id>/plan`) and Write (`/books/<id>/write`). Select an entry in the sidebar and its window opens over the screen, and the address gains `#entry=<entry id>`. Open that address to see the same entry. The address also gains `#kb=<entry id>` while an entry is highlighted, and selecting the open entry again closes its window. The Layout screen starts with the sidebar hidden. Use the sidebar button in the book bar to show or hide it.
+**Address:** the Knowledge base has no page of its own. Its sidebar is on the left of the Plan (`/books/<id>/plan`) and Write (`/books/<id>/write`). Select an entry in the sidebar and its window opens over the screen, and the address gains `#entry=<entry id>`. Open that address to see the same entry. The address also gains `#kb=<entry id>` while an entry is highlighted. Selecting the open entry again closes its window. The Layout screen starts with the sidebar hidden. Use the sidebar button in the book bar to show or hide it.
 
 <Shot name="ui-knowledge-base-overview" alt="The entry window for Edith Marrow open over the Plan of Salt and Signal, with the sidebar on the left listing People, Places and Ideas." />
 
@@ -37,7 +37,7 @@ New Entry starts in the first category the book lists.
 
 <Shot name="ui-knowledge-base-new-entry" alt="The New entry in People window with the name Nell Harker typed and nothing saved yet." />
 
-Codex saves nothing until the entry has a name. If you close the window with the name empty, no entry is made.
+Codex saves nothing until the entry has a name. If you close the window with the name empty, Codex makes no entry.
 
 <Shot name="ui-knowledge-base-new-entry-created" alt="The new entry Nell Harker with its summary filled in, listed under People in the sidebar." />
 
@@ -114,21 +114,21 @@ To link an entry to a scene, open the Plan and drag the entry from the sidebar o
 
 In Write, drag an entry from the sidebar into the text. A mention chip appears where you drop it.
 
-<Shot name="ui-knowledge-base-drag-mention" alt="Scene 1.1 in Write after Edith Marrow was dragged from the sidebar into the text, with a mention chip where it was dropped, in the first line of the scene." />
+<Shot name="ui-knowledge-base-drag-mention" alt="Scene 1.1 in Write with a mention chip for Edith Marrow where it was dropped." />
 
 ## Highlight an entry
 
-Select an entry in the sidebar of the Plan. Codex highlights every scene that uses it and dims the others.
+Select an entry in the sidebar of the Plan and close the window that opens. Codex highlights every scene that uses the entry and dims the others.
 
-<Shot name="ui-knowledge-base-highlight-plan" alt="The Plan with Edith Marrow selected: the scenes that use her are highlighted and the others are dimmed." />
+<Shot name="ui-knowledge-base-highlight-plan" alt="The Plan with Edith Marrow selected in the sidebar, her scenes outlined and the other scenes dimmed." />
 
-Open Write, or select Highlight in Write on the Used in tab, to carry the highlight over. A chip in the toolbar shows the entry's name and a position such as `1 of 4`. The arrows on the chip move to the previous and next use. The minimap marks the scenes that use the entry.
+The highlight stays when you open Write, or select Highlight in Write on the Used in tab. A chip in the toolbar shows the entry's name and a position such as `1 of 1`. The arrows on the chip move to the previous and next use. The minimap marks the scenes that use the entry.
 
 <Shot name="ui-knowledge-base-highlight-write" alt="Write with a chip for Edith Marrow in the toolbar, showing the position and the previous and next arrows." />
 
-Ctrl+click a mention in the text to open that entry's window.
+Ctrl+click or Cmd+click a mention or an underlined name in the text to open that entry's window.
 
-<Shot name="ui-knowledge-base-ctrl-click-mention" alt="Write with the entry window open after a Ctrl+click on a mention." />
+<Shot name="ui-knowledge-base-ctrl-click-mention" alt="The entry window for Edith Marrow open over Write after a Ctrl+click on a mention." />
 
 To clear the highlight, select the cross on the chip.
 
@@ -136,9 +136,9 @@ To clear the highlight, select the cross on the chip.
 
 ## Keep a timeline
 
-The Timeline tab holds facts that are true from a point in the book onward. It starts with `Start of book`, and each note follows in book order under `From scene <number>`.
+The Timeline tab has facts that are true from a point in the book onward. It starts with `Start of book`, and each note follows in book order under `From scene <number>`.
 
-To add a note, select Add a note at…, choose the scene, type the note and select Add note. Codex puts the note at the start of that scene as a Codex addition, so you can also see and edit it in [Write](/ui/write/). To add one from Write, type `/codex` in the scene, choose Codex addition and pick the entry.
+To add a note, select Add a note at…, choose the scene, type the note and select Add note. Codex puts the note at the start of that scene as a Codex addition, so you can also see and edit it in [Write](/ui/write/). To add one from Write, type `/codex` in the scene, choose Codex addition, pick the entry and type the note in the card.
 
 <Shot name="ui-knowledge-base-write-addition" alt="Scene 1.1 in Write with a Codex addition card for Edith Marrow at the start of the text." />
 
@@ -146,9 +146,11 @@ Select Edit on a note to change its text, and Save to keep the change. A toast o
 
 <Shot name="ui-knowledge-base-timeline-add" alt="The Timeline tab for Edith Marrow with the add form open: the scene list and the note text From here Edith is head keeper and signs the logbook." />
 
+<Shot name="ui-knowledge-base-timeline-edited" alt="The Timeline tab with an edited note under From scene 1.1 and an Undo toast." />
+
 <Shot name="ui-knowledge-base-timeline" alt="The Timeline tab after the note was added, listed under From scene 1.1." />
 
-A note must have text. An empty note is refused with `Write the note first.` A note placed after the entry's first use in the book shows `This note comes after the entry's first use in scene <number>.` The warning only informs you, and nothing is blocked.
+A note must have text. Codex refuses an empty note with `Write the note first.` A note placed after the entry's first use in the book shows `This note comes after the entry's first use in scene <number>.` This warning blocks nothing.
 
 ## Relate entries and link a source
 
@@ -188,11 +190,13 @@ Select New category to make one, give it a name and pick one of five colours, th
 
 Codex refuses a name the Knowledge base already has, for example `The Knowledge base already has a category named People.`
 
-To rename or recolour a category, or to delete it, point at its heading in the sidebar and select the three dots. Type a new name and select Rename, or pick a colour. Delete category works only on an empty category. The People category has 2 entries, so Delete category says `Move or delete its 2 entries first.` The category list for a series appears under `From <series name>` and has no menu here.
+To rename or recolour a category, or to delete it, point at its heading in the sidebar and select the three dots. Type a new name and select Rename, or pick a colour. Delete category works only on an empty category. It deletes at once with no confirmation, and a toast says `Deleted category <name>`. The toast has no Undo. The People category has 2 entries, so Delete category says `Move or delete its 2 entries first.` The category list for a series appears under `From <series name>` and has no menu here.
 
 <Shot name="ui-knowledge-base-category-name-taken" alt="The New category form with the name People and the message that the Knowledge base already has that category." />
 
 <Shot name="ui-knowledge-base-category-renamed" alt="The sidebar after People was renamed to Characters." />
+
+<Shot name="ui-knowledge-base-category-deleted" alt="The sidebar after the empty Ideas category was deleted, with the toast Deleted category Ideas." />
 
 <Shot name="ui-knowledge-base-category-delete-blocked" alt="The category menu with the message that the category has entries and cannot be deleted." />
 
@@ -204,7 +208,7 @@ If you have two entries for the same thing, open the one you want to remove, sel
 
 <Shot name="ui-knowledge-base-merge" alt="The Merge Harrow Mouth into dialog with Harrowmouth chosen and the line that says what moves." />
 
-Scenes and mentions that pointed to the merged entry now point to the one you kept, and the old name becomes an alias of it. The window closes and a toast says `Merged <name> into <target>`. Codex archives the merged entry. A merge has no Undo in the app. The merged entry's text is added to the entry you kept, under `Merged from <name>`.
+Scenes and mentions that pointed to the merged entry now point to the one you kept, and the old name becomes an alias of it. The window closes and a toast says `Merged <name> into <target>`. Codex archives the merged entry. A merge has no Undo in the app. Codex adds the merged entry's text to the entry you kept, under `Merged from <name>`.
 
 <Shot name="ui-knowledge-base-merged" alt="The Plan after Harrow Mouth was merged into Harrowmouth, with the toast Merged Harrow Mouth into Harrowmouth." />
 
@@ -218,7 +222,9 @@ A toast says `Deleted <name>` with an Undo button.
 
 <Shot name="ui-knowledge-base-deleted" alt="The Plan after Edith Marrow was deleted, with the toast Deleted Edith Marrow and an Undo button." />
 
-Undo brings back the entry, its mentions and its links. If a scene or its text changed in the meantime, Codex refuses the Undo with `Could not undo: a scene or text changed after the entry was deleted, so it stays deleted.` and the entry stays deleted.
+Undo brings back the entry, its mentions, its links, its beat context and its timeline notes. If a scene or its text changed in the meantime, Codex refuses the Undo with `Could not undo: a scene or text changed after the entry was deleted, so it stays deleted.` and the entry stays deleted.
+
+<Shot name="ui-knowledge-base-deleted-undone" alt="The Plan after Undo, with Edith Marrow back under People in the sidebar." />
 
 ## Move an entry to a series
 
@@ -237,7 +243,7 @@ With the View only or Comment only role, the sidebar and entry windows are read 
 | Keys | What happens |
 |---|---|
 | Escape | Closes the entry window. |
-| Ctrl+click on a mention in Write | Opens that entry's window. |
+| Ctrl+click or Cmd+click on a mention or an underlined name in Write | Opens that entry's window. |
 | Enter in the name box | Saves the new name. |
 | Enter in the alias box | Adds the alias. |
 | Escape in the alias box | Drops what you typed. |

@@ -31,6 +31,7 @@ async function dragEntryToScene(page: Page, entryId: string, sceneId: string): P
   const card = page.getByTestId(`plan-scene-${sceneId}`);
   await card.scrollIntoViewIfNeeded();
   await item.dragTo(card);
+  await page.mouse.move(0, 0);
   await page.getByTestId(`plan-entry-${sceneId}-${entryId}`).waitFor();
 }
 
@@ -45,6 +46,7 @@ async function typeInScene(page: Page, ctx: SeedResult, scene: string, text: str
     document.dispatchEvent(new Event("selectionchange"));
   });
   await page.keyboard.type(text);
+  await page.mouse.move(0, 0);
   await page.getByTestId("write-manuscript").focus();
   await page.waitForFunction(
     () => document.querySelector("[data-testid='editing-save-status']")?.getAttribute("data-state") === "saved",
@@ -57,7 +59,20 @@ async function dropMention(page: Page, ctx: SeedResult, name: string): Promise<v
   const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`).getByTestId("prose-editor");
   await editor.waitFor();
   const before = await page.getByTestId("write-kb-mention").count();
-  await page.getByTestId(`shell-kb-item-${ctx.entryIds[name]}`).dragTo(editor, { targetPosition: { x: 12, y: 8 } });
+  const targetPosition = await editor.evaluate((element) => {
+    const node = element.querySelector("p")?.firstChild;
+    if (!node || node.nodeType !== Node.TEXT_NODE) throw new Error("Scene text not found");
+    const offset = node.textContent?.indexOf(" ") ?? -1;
+    if (offset < 0) throw new Error("No word gap found");
+    const range = document.createRange();
+    range.setStart(node, offset);
+    range.setEnd(node, offset + 1);
+    const gap = range.getBoundingClientRect();
+    const bounds = element.getBoundingClientRect();
+    return { x: gap.left + gap.width / 2 - bounds.left, y: gap.top + gap.height / 2 - bounds.top };
+  });
+  await page.getByTestId(`shell-kb-item-${ctx.entryIds[name]}`).dragTo(editor, { targetPosition });
+  await page.mouse.move(0, 0);
   await page.waitForFunction(
     (n) => document.querySelectorAll("[data-testid='write-kb-mention']").length > n,
     before,
@@ -326,6 +341,7 @@ export const shots: ShotSpec[] = [
       await openSidebar(page, ctx);
       await page.locator("[data-testid^='kb-category-'] h4").first().hover();
       await page.locator("[data-testid^='kb-category-menu-']").first().click();
+      await page.locator("[data-testid^='kb-category-colour-']").nth(2).click();
       await page.getByTestId("kb-category-rename-input").fill("Characters");
       await page.getByTestId("kb-category-rename-save").click();
       await page.getByText("Characters", { exact: true }).first().waitFor();
@@ -427,6 +443,8 @@ export const shots: ShotSpec[] = [
       await page.getByTestId(`shell-kb-item-${ctx.entryIds["Edith Marrow"]}`).click();
       await page.locator("[data-testid^='plan-scene-'][data-emphasis='hit']").first().waitFor();
       await page.locator("[data-testid^='plan-scene-'][data-emphasis='dim']").first().waitFor();
+      await page.getByTestId("kb-entry-window-close").click();
+      await page.getByTestId("kb-entry-window").waitFor({ state: "detached" });
     },
   },
   {
@@ -461,6 +479,7 @@ export const shots: ShotSpec[] = [
       await mention.waitFor();
       await mention.click({ modifiers: ["Control"] });
       await page.getByTestId("kb-entry-window").waitFor();
+      await page.waitForFunction(() => (document.querySelector("[data-testid='kb-entry-name']") as HTMLInputElement | null)?.value === "Edith Marrow");
     },
   },
   {
@@ -485,7 +504,11 @@ export const shots: ShotSpec[] = [
       await typeInScene(page, ctx, "1.1", "/codex");
       await page.getByTestId("prose-slash-item-codex-addition").click();
       await page.getByTestId(`write-entry-picker-${ctx.entryIds["Edith Marrow"]}`).click();
-      await page.getByTestId("prose-directive-kb-addition").first().waitFor();
+      const body = page.locator("[data-testid^='write-addition-body-']").first();
+      await body.fill("From here Edith is head keeper and signs the logbook.");
+      const saved = page.waitForResponse((r) => r.request().method() === "PATCH" && r.url().includes("/kb-additions/"));
+      await page.getByTestId("write-manuscript").focus();
+      await saved;
     },
   },
   {
@@ -532,4 +555,48 @@ export const shots: ShotSpec[] = [
       await page.getByText("Deleted Edith Marrow").waitFor();
     },
   },
+  {
+    name: "ui-knowledge-base-timeline-edited",
+    route: entryRoute("Edith Marrow"),
+    steps: async (page, ctx) => {
+      await openEntry(page, ctx, "Edith Marrow");
+      await page.getByTestId("kb-tab-timeline").click();
+      await page.getByTestId("kb-timeline-add").click();
+      await page.getByTestId("kb-timeline-add-text").fill("Edith signs the logbook.");
+      await page.getByTestId("kb-timeline-add-submit").click();
+      await page.locator("[data-testid^='kb-timeline-edit-']").first().click();
+      await page.locator("[data-testid^='kb-timeline-edit-text-']").fill("Edith signs the logbook and trims the wick.");
+      await page.locator("[data-testid^='kb-timeline-edit-save-']").click();
+      await page.getByText("Edith signs the logbook and trims the wick.").waitFor();
+    },
+  },
+  {
+    name: "ui-knowledge-base-deleted-undone",
+    route: entryRoute("Edith Marrow"),
+    steps: async (page, ctx) => {
+      await openEntry(page, ctx, "Edith Marrow");
+      await openMenu(page);
+      await page.getByTestId("kb-entry-menu-delete").click();
+      await page.getByTestId("kb-delete-confirm").click();
+      await page.getByTestId("editing-toast-undo").click();
+      await page.getByTestId(`shell-kb-item-${ctx.entryIds["Edith Marrow"]}`).waitFor();
+    },
+  },
+  {
+    name: "ui-knowledge-base-category-deleted",
+    route: entryRoute("Fresnel lens"),
+    steps: async (page, ctx) => {
+      await openEntry(page, ctx, "Fresnel lens");
+      await page.getByTestId("kb-category-chip").click();
+      await page.locator("[data-testid^='kb-category-option-']").filter({ hasText: "Places" }).click();
+      await page.getByTestId("kb-category-chip").filter({ hasText: "Places" }).waitFor();
+      await page.getByTestId("kb-entry-window-close").click();
+      const heading = page.locator("[data-testid^='kb-category-']").filter({ has: page.getByRole("heading", { name: "Ideas" }) });
+      await heading.hover();
+      await heading.locator("[data-testid^='kb-category-menu-']").click();
+      await heading.locator("[data-testid^='kb-category-delete-']").click();
+      await page.getByText("Deleted category Ideas").waitFor();
+    },
+  },
+
 ];
