@@ -9,7 +9,7 @@ Set up on 4 Nov 2026:
 - A proxied CNAME for `docs.codexsuite.app`, and the same name as a custom domain on the project.
 - The organisation secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, shared with the repository.
 
-One step is left, the `main` ruleset in step 6. The owner adds it in wave 2, after the quick-start check has reported on pull request 1. Step 7 is also open, because `codex-worker` is still private. CDX-5 tracks it. Steps 1 to 5 stay below as a record, so you can repeat or audit the setup.
+One step is left, the `main` ruleset in step 6. The owner adds it in wave 2, after the quick-start check has reported on pull request 1. Steps 1 to 5 and 7 stay below as a record, so you can repeat or audit the setup.
 
 ## What the workflow uses
 
@@ -64,9 +64,9 @@ One step is left, the `main` ruleset in step 6. The owner adds it in wave 2, aft
    - A required check must run on every pull request, so do not add `paths` or `paths-ignore` to its workflow. A job that a filter skips never reports, stays pending and blocks the merge.
    - Source: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository
 
-7. Make the worker image public. Open.
+7. Make the worker image public. Done on 4 Nov.
    - GitHub, the `codexsuite` organisation, Packages, `codex-worker`, Package settings, Danger Zone, Change visibility, Public.
-   - Do this before the quick start is tested. The `codex` image is already public, and anonymous pulls of `codex-worker` return 403 until you change it.
+   - Anonymous pulls of a private package return 403, so the quick start needs both images public.
    - You cannot make a public package private again.
    - Source: https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility
 
