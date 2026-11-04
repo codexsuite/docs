@@ -5,4 +5,215 @@ sidebar:
   order: 10
 ---
 
-{/* STUB */}
+import Shot from "../../../components/Shot.astro";
+
+References lists every source your book cites and tells you which ones block a print export. Use it to add and fix sources, count quoted words against the limit, ask a rights holder for permission, and read the bibliography. The screen is at `/books/<book id>/references`, and the book bar has a References tab.
+
+<Shot name="ui-references-overview" alt="References for Salt and Signal with the summary strip, the status chips, the two unmarked quotes button and the source table. Signals at Sea shows a copyright risk." />
+
+People with the view role can read everything here. Adding, editing, signing off and asking for permission need the write role.
+
+## Read the summary strip
+
+The strip above the table counts the sources that have at least one marker in the book.
+
+- The meter and `n of m cited sources cleared` show how many are cleared.
+- `N risk blocks print export` or `N risks block print export` appears while any source is a copyright risk. Without risks the strip says `Ready for print export`.
+- `N reply overdue` or `N replies overdue` appears when a permission request has passed its reminder date.
+- The chips All, Risk, Needs check, Cleared and Not cited filter the table and show their counts.
+
+<Shot name="ui-references-needs-check" alt="The table filtered by the Needs check chip, showing only Beacon Keeping Notes." />
+
+Every source has one of four statuses.
+
+- **Copyright risk.** A use needs permission that you do not have yet.
+- **Needs check.** Something is open, such as a new use since the last sign-off or a fair-use decision.
+- **Cleared.** You signed the source off and nothing has changed since.
+- **Not cited.** No marker in the book cites it. Uncited sources stay out of the bibliography.
+
+Each row shows the marker number, title and byline, kind, where it is used, a bar of quoted words, the licence, the status with its reason, and a reminder line when a reply is due. The narrow-window layout hides columns below 1280, 1000 and 860 pixels wide. Search sources filters by text. Group sorts the table by Status, Kind or None, which keeps book order.
+
+## Open a source
+
+Select a row to open its panel. The address gets the source id, so you can bookmark it. The panel shows the verdict first, then the checks, where the source is used, its details, its permission request and its history.
+
+## Count quoted words
+
+Codex adds up the words of every quote from one source. If the total passes the limit and the source is not in the public domain, the source is a copyright risk. The limit is 300 words unless you changed it in the book's Citations settings. The panel links to the rules it checked against under Publisher rules.
+
+<Shot name="ui-references-over-limit" alt="The Signals at Sea panel with the verdict Copyright risk and the reason Quoted prose, 348 of 300 words." />
+
+The reason reads `Quoted prose: 348 of 300 words`. The panel says `Over the limit for quoting without permission. Shorten, paraphrase, or ask.` You have three ways out. Choose Paraphrase instead to open Write with a Scene beat that rewrites the quote. Choose Ask for permission to start a letter. Or cut the passage in Write.
+
+In Write, the marker card of the quote shows the same count.
+
+<Shot name="ui-references-marker-over-limit" alt="The marker card in scene 2.1 over the Signals at Sea quote, with its quoted word count." />
+
+A paraphrase counts no words. To change a use between quote and paraphrase, open the source and change the type of the use under Used in. The status moves to Needs check, with the reason `New uses since cleared`.
+
+<Shot name="ui-references-use-type" alt="The Keeper's Ledger panel after the paraphrase in scene 3.1 was changed to a quote, with the status Needs check." />
+
+## Cite a source while writing
+
+1. In Write, select the sentence you are citing.
+2. Type `/source` and choose Source reference.
+3. Choose the source in the list.
+
+<Shot name="ui-references-cite-picker" alt="The source list open over a selected sentence in scene 1.2." />
+
+The sentence becomes a marker, and every marker after it renumbers if the new source is cited for the first time. The source's status updates. A source that was cleared goes back to Needs check with the reason `New uses since cleared`.
+
+<Shot name="ui-references-cited" alt="Scene 1.2 after The Keeper's Ledger was chosen, with a new numbered marker on the sentence." />
+
+If the source is not in the list, choose New source in the same list. Add source opens with the note `Will return to` and the scene, and returns you to Write with the marker in place when you save.
+
+## Add a source
+
+Select Add source. Paste an ISBN, DOI or web address and select Look up. Codex fills in the details, adds the source and opens its panel. If the book already has the source, the form shows it under `Already in References` and offers `Use existing source`, so you never create a duplicate. If nothing is found, the form says `Nothing was found for that, so enter the details by hand.`
+
+<Shot name="ui-references-add-lookup" alt="The Add source form with a DOI typed in and the Look up button." />
+
+<Shot name="ui-references-add-doi" alt="The panel of the source that the DOI lookup added, with the DOI filled in." />
+
+To type the details yourself, select Enter by hand, fill in at least the title and select Save.
+
+<Shot name="ui-references-add-manual" alt="The Add source form in manual mode with a title and a year." />
+
+<Shot name="ui-references-added" alt="The panel of the manually added source, with the status Not cited." />
+
+A new source with no marker is Not cited until you cite it in Write.
+
+## Import sources
+
+Select Import and choose a CSL JSON, BibTeX or RIS file. Zotero and similar tools export CSL JSON or BibTeX. Codex has no live Zotero link. Before it writes anything, Codex checks the file and shows a summary such as `2 new · 1 already in References · 1 skipped (no title)`. It lists each skipped item with its reason. The Import button is off when nothing is new.
+
+<Shot name="ui-references-import-preview" alt="The Import dialog with the summary for a four-item library file and the skipped item listed." />
+
+Select Import. The dialog reports how many were added. The new sources are Not cited.
+
+<Shot name="ui-references-imported" alt="The Import dialog after importing, showing the number of sources added." />
+
+A file that is not CSL JSON, BibTeX or RIS shows what could not be read and writes nothing.
+
+## Fix a source
+
+Edit the fields under Details. Each field saves when you leave it. Changing a field that the citation uses reopens a source you had cleared.
+
+<Shot name="ui-references-reopened" alt="The Keeper's Ledger after its year was changed, with the status Needs check." />
+
+Re-check links tests the ISBN, DOI and web address and marks each as verified, redirected or failing. If an address redirects, Update address accepts the new one.
+
+### Merge a duplicate
+
+Open the duplicate, open the panel menu and choose Merge into. Pick the source to keep. The dialog says how many details and uses move. The duplicate is archived, and the source you keep takes any detail it lacks.
+
+<Shot name="ui-references-merge" alt="The merge dialog on a duplicate copy of The Keeper's Ledger, with the target chosen and the summary line." />
+
+### Remove a citation
+
+In Write, select a marker and choose Remove on its card. The passage stays as plain text and the marker is gone. If it was the source's only use, the source becomes Not cited.
+
+<Shot name="ui-references-uncite" alt="The marker card for the quote in scene 1.1, with the Remove button." />
+
+<Shot name="ui-references-uncited" alt="The Keeper's Ledger panel after the quote was removed, no longer listing the use in scene 1.1." />
+
+### Remove a source
+
+Open the panel menu and choose Remove source. The question says how many markers become plain text in Write. Select Remove to archive the source. Its passages stay in your prose.
+
+<Shot name="ui-references-remove" alt="The question under Remove source asking for confirmation." />
+
+<Shot name="ui-references-removed" alt="References after the source was removed, with its row gone." />
+
+## Check unflagged quotes
+
+Every time a scene saves, Codex looks for text in quotation marks that has four words or more and no marker. The strip shows the count as `n possible unflagged quotes`. Select it to open the list. Each item shows the scene, why Codex flagged it and the excerpt.
+
+<Shot name="ui-references-flags" alt="The list of possible unflagged quotes open, with two excerpts from scene 3.1." />
+
+For each item you can choose one of these.
+
+- **Cite** appears when Codex guessed the source. It adds the quote as a use and a marker.
+- **Other source** asks where the quote comes from and saves your note.
+- **Not a quote** dismisses it. Codex never raises the same words again.
+- **Open in Write** shows the scene.
+
+<Shot name="ui-references-flag-dismissed" alt="The list after Not a quote was chosen on the first item, leaving one." />
+
+<Shot name="ui-references-flag-other" alt="The Other source note field with a typed answer." />
+
+If no source was guessed, Cite is off. Select the words in Write and cite the source there.
+
+### Decide fair use and sign off
+
+Some licences allow only a partial quote when you record a fair-use decision. The panel then says `Fair use not decided`. Choose Accept as fair use, write why, and select the accept button.
+
+<Shot name="ui-references-fair-use" alt="The fair-use reason field open on Beacon Keeping Notes." />
+
+The reason becomes `Ready to sign off`. Choose Mark as cleared. The panel records who cleared the source and when. A later change, such as a new use, reopens it.
+
+<Shot name="ui-references-signed-off" alt="Beacon Keeping Notes after Mark as cleared, with the status Cleared and the signed-off line." />
+
+## Ask for permission
+
+A source over the quote limit, a lyric or a figure needs the rights holder's permission. The permission section follows the request from Drafted to Sent to Granted or Refused.
+
+1. Choose Ask for permission, or Draft request. Codex drafts the letter from your uses: what you quote and where.
+2. Type the rights holder's email in To, read the letter and edit it. Copy letter puts it on the clipboard.
+3. Send it yourself, then select Mark sent.
+
+Withdraw cancels a draft or a sent request.
+
+### Follow up
+
+After you mark a request sent, set a date under Remind me on. When the date passes, the strip shows `1 reply overdue` and the row shows a reminder line.
+
+<Shot name="ui-references-overdue" alt="References with the reply overdue chip on the strip and the reminder on the Signals at Sea row." />
+
+In the panel, Remind me again in 3 days or 7 days sets a new date and clears the chip. Copy follow-up puts a short reminder on the clipboard, and Mark followed up records that you sent it.
+
+<Shot name="ui-references-snooze" alt="The Signals at Sea panel after Remind me again in 7 days, with no overdue chip." />
+
+<Shot name="ui-references-followed-up" alt="The Signals at Sea panel after Mark followed up, with the followed up date shown." />
+
+### Record a grant
+
+When the rights holder says yes, choose Granted. Attach the signed letter, which is required, add the credit line to print with the citation, and optionally the terms and a fee. Select Record grant.
+
+<Shot name="ui-references-grant" alt="The grant form with the letter attached and the credit line typed in." />
+
+The status becomes Needs check, because signing off is a separate step. The letter appears under the request, and History records the grant.
+
+<Shot name="ui-references-granted" alt="The Signals at Sea panel after Record grant, with the letter attached and the status Needs check." />
+
+The credit line shows under the source's entry in the bibliography.
+
+<Shot name="ui-references-credit" alt="The Bibliography view with the credit line under the Signals at Sea entry." />
+
+To replace a letter, select the cross on the attached file and confirm Remove this letter. Then attach the new one. Codex keeps the old file archived.
+
+<Shot name="ui-references-replace-letter" alt="The attached letter with the confirmation to remove it." />
+
+### Record a refusal
+
+Choose Refused, add what they said if you like, and select Record refusal. The source stays a copyright risk with the reason `Permission refused`. The next step reads `Cut or replace the passage`, or `Cut or replace the figure` for a figure.
+
+<Shot name="ui-references-refused" alt="The Signals at Sea panel after a refusal, with the Cut or replace the passage button." />
+
+That button opens Write at the passage with its marker card open. Choose Remove on the card to cut it.
+
+<Shot name="ui-references-cut" alt="Scene 2.1 after the Signals at Sea marker was removed." />
+
+You can also ask again. After a refusal the panel offers Draft a new request, and Ask for permission starts a new letter. The refused request stays on file.
+
+<Shot name="ui-references-ask-again" alt="A new letter drafted after the refusal." />
+
+## Read and export the bibliography
+
+Switch the Sources and Bibliography toggle to Bibliography. It lists the cited sources in the style you choose in Style: Chicago, APA or Harvard. It starts with the style saved for the book. Entries stay underlined in red while their source is a copyright risk, and the credit line of a granted request shows under its entry.
+
+<Shot name="ui-references-bibliography" alt="The Bibliography view in APA style, with one entry per cited source." />
+
+Export offers BibTeX, RIS, CSL JSON and a Permissions log.
+
+<Shot name="ui-references-export" alt="The Export menu open with the four formats." />
