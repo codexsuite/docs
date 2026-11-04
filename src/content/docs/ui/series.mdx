@@ -1,13 +1,13 @@
 ---
 title: "Series"
-description: "Shared style guide and settings that a book uses unless it sets its own."
+description: "Book order, shared Knowledge base and labels, and moving, archiving or deleting a series."
 sidebar:
   order: 5
 ---
 
 import Shot from "../../../components/Shot.astro";
 
-The Series screen shows the books in one series, such as Salt and Signal and Tide Tables in the Working Coasts series, with their totals. Use it to set the book order and to archive or delete the series. A book in a series shares the series' Knowledge base, labels, style guide and publication settings. The screen is at `/#series=<id>`. To open it, select a series stack in the [Library](/ui/library/). Select a book to open it on the screen you last used in that book, or on its Plan if you have not opened it before. In the book, the back arrow in the top bar returns to the series.
+The Series screen shows the books in one series, such as Salt and Signal and Tide Tables in the Working Coasts series, with their totals. Use it to set the book order and to archive or delete the series. A book in a series shares the series' Knowledge base and labels. No screen or agent tool sets a style guide or publication settings for a series on this version. Set them per book in [Book settings](/ui/book-settings/). The screen is at `/#series=<id>`. To open it, select a series stack in the [Library](/ui/library/). Select a book to open it on the screen you last used in that book, or on its Plan if you have not opened it before. In the book, the back arrow in the top bar returns to the series.
 
 <Shot name="ui-series-overview" alt="The Working Coasts series screen with its totals and its two books." />
 
@@ -39,7 +39,7 @@ A note in the dialog says that every book in the series shares the series' Knowl
 
 ## Add an existing book or take one out
 
-Both start in the book, not on the Series screen. Open the book, select Settings, then the Series section. See [Book settings](/ui/book-settings/).
+Both start in the book, not on the Series screen. Open the book, select Book settings, then the Series section. See [Book settings](/ui/book-settings/).
 
 1. Choose the series in the Series list, or choose None (standalone) to take the book out.
 2. Select `Review move…`. The dialog lists each step. When a book joins, same-named categories and labels merge. When it leaves, Codex copies the series' Knowledge base entries and labels onto it. The dialog warns that moving the book back does not merge the copies again.

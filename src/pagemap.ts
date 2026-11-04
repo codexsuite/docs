@@ -71,7 +71,7 @@ export const pages: PageEntry[] = [
   page("ui", 2, "ui/account", "Sign in and your account", "Sign in, change your password and manage agent access tokens."),
   page("ui", 3, "ui/ai-settings", "AI settings", "Prompt templates, models and provider keys for your account."),
   page("ui", 4, "ui/library", "Library", "The shelf of books, search, new book and import."),
-  page("ui", 5, "ui/series", "Series", "Shared style guide and settings that a book uses unless it sets its own."),
+  page("ui", 5, "ui/series", "Series", "Book order, shared Knowledge base and labels, and moving, archiving or deleting a series."),
   page("ui", 6, "ui/plan", "Plan", "The board and outline: move, split, merge and archive chapters and scenes."),
   page("ui", 7, "ui/write", "Write", "The editor: mentions, focus mode, find and replace, version history."),
   page("ui", 8, "ui/ai-drafts", "Beats and AI drafts", "Draft a scene from a beat and review the result."),
@@ -95,7 +95,7 @@ export const pages: PageEntry[] = [
   page("work", 4, "work/drafting", "Drafting", "Write by hand and with beats, revise and restore."),
   page("work", 5, "work/clearing", "Clearing quotes and citing", "From a cited quote to a permission on file."),
   page("work", 6, "work/print", "Getting to print", "Templates, proofs, preflight and the final export."),
-  page("work", 7, "work/series", "Writing a series", "Shared style and settings across books."),
+  page("work", 7, "work/series", "Writing a series", "Group books, keep their order and share a Knowledge base across them."),
   page("work", 8, "work/agents", "Writing with an agent", "Which steps an agent can do over MCP and what you keep."),
 
   page("reference", 1, "reference/glossary", "Glossary", "The terms Codex uses."),
