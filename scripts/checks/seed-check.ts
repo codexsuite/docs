@@ -9,7 +9,8 @@
 import { signInFromFile, expectOk } from "../lib/api.ts";
 import { down, up } from "../lib/stack.ts";
 import { seedDemo, restoreFixtures } from "../shots/seed.ts";
-import { seedStructure } from "../shots/seed/structure.ts";
+import { seedStructure, restoreStructure } from "../shots/seed/structure.ts";
+import { assertStructureFieldsSet, disturbStructure, snapshotStructure } from "../shots/demo-book.ts";
 import type { SeedResult } from "../shots/types.ts";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -45,6 +46,13 @@ async function main(): Promise<void> {
     requireIds("entryIds", structure.entryIds, 4);
     requireId("viewer", structure.viewer.id);
     await expectOk(session, "GET", `/api/books/${structure.bookIds.saltAndSignal}/outline`);
+    await assertStructureFieldsSet(session, structure);
+    const before = await snapshotStructure(session, structure);
+    await disturbStructure(session, structure);
+    if ((await snapshotStructure(session, structure)) === before) fail("The disturbance changed nothing.");
+    await restoreStructure(session, { ...structure } as SeedResult);
+    if ((await snapshotStructure(session, structure)) !== before) fail("SeedIsRepeatableAfterRestore: the snapshot differs after restore.");
+    await assertStructureFieldsSet(session, structure);
     console.log("PASS structure");
     return;
   }
