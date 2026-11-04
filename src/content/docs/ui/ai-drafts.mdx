@@ -9,25 +9,25 @@ import Shot from "../../../components/Shot.astro";
 
 A scene beat is a card inside a scene where you describe what happens next. Codex sends the beat, the text before it and the context entries you pick to your AI provider. It shows the reply as a draft under the beat, and nothing reaches the scene until you apply it. You need an AI provider connected first. See [AI settings](/ui/ai-settings/).
 
-**Address:** `/books/<id>/write`. Beats and drafts live in [Write](/ui/write/). A link ending in `#scene=1.2` opens that scene.
+**Address:** `/books/<id>/write`. Beats and drafts are in [Write](/ui/write/). A link ending in `#scene=1.2` opens that scene.
 
 <Shot name="ui-ai-drafts-overview" alt="Scene 1.2 of Salt and Signal in Write, with a scene beat and, under it, an AI draft with the buttons Show what was sent, Apply, Retry and Discard." />
 
-A waiting draft shows in two places besides the scene. On Plan, the scene card has a **Draft pending** tag. In Write, the scene's tick on the minimap is highlighted. Open the scene to review the draft.
+A waiting draft shows in two places besides the scene. On Plan, the scene card has a **Draft pending** tag. In Write, the minimap highlights the scene's tick. Open the scene to review the draft.
 
 ## Review a draft that is waiting
 
-A draft panel has the model's name, its word count, and four buttons. It sits under the beat that produced it.
+A draft panel has the model's name, its word count, and four buttons. It appears under the beat that produced it.
 
 To read what the model was given, select **Show what was sent**. The panel lists the template, the model and the provider, the entries sent as context, the token counts, and the full prompt. Select the button again to close the list.
 
 <Shot name="ui-ai-drafts-sent" alt="The draft panel with Show what was sent open, listing the template, model, context, tokens and the prompt text." />
 
-To put the draft in the scene, select **Apply**. The draft text goes into the scene below the beat, and the book bar shows `Saving…` then `Saved`. A message appears at the bottom with the words applied and an **Undo** link.
+To put the draft in the scene, select **Apply**. The draft text goes into the scene below the beat, and the book bar shows `Saving…` then `Saved`. A message at the bottom reads `Applied 12 words`, with an **Undo** link.
 
 <Shot name="ui-ai-drafts-applied" alt="Scene 1.2 after Apply, with the draft text under the beat and a message reading Applied 12 words with Undo." />
 
-Select **Undo** in that message to take the text out of the scene again. The draft comes back and waits for you.
+Select **Undo** in that message to take the text out of the scene again. The draft panel comes back under the beat.
 
 <Shot name="ui-ai-drafts-apply-undone" alt="Scene 1.2 after Undo, with the draft panel back under the beat." />
 
@@ -37,9 +37,11 @@ To throw the draft away, select **Discard**. A message reads `Draft discarded` w
 
 <Shot name="ui-ai-drafts-discard-undone" alt="Scene 1.2 after Undo on the discard message, with the draft panel back." />
 
-Apply replaces what sits under the beat. If the beat already has text under it, the panel says how much. For example, `Apply replaces the 90 words below. The current text is kept in history.` That text covers every paragraph up to the next beat or the end of the scene. To get it back after you move on, open the scene's version history. See [Write](/ui/write/).
+**Apply** replaces the text under the beat. If the beat already has text under it, the panel says how much. For example, `Apply replaces the 90 words below. The current text is kept in history.` That text covers every paragraph up to the next beat or the end of the scene. To get it back once the Undo message has gone, open the scene's version history. See [Write](/ui/write/).
 
 **Retry** asks for a new draft with the same settings. The new draft says `attempt 2`, and the old one goes away once the new one is under way.
+
+While a draft waits, **Generate prose** reads **Regenerate**. **Regenerate** uses the template and model now chosen on the beat. **Retry** uses the ones that wrote the draft.
 
 ## Draft a scene from a beat
 
@@ -48,9 +50,9 @@ This is the full path, in a scene that already has text.
 1. Put the caret in the scene where the beat should go, type `/scene`, and choose **Scene beat** from the **AI** group of the `/` menu. A beat card appears.
 2. Type what happens in the box on the card, for example `Tobias Venn explains to Edith Marrow why the Fresnel lens turns so slowly.` Codex saves the instruction when you leave the box or generate. You can also give the beat a title.
 
-<Shot name="ui-ai-drafts-new-beat" alt="A new scene beat at the top of scene 1.1 with the instruction typed in and the Generate prose button under it." />
+<Shot name="ui-ai-drafts-new-beat" alt="A new scene beat at the end of scene 1.1 with the instruction typed in and the Generate prose button under it." />
 
-3. Choose a length. **200**, **400** and **600** are the targets. The pencil takes any whole number of words, which you confirm with `Enter`. Choose **+ Context** to add Knowledge base entries the model should know about, such as Tobias Venn. Select an entry's chip to remove it again.
+3. Choose a target length. Select **200**, **400** or **600**, or select the pencil, type any whole number of words and press `Enter`. With no length chosen, Codex asks for 400 words. Select **+ Context** to add Knowledge base entries the model should know about, such as Tobias Venn. Select an entry's chip to remove it again.
 
 <Shot name="ui-ai-drafts-beat-options" alt="The beat with 400 chosen as its length and a chip for Tobias Venn beside the Context button." />
 
@@ -58,35 +60,35 @@ This is the full path, in a scene that already has text.
 
 <Shot name="ui-ai-drafts-picker" alt="The template and model list open on the beat, with the templates Continue writing, Write in Joel's voice and Paraphrase and the model fake-model." />
 
-5. Select **Generate prose**, or press `Ctrl+Enter` in the instruction box. The button stays off until the instruction has text. While the model writes, a panel titled `Generating…` streams the text in. Its **Stop** button ends the draft early and keeps the text received so far, marked `Stopped`. When the model finishes, the panel becomes a draft with the four buttons.
+5. Select **Generate prose**, or press `Ctrl+Enter` in the instruction box. The button stays dimmed until the instruction is saved, which happens when you leave the box. While the model writes, a panel titled `Generating…` streams the text in. Its **Stop** button ends the draft early and keeps the text received so far, and the panel reads `Stopped` until you reload the page. If no text has arrived, Stop leaves no draft. When the model finishes, the panel becomes a draft with the four buttons.
 
-<Shot name="ui-ai-drafts-generated" alt="The beat with Write in Joel's voice chosen and, under it, the AI draft with a note that Apply replaces the 90 words below." />
+<Shot name="ui-ai-drafts-generated" alt="The beat with Write in Joel's voice chosen and, under it, the AI draft." />
 
-6. Select **Retry** if you want another try. The meta line now reads `attempt 2`.
+6. Select **Retry** if you want another try. The line beside **AI draft** now reads `attempt 2`.
 
-<Shot name="ui-ai-drafts-retried" alt="The draft panel after Retry, with attempt 2 in its meta line." />
+<Shot name="ui-ai-drafts-retried" alt="The draft panel after Retry, with attempt 2 beside the AI draft title." />
 
-7. Select **Apply**. The draft text goes in under the beat and replaces what was there.
+7. Select **Apply**. The draft text goes in under the beat.
 
 <Shot name="ui-ai-drafts-beat-applied" alt="Scene 1.1 after Apply, with the 12 draft words under the beat and a message reading Applied 12 words with Undo." />
 
-8. Edit the text by hand. Applied text is plain text in the scene, and Codex saves your edits like any other.
+8. Edit the text by hand. Applied text has no marker in the scene, so you edit it like text you typed.
 
 <Shot name="ui-ai-drafts-hand-edit" alt="Scene 1.1 with the sentence Tobias had counted them twice added by hand after the applied text." />
 
-9. To read the scene without the beat cards, choose **Format** in the book bar. In the **Scene beats** row, choose **Hide**. The beats stay in the scene and the text under them stays.
+9. To read the scene without the beat cards, select **Format** in the book bar. In the **Scene beats** row, select **Hide**. The beats stay in the scene and the text under them stays. A waiting draft hides with its beat.
 
 <Shot name="ui-ai-drafts-format-beats" alt="The Format list open with the Scene beats row showing Show and Hide." />
 
 <Shot name="ui-ai-drafts-beats-hidden" alt="Scene 1.1 with the beat cards hidden and only the scene text showing." />
 
-To hide a single beat, select **Hide** on its card. A hidden beat shrinks to one line with a **Show** button. Choose **Show** to bring the card back. The **⋮** menu on a beat moves it up or down, or deletes it either with or without the text under it. Drag the grip on the left to move a beat, or press `Alt` with `Up` or `Down` while the grip has focus. **Clear beat** empties the instruction.
+To hide a single beat, select **Hide** on its card. A hidden beat shrinks to one line with a **Show** button. Select **Show** to bring the card back. Use the **⋮** menu on a beat to move it up or down, or to delete it with or without the text under it. Drag the grip on the left to move a beat, or press `Alt` with `Up` or `Down` while the grip has focus. **Clear beat** empties the instruction.
 
 ## Fill an empty scene
 
 Use this when a scene has only a summary. The steps use a new scene in chapter 1 of Salt and Signal.
 
-1. On [Plan](/ui/plan/), select **New scene** in chapter 1. Type a summary in the new card. Type `@Fres` and choose Fresnel lens to mention it. Select **Label** on the card and choose a label such as **Needs research**. The summary and the label save when you click away.
+1. On [Plan](/ui/plan/), select **New scene** in chapter 1. Type a summary in the new card. Type `@Fres` and choose Fresnel lens to mention it. Select **Label** on the card and choose a label such as **Needs research**. The summary saves when you click away. The label saves when you choose it.
 
 <Shot name="ui-ai-drafts-empty-summary" alt="The Plan with a new scene 3 in chapter 1, with a summary that mentions Fresnel lens, the label Needs research, and the text Not written." />
 
@@ -110,7 +112,7 @@ To get a draft from the end of a scene, with no beat, put the caret in the scene
 
 ## If you have no AI provider
 
-Without a provider, a beat shows a link, **Connect an AI provider in Settings**, where the Generate button would be. Select it to open the AI settings. A draft that was already waiting stays under the beat.
+Without a provider, a beat shows a link, **Connect an AI provider in Settings**, where **Generate prose** and the template and model button would be. Select it to open the AI settings. A draft that was already waiting stays under the beat. **Apply** and **Discard** still work. **Retry** fails with `AI integration not found.`, because the provider that wrote the draft is gone.
 
 <Shot name="ui-ai-drafts-not-configured" alt="A beat with the link Connect an AI provider in Settings where Generate prose would be, and a waiting draft below it." />
 
@@ -118,13 +120,17 @@ If you choose **Continue writing** with no provider, Codex shows a message readi
 
 <Shot name="ui-ai-drafts-continue-not-configured" alt="Scene 2.1 after choosing Continue writing with no provider, with the message Connect an AI provider in Settings to draft prose." />
 
-A request that reaches the server without a provider gets `Connect an AI provider in Settings → AI to write drafts.` The app shows the link instead of sending that request, so you see this text only from another client. If the provider rejects your key, the draft panel reads `Draft failed` with the message and **Retry** and **Dismiss** buttons. A provider that says it is rate limiting shows `Rate limited. Try again in 30 s`, and Retry waits for the count. Fix the key in [AI settings](/ui/ai-settings/).
+An agent that asks for a draft with no provider connected gets `Connect an AI provider in Settings → AI to write drafts.` The app shows the link instead of sending that request, so you see this text only from an agent.
+
+If the provider rejects your key, the draft panel reads `Draft failed`, with the message `<provider> rejected the API key. Check it in Settings → AI.` and the buttons **Retry** and **Dismiss**. Fix the key in [AI settings](/ui/ai-settings/), then select **Retry**.
+
+A rate limit looks different by provider. With an Anthropic provider, the panel reads `Rate limited. Try again in 30 s`, and **Retry** stays dimmed until the count reaches zero. An OpenAI-compatible or OpenRouter provider reads `<provider> is busy right now. Try again in a moment.`, and **Retry** works at once.
 
 ## Who can do this
 
 Drafts need the Edit role or higher. With the View or Comment role, a beat shows its title and instruction, with no grip, no menu, no buttons and no draft panel. See [Sharing a book](/ui/sharing/).
 
-<Shot name="ui-ai-drafts-viewer" alt="Scene 1.2 for a reader with the View role, showing the beat card with its instruction only and no draft panel." />
+<Shot name="ui-ai-drafts-viewer" alt="Scene 1.2 for a reader with the View role, showing the beat card with its title and instruction and no draft panel." />
 
 ## Keyboard
 
