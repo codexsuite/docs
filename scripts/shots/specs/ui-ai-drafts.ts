@@ -136,6 +136,8 @@ async function applyBeatDraft(page: Page, ctx: SeedResult): Promise<string> {
 /** J5 step 6: a hand edit after Apply. */
 async function editByHand(page: Page, ctx: SeedResult): Promise<string> {
   const beatId = await applyBeatDraft(page, ctx);
+  // The Applied message goes away by itself. Wait for that, so both themes show the same page.
+  await page.getByTestId("editing-toast").waitFor({ state: "detached" });
   // The beat card fills the top of the editor and has fields of its own, so click in the last paragraph.
   const editor = editorOf(page, ctx, "1.1");
   const box = await editor.boundingBox();
