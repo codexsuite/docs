@@ -5,4 +5,111 @@ sidebar:
   order: 2
 ---
 
-{/* STUB */}
+import Shot from "../../../../components/Shot.astro";
+
+Use Import to turn files you already have into a new Codex book. Import never changes your files, and it never adds to an existing book. Each import makes a new book. This guide imports a small Markdown folder, reads the preview, checks the result and undoes the import. You need a signed-in Codex.
+
+<Shot name="start-guides-import-overview" alt="The Plan of the imported book Harbour Log, with the import banner above the board." />
+
+## Choose a source
+
+Codex reads five sources.
+
+| Source | You pick | What Codex reads |
+|---|---|---|
+| Markdown folder | A folder | `act-NN-*` folders that hold `chapter-NN-*` folders, which hold `scene-NN.md` files. |
+| Pandoc book folder | A folder | Chapter files in the order of a pandoc `.yaml` file, or `Chapter 1.md`, `Chapter 2.md` and so on. Only the images the chapters use are uploaded. |
+| Novelcrafter export | One `.zip` | The acts, chapters, scenes and Codex that Novelcrafter exports. |
+| Word document | One `.docx` | Heading 1 starts a chapter and Heading 2 starts a scene. A section break also splits a scene. |
+| Codex backup | One `.zip` | A backup made by Export source in [Book settings](/ui/book-settings/). It restores the book with its Knowledge base, References and labels. |
+
+The mapping of every field is in the [import notes](https://github.com/codexsuite/codex/blob/main/docs/import.md) in the Codex repository.
+
+### Lay out a Markdown folder
+
+The importer finds the shallowest folder that holds `act-NN` folders and treats it as the book. A folder can look like this.
+
+```text
+harbour-log/manuscript/
+  index.md
+  act-01-the-light/
+    index.md
+    chapter-01-the-lamp-room/
+      index.md
+      scene-01.md
+      scene-01-prose.md
+```
+
+- `index.md` files carry a `title` in front matter. A heading works too. Without either, Codex makes a title from the folder name.
+- `scene-01.md` holds the scene's `title`, `summary` and a `codex` list of Knowledge base entry names. Its sections, such as Scene Beats, become the scene's beats and notes.
+- `scene-01-prose.md` holds the scene's text. A prose file without a matching `scene-NN.md` is skipped.
+- `CLAUDE.md` and `MEMORY.md` in the book folder, or one folder above it, become the book's style guide.
+
+## Import the folder
+
+1. In the Library, select Import.
+2. Choose Markdown folder.
+3. Select the drop area and choose the folder. The dialog shows how many files it has.
+4. Select Next.
+
+<Shot name="start-guides-import-sources" alt="The Import dialog with Markdown folder chosen and the drop area for a folder." />
+
+<Shot name="start-guides-import-picked" alt="The Import dialog after a folder is chosen, showing 12 files and a Remove button." />
+
+Nothing is written yet. Step 2 asks the server to read the files and shows a preview.
+
+## Read the preview
+
+The preview shows the book title, the word count and the number of files. Below that, each line gives a count and where it will go in Codex, such as acts, chapters, scenes and Knowledge base entries. Codex lists every file it will not import, with the reason, under `N skipped items`. A file that is not Markdown, a file outside the manuscript folder and a file over 2 MB are skipped.
+
+<Shot name="start-guides-import-preview" alt="The import preview for Harbour Log, listing what it creates and two skipped files." />
+
+If the preview is right, select Import book. To choose other files, select Back. Cancel closes the dialog and writes nothing.
+
+## Check the result
+
+The new book opens on its [Plan](/ui/plan/). A banner at the top says where the book came from and counts what arrived, for example `2 acts, 3 chapters, 3 scenes and 40 words, plus 2 Knowledge base entries.` If anything was skipped, the banner says how many. Select that line to see each file and its reason.
+
+<Shot name="start-guides-import-banner" alt="The import banner on the Plan of Harbour Log, with the counts, the skipped items and Undo import." />
+
+Select the close button on the banner to dismiss it. Dismissing needs the Edit role or higher. The book stays.
+
+## Undo an import
+
+Undo import is on the banner. Only the owner sees it, and only until anyone writes in the book. To undo:
+
+1. Select Undo import.
+2. Read the question and select Delete the book.
+
+<Shot name="start-guides-import-undo" alt="The Undo import question with the buttons Keep the book and Delete the book." />
+
+The book disappears from every screen. If someone has written in the book since the import, Codex refuses with `The book has been written in since the import, so Undo import is no longer offered: it would delete that work.` and the banner loses the button.
+
+## Limits
+
+- An import holds at most 2,000 files and 25 MB of text. A single text file over 2 MB is skipped.
+- A single `.zip` or `.docx` can be at most 25 MB.
+- A Pandoc folder can upload up to 4 GB of images. Each image can be at most 25 MB.
+
+If you pick a folder that is too large, the dialog says so before it uploads anything, for example `An import can hold at most 2000 files; this folder has 2400. Pick the manuscript folder itself.`
+
+## When an import is rejected
+
+When Codex cannot read what you picked, step 2 shows the reason in place of a preview, and nothing is created. Select Back to choose other files.
+
+<Shot name="start-guides-import-rejected" alt="Step 2 of the Import dialog showing This folder does not have the Markdown layout: no act-NN folders were found." />
+
+| Message | What to do |
+|---|---|
+| `This folder does not have the Markdown layout: no act-NN folders were found.` | Pick the folder that holds the `act-NN` folders, or rename your folders to match. |
+| `The folder has no Markdown (.md) files, so there is nothing to import.` | Pick a folder that has `.md` files in it. |
+| `This folder has no pandoc defaults file (a .yaml with input-files) and no "Chapter N.md" files, so there is nothing to import.` | Add a defaults file, or name the chapter files `Chapter 1.md`, `Chapter 2.md` and so on. |
+| `This zip does not look like a Novelcrafter export: no manuscript with act-NN folders was found.` | Export the project again from Novelcrafter and pick the new `.zip`. |
+| `This document has no Heading 1 paragraphs, so there are no chapters to find. Style each chapter title as Heading 1 and try again.` | Apply the Heading 1 style to each chapter title in Word. |
+| `This is not a readable Word document: it could not be opened as .docx.` | Open the file in Word and save it again as `.docx`. |
+| `This is not a Codex backup: it has no book.json.` | Pick the `.zip` that Export source made. |
+| `This backup was made by a newer Codex. Update Codex to restore it.` | Update your Codex images, then try again. |
+
+If saving the book fails after a good preview, the dialog shows `The import could not be saved, so nothing was imported. Check the folder's files and try again.` The book is not created.
+
+A Codex backup restores under its own title. If you already own a book with that title, the restored book is named with ` (restored)` added to the end.
