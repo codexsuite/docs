@@ -14,7 +14,7 @@ export const shots: ShotSpec[] = [
   },
   {
     name: "ui-navigation-library-tile",
-    route: "/",
+    route: (ctx) => `/#series=${ctx.seriesId}`,
     steps: async (page, ctx) => {
       await page.getByTestId(`shell-tile-${ctx.bookIds.saltAndSignal}`).waitFor();
     },
