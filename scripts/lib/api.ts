@@ -52,7 +52,7 @@ export function signInFromFile(baseUrl: string, credentialsFile: string): Promis
   return signIn(baseUrl, credentials.adminEmail, credentials.adminPassword);
 }
 
-/** Calls the API and throws with the method, path and status only when the answer is not 2xx. */
+/** Calls the API and throws with the method, path, status, and the API's code and error text when the answer is not 2xx. */
 export async function expectOk<T = unknown>(
   session: AdminSession,
   method: Parameters<AdminSession["api"]>[0],
@@ -63,8 +63,9 @@ export async function expectOk<T = unknown>(
   if (!response.ok) {
     let message = "";
     try {
-      const error = (await response.json()) as { code?: string; message?: string };
-      message = ` ${error.code ?? ""} ${error.message ?? ""}`.trimEnd();
+      // The API answers { error, code }: the text for people and a stable code.
+      const body = (await response.json()) as { error?: string; code?: string };
+      message = ` ${body.code ?? ""} ${body.error ?? ""}`.trimEnd();
     } catch {
       // The answer had no JSON body.
     }
