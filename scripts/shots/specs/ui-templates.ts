@@ -102,6 +102,7 @@ async function fork(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("settings-layout-fork-name").fill("Working Coasts novel");
   await page.getByTestId("settings-layout-fork-confirm").click();
   await card(page, forkSlug).waitFor();
+  await card(page, forkSlug).scrollIntoViewIfNeeded();
 }
 
 /** Forks, pins the book to the fork, and uploads version 1.1.0 of it. The book is then offered the upgrade. */
@@ -239,7 +240,9 @@ export const shots: ShotSpec[] = [
       await openTemplates(page, ctx);
       const files = await downloadPackage(page, "novel-6x9");
       await uploadNew(page, "novel-6x9.zip", writeZip(files));
-      await page.getByTestId("settings-layout-template-error").waitFor();
+      const error = page.getByTestId("settings-layout-template-error");
+      await error.waitFor();
+      await error.scrollIntoViewIfNeeded();
     },
   },
 ];
