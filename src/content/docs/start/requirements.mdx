@@ -10,22 +10,22 @@ import { workerImage } from "../../../config/site";
 
 export const sandboxCheck = `docker run --rm --entrypoint codex-sandbox ${workerImage} --exec /usr -- /usr/bin/true; echo "exit code: $?"`;
 
-Read this page before you install. Codex runs on a small Linux host, but printing needs a newer kernel than many hosts have. The check below tells you in one command whether yours qualifies.
+Read this page before you install. Printing needs Linux 6.7 or newer. The check below tells you in one command whether your host qualifies.
 
 ## What the host needs
 
 - **Architecture.** The images are built for amd64 only. An arm64 host, such as an Apple silicon machine or a Raspberry Pi, cannot run them natively.
-- **Docker.** Docker with Compose v2. The quick start was tested on Docker 28.0.4 with Compose 2.38.2, on Ubuntu 24.04 with Linux 7.0.
-- **A kernel with Landlock ABI 4.** Linux 6.7 or newer, with Landlock enabled. Details are in the next section.
+- **Docker.** You need Docker with Compose v2. The quick start ran on Docker 28.0.4 with Compose 2.38.2, on Ubuntu 24.04 with Linux 7.0.
+- **A kernel with Landlock ABI 4.** The host needs Linux 6.7 or newer, with Landlock enabled. Details are in the next section.
 - **Ports.** The quick start publishes the app on port 8080 over plain HTTP on every network interface. It binds Postgres to loopback only. [Install for production](/start/production/) covers TLS.
 
-Docker Desktop is untested. Codex does not say whether it works there, and this page does not guess. Run the check below inside the environment where the containers will run.
+Docker Desktop is untested. Nobody has tested it with Codex. Run the check below inside the environment where the containers will run.
 
 ## Landlock and printing
 
-Codex compiles every print job inside a sandbox that uses Landlock, a Linux kernel feature. The sandbox needs Landlock ABI 4, which arrived in Linux 6.7. The sandbox has no off switch, and Codex never falls back to an unsandboxed compile. If the kernel has no Landlock, or an older version, the sandbox refuses to start.
+Codex compiles every print job inside a sandbox that uses Landlock, a Linux kernel feature. The sandbox needs Landlock ABI 4, which arrived in Linux 6.7. There is no way to turn the sandbox off, and Codex never falls back to an unsandboxed compile. If the kernel has no Landlock, or an older version, the sandbox refuses to start.
 
-WSL2 on kernel 6.6 refuses. Update the WSL kernel, or run Codex on a host with a newer kernel.
+On WSL2 with kernel 6.6, the sandbox refuses to start. Update the WSL kernel, or run Codex on a host with a newer kernel.
 
 ### What needs the sandbox
 
@@ -46,11 +46,11 @@ The last three run in the worker container, and so do proofs.
 
 ### Check your host
 
-Run this on the host that will run the containers. It starts the sandbox from the worker image and runs one harmless program inside it.
+Run this on the host that will run the containers. It starts the sandbox from the worker image and runs `/usr/bin/true` inside it.
 
 <Code code={sandboxCheck} lang="sh" title="Terminal" />
 
-An exit code of 0 means the sandbox works and printing will work. Exit code 125 means the sandbox refused to start. The message tells you why.
+An exit code of 0 means the sandbox works and printing will work. An exit code of 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start, and the message tells you why. Docker also exits with 125 when the daemon fails, for example when the image cannot be pulled. In that case Docker prints its own error and no `codex-sandbox:` line.
 
 On a kernel with Landlock ABI 3, the output looks like this.
 
@@ -63,13 +63,15 @@ On a kernel with no Landlock, the message starts with `codex-sandbox: this kerne
 
 ### What you see when the sandbox refuses
 
-The app shows the refusal in the place where you asked for the work. A failed export lists the message on the export. A failed proof or preview shows it on the Layout screen. Each message starts with the same sentence, followed by the text the sandbox printed.
+The app shows the refusal in the place where you asked for the work. A failed export lists the message on the export, and so does a failed proof. Each of those messages starts with the same sentence, followed by the text the sandbox printed.
 
 ```text
 The print sandbox could not start: codex-sandbox: Landlock ABI 3 cannot restrict TCP (needs 4); refusing to run
 ```
 
-If you see this, the fix is on the host, not in Codex. See [Troubleshooting](/start/troubleshooting/).
+A failed Quick preview or template thumbnail shows a different message. The Layout screen says "The preview could not be made" with the detail "Something went wrong on the server." The page gives no reason. Run `docker compose logs codex` and look for the error in the app container log.
+
+In both cases the fix is on the host, not in Codex. See [Troubleshooting](/start/troubleshooting/).
 
 <Aside type="note">
   `CODEX_SANDBOX` sets the path to the `codex-sandbox` program. It does not turn the sandbox off. See the [configuration reference](/start/configuration/).
