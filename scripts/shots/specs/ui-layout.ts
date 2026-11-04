@@ -146,6 +146,16 @@ export const shots: ShotSpec[] = [
     },
   },
   {
+    name: "ui-layout-figure-issue",
+    route: layoutRoute,
+    steps: async (page, ctx) => {
+      await addFigure(page, ctx);
+      await openLayout(page, ctx);
+      await page.getByTestId("layout-tab-issues").click();
+      await page.getByTestId("layout-issue-item").first().waitFor();
+    },
+  },
+  {
     name: "ui-layout-figure",
     route: layoutRoute,
     steps: async (page, ctx) => {
