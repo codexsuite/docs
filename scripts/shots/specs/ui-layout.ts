@@ -60,7 +60,29 @@ async function exportDone(page: Page, ctx: SeedResult): Promise<void> {
 async function addFigure(page: Page, ctx: SeedResult): Promise<void> {
   await page.goto(layoutRoute(ctx));
   await page.getByTestId("layout-page").waitFor();
-  const png = await page.screenshot({ type: "png", clip: { x: 0, y: 0, width: 300, height: 200 } });
+  // Use the same small illustration in both themes so the low-dpi example is recognisable.
+  const image = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 200;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas is unavailable");
+    context.fillStyle = "#253955";
+    context.fillRect(0, 0, 300, 200);
+    context.fillStyle = "#e8c77b";
+    context.beginPath();
+    context.arc(150, 70, 35, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#26313a";
+    context.fillRect(120, 50, 60, 6);
+    context.fillRect(120, 103, 60, 6);
+    context.fillRect(125, 45, 5, 63);
+    context.fillRect(170, 45, 5, 63);
+    context.fillRect(135, 109, 30, 45);
+    context.fillRect(115, 154, 70, 10);
+    return canvas.toDataURL("image/png").split(",")[1];
+  });
+  const png = Buffer.from(image, "base64");
   const upload = await page.request.post(`/api/books/${ctx.bookIds.saltAndSignal}/assets`, {
     headers: { "X-Codex-Client": "docs-shots" },
     multipart: { file: { name: "lamp-room.png", mimeType: "image/png", buffer: png } },

@@ -8,6 +8,11 @@
 /** Result of one request: an HTTP status, or the error code of a failed fetch. */
 export type LinkResult = number | { code: string | undefined };
 
+/** The capture stack's fake model is reachable only inside its Docker network. */
+export function isCaptureStackUrl(url: string): boolean {
+  return /^https?:\/\/fake-model(?::\d+)?(?:\/|$)/.test(url);
+}
+
 export function isDeadLink(result: LinkResult): boolean {
   if (typeof result === "number") return result === 404 || result === 410;
   return result.code === "ENOTFOUND";

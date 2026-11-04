@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { externalUrlsIn, isDeadLink, type LinkResult } from "./external-urls.ts";
+import { externalUrlsIn, isCaptureStackUrl, isDeadLink, type LinkResult } from "./external-urls.ts";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url)).replace(/\/$/, "");
 
@@ -32,7 +32,7 @@ export function externalUrls(): Map<string, string> {
   const urls = new Map<string, string>();
   for (const file of files) {
     for (const url of externalUrlsIn(readFileSync(file, "utf8"))) {
-      if (!skip.some((re) => re.test(url)) && !urls.has(url)) urls.set(url, file.slice(root.length + 1));
+      if (!isCaptureStackUrl(url) && !skip.some((re) => re.test(url)) && !urls.has(url)) urls.set(url, file.slice(root.length + 1));
     }
   }
   return urls;

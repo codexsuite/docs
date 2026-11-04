@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { externalUrlsIn, isDeadLink } from "./site/external-urls.ts";
+import { externalUrlsIn, isCaptureStackUrl, isDeadLink } from "./site/external-urls.ts";
+
+test("CaptureStackUrlsAreNotPublicLinks", () => {
+  assert.equal(isCaptureStackUrl("http://fake-model:4010/v1"), true);
+  assert.equal(isCaptureStackUrl("http://fake-model:4010/v2"), true);
+  assert.equal(isCaptureStackUrl("https://fake-model.example.com/v1"), false);
+});
 
 test("ExternalUrlsIgnoreCodeAndKeepLinks", () => {
   const text = [
