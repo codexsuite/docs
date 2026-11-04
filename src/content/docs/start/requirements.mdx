@@ -10,7 +10,7 @@ import { workerImage } from "../../../config/site";
 
 export const sandboxCheck = `docker run --rm --entrypoint codex-sandbox ${workerImage} --exec /usr -- /usr/bin/true; echo "exit code: $?"`;
 
-Read this page before you install. Printing needs Linux 6.7 or newer. The check below tells you in one command whether your host qualifies.
+Printing needs Linux 6.7 or newer. The check below tells you in one command whether your host qualifies.
 
 ## What the host needs
 
@@ -19,7 +19,7 @@ Read this page before you install. Printing needs Linux 6.7 or newer. The check 
 - **A kernel with Landlock ABI 4.** The host needs Linux 6.7 or newer, with Landlock enabled. Details are in the next section.
 - **Ports.** The quick start publishes the app on port 8080 over plain HTTP on every network interface. It binds Postgres to loopback only. [Install for production](/start/production/) covers TLS.
 
-Docker Desktop is untested. Nobody has tested it with Codex. Run the check below inside the environment where the containers will run.
+Docker Desktop is untested. Run the check below inside the environment where the containers will run.
 
 ## Landlock and printing
 
@@ -37,7 +37,7 @@ These features stop working on a host that fails the check:
 - Word export.
 - EPUB export.
 
-The last three run in the worker container, and so do proofs.
+Proofs, Export for printer, Word export and EPUB export run in the worker container.
 
 ### What still works
 
@@ -50,7 +50,7 @@ Run this on the host that will run the containers. It starts the sandbox from th
 
 <Code code={sandboxCheck} lang="sh" title="Terminal" />
 
-An exit code of 0 means the sandbox works and printing will work. An exit code of 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start, and the message tells you why. Docker also exits with 125 when the daemon fails, for example when the image cannot be pulled. In that case Docker prints its own error and no `codex-sandbox:` line.
+An exit code of 0 means the sandbox works and the sandbox starts on this host. An exit code of 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start, and the message tells you why. Docker also exits with 125 when the daemon fails, for example when the image cannot be pulled. In that case Docker prints its own error and no `codex-sandbox:` line.
 
 On a kernel with Landlock ABI 3, the output looks like this.
 
@@ -63,13 +63,13 @@ On a kernel with no Landlock, the message starts with `codex-sandbox: this kerne
 
 ### What you see when the sandbox refuses
 
-The app shows the refusal in the place where you asked for the work. A failed export lists the message on the export, and so does a failed proof. Each of those messages starts with the same sentence, followed by the text the sandbox printed.
+A failed export lists the refusal on the export, and so does a failed proof. Each of those messages starts with the same sentence, followed by the text the sandbox printed.
 
 ```text
 The print sandbox could not start: codex-sandbox: Landlock ABI 3 cannot restrict TCP (needs 4); refusing to run
 ```
 
-A failed Quick preview or template thumbnail shows a different message. The Layout screen says "The preview could not be made" with the detail "Something went wrong on the server." The page gives no reason. Run `docker compose logs codex` and look for the error in the app container log.
+A failed Quick preview shows a different message. The Layout screen says "The preview could not be made" with the detail "Something went wrong on the server." The screen gives no reason. A failed template thumbnail in the template library in settings shows a blank page and no message. For both, run `docker compose logs codex` and look for the error in the app container log.
 
 In both cases the fix is on the host, not in Codex. See [Troubleshooting](/start/troubleshooting/).
 

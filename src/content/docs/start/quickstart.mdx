@@ -58,15 +58,15 @@ After this page you have Codex running on your machine and you are signed in as 
 
 Codex has no sign-up. The first start creates your admin from the two `CODEX_ADMIN_` values, and you add everyone else from [User management](/ui/users/).
 
-After you sign in, Codex opens the Library.
+After you sign in, Codex opens the Library. A fresh install has no books, so your Library is empty. The picture below shows demo content.
 
-<Shot name="start-quickstart-library" alt="The Library of the demo content, with the Create Novel button at the top and the Working Coasts series below it. A fresh install has no books, so yours is empty." />
+<Shot name="start-quickstart-library" alt="The Library of the demo content, with the Create Novel button at the top and the Working Coasts series below it." />
 
 ## Remove the admin values
 
 You only need the two admin values for the first start. When you have signed in, remove them.
 
-1. Delete the `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` lines from the `codex` service in `docker-compose.yml`. Do this first. A Compose file that still names the variables stops with "Set CODEX_ADMIN_EMAIL in .env" once they are empty in `.env`.
+1. Delete the `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` lines from the `codex` service in `docker-compose.yml`. Do this first. Compose stops with "Set CODEX_ADMIN_EMAIL in .env" if the file still names the variables and they are empty in `.env`.
 2. Delete the same two lines from `.env`.
 3. Run `docker compose up -d` again. Compose recreates the app container without them.
 
