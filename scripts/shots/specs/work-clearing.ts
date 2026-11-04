@@ -239,7 +239,11 @@ export const shots: ShotSpec[] = [
       await selectInEditor(editor, newText, newText);
       await page.keyboard.type("/source");
       await page.getByTestId("prose-slash-item-source-reference").click();
+      const cited = page.waitForResponse((r) => r.request().method() === "POST" && /\/api\/.*cit/.test(new URL(r.url()).pathname));
       await page.getByTestId(`write-cite-option-${ctx.sourceIds[signals]}`).click();
+      const response = await cited;
+      if (!response.ok()) throw new Error(`The citation answered ${response.status()}: ${(await page.getByTestId("editing-toast").allInnerTexts()).join(" ")}`);
+      await page.locator("[data-testid^='write-marker-']").first().waitFor();
       await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
       await page.goto(sourceRoute(ctx));
       try {
