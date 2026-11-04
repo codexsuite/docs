@@ -5,4 +5,77 @@ sidebar:
   order: 7
 ---
 
-{/* STUB */}
+import { Aside } from "@astrojs/starlight/components";
+import Shot from "../../../components/Shot.astro";
+
+Codex signs people in with an email address and a password. There is no sign-up page and no sign-in with Google. The first admin comes from two settings on the server, and that admin adds everyone else.
+
+## The first admin
+
+Set both of these on the `codex` service before the first start.
+
+| Variable | What it does |
+|---|---|
+| `CODEX_ADMIN_EMAIL` | The admin's email. Codex creates the user if no user has that email. |
+| `CODEX_ADMIN_PASSWORD` | The admin's password. It needs at least 10 characters. |
+
+On startup, if that user has no password yet, Codex sets this one and makes the user an admin. A user who already has a password is left alone, so keeping the two settings does nothing after the first start. Remove them anyway. The [quick start](/start/quickstart/) shows how.
+
+## Sign in
+
+Open the address of your Codex and enter your email and password on the sign-in page.
+
+<Shot name="start-sign-in-refused" alt="The sign-in page with an email field, a password field and a Sign in button. The message under the fields reads: Incorrect email or password, or the account is locked for now." />
+
+A sign-in sets a cookie named `codex.auth`. The cookie lasts 14 days and renews each time you use Codex, so you stay signed in while you work. To sign out, open the avatar menu at the right of the top bar and choose Sign out.
+
+Every failed sign-in gets the same message, whatever the cause: "Incorrect email or password, or the account is locked for now." Codex does not say whether the email exists. The causes are an unknown email, a wrong password, a user with no password, a disabled user, a locked account and a rate limit.
+
+### Lockout and rate limits
+
+- Ten wrong passwords in a row lock the account for 15 minutes. An admin can unlock it sooner from the Users page.
+- Sign-in is limited to 30 attempts a minute for each IP address and 20 attempts in 15 minutes for each email.
+
+Behind Cloudflare, Codex counts attempts by the address in the `CF-Connecting-IP` header. [Troubleshooting](/start/troubleshooting/) covers a sign-in that fails for a user who has the right password.
+
+## Add a user
+
+Only an admin can add users. To add one:
+
+1. Open the avatar menu and choose Users. The address is `/settings/users`.
+2. Enter the person's email and display name.
+3. Select Add user.
+
+<Shot name="start-sign-in-users" alt="The Users page with an Email field, a Display name field and an Add user button above a table of users." />
+
+Codex shows a one-time password for the new user. Copy it and pass it on yourself, because Codex sends no email and never shows the password again.
+
+<Shot name="start-sign-in-add-user" alt="The Users page after adding Rosa Tennant. A box above the table shows a one-time password with Copy and Done buttons." />
+
+The new user signs in with that password. Codex then keeps every page on the password screen until they choose their own password.
+
+<Aside type="note">
+  An admin adds users but does not get access to their books. A book belongs to its owner, who shares it from the book's settings. See [Sharing](/ui/sharing/).
+</Aside>
+
+## Manage users
+
+Each row on the Users page has these actions.
+
+| Action | What it does |
+|---|---|
+| Make admin, Remove admin | Gives or takes away the right to manage users. The change applies on the user's next request. |
+| Disable, Enable | A disabled user is signed out and cannot sign in. |
+| Unlock | Ends a lockout early. |
+| Reset password | Creates a new one-time password and signs the user out everywhere. |
+| Revoke tokens | Revokes every personal access token the user has. See [Tokens](/agents/tokens/). |
+
+Codex keeps these guards. You cannot disable yourself or remove your own admin rights, and at least one active admin always remains. There is no delete, because a user owns books. Disable the user instead.
+
+A user changes their own password and display name on the Account page. A password change signs every other session out. The details are in [Account](/ui/account/) and [User management](/ui/users/).
+
+## Next steps
+
+- To connect a writing assistant, see [AI providers](/start/ai/).
+- To let agents in over MCP, see [Tokens](/agents/tokens/).
+- If sign-in fails, see [Troubleshooting](/start/troubleshooting/).

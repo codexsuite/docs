@@ -1,8 +1,120 @@
 ---
 title: "Troubleshooting"
-description: "Fixes for the problems operators meet most."
+description: "Fixes for failed sign-in, PDF errors on old kernels, worker jobs left unclaimed and 401s on /mcp."
 sidebar:
   order: 10
 ---
 
-{/* STUB */}
+import { Aside, Code } from "@astrojs/starlight/components";
+import Shot from "../../../components/Shot.astro";
+import { workerImage } from "../../../config/site";
+
+export const sandboxCheck = `docker run --rm --entrypoint codex-sandbox ${workerImage} --exec /usr -- /usr/bin/true; echo "exit code: $?"`;
+
+Find your symptom below. Each entry gives the message Codex shows, the causes and the fix.
+
+## I can't sign in
+
+<Shot name="start-troubleshooting-refused" alt="The sign-in page with the message: Incorrect email or password, or the account is locked for now." />
+
+The message is "Incorrect email or password, or the account is locked for now." Codex gives it for every failed sign-in, so it does not tell you which cause applies.
+
+Check these in order.
+
+1. Check the email and the password. Check for a stray space or a wrong letter.
+2. For the first admin, check that `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` are both set and that the password has at least 10 characters. Codex ignores one without the other. If you change the password in `.env` after the first start, nothing happens, because a user who has a password is left alone.
+3. Wait 15 minutes, or ask an admin to select Unlock on the Users page. Ten wrong passwords in a row lock the account.
+4. Ask an admin to check that the user is not disabled, and to select Reset password if the password is lost.
+5. Wait a minute if many people sign in from one address. Sign-in is limited to 30 attempts a minute for each IP address and 20 attempts in 15 minutes for each email.
+
+If you lost the only admin password, no user can reset it. Stop the stack, set `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` for a new email, and start it again. Codex creates that user as an admin. See [Users and sign-in](/start/sign-in/).
+
+## I sign in and land on the sign-in page again
+
+Codex stores a session cookie named `codex.auth`. It marks the cookie Secure when the request it sees is HTTPS. Behind a proxy the app sees HTTP, so the proxy must send `X-Forwarded-Proto` and `X-Forwarded-Host`.
+
+The usual causes after a proxy change are these.
+
+- The proxy does not send the two headers. The cookie then has no Secure flag. Add the headers. The [Caddyfile example](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) does it with `header_up`.
+- The proxy reports `https`, but the browser opens the site over plain HTTP. The browser drops a Secure cookie that comes over HTTP. Open the site at its HTTPS address, or make the proxy report the scheme the browser used.
+- The address changed. A cookie belongs to one host name, so people sign in again at the new name.
+- You restored or replaced the database. The cookie's keys live in the database, so every session ends.
+
+Codex also signs a user out when an admin disables them or resets their password, or when they change their own password on another device. A page load that has no session goes to `/login?returnUrl=`. A request to `/api` answers 401 with "Sign in to continue."
+
+## A PDF export or proof fails
+
+The message starts with "The print sandbox could not start:" and then gives the text the sandbox printed. Two examples follow.
+
+```text
+The print sandbox could not start: codex-sandbox: Landlock ABI 3 cannot restrict TCP (needs 4); refusing to run
+The print sandbox could not start: codex-sandbox: this kernel has no Landlock (Function not implemented); refusing to run unsandboxed
+```
+
+The sandbox exits with code 125 when it refuses to start. Printing needs Landlock ABI 4, which arrived in Linux 6.7. WSL2 on kernel 6.6 fails. There is no setting that turns the sandbox off.
+
+To test the host that runs the containers, run this command.
+
+<Code code={sandboxCheck} lang="sh" title="Terminal" />
+
+Exit code 0 means printing works. Exit code 125 means the host needs a newer kernel. Update the kernel, or move Codex to a host that has one. Markdown export and the source archive keep working on an old kernel. See [Requirements](/start/requirements/).
+
+## A job stays queued
+
+The app queues proofs and exports in the database, and the worker claims them. If a job never starts, the worker is not claiming it.
+
+1. Run `docker compose ps` and check that the `worker` service is running. If it restarts, run `docker compose logs worker` and read the last lines.
+2. Check that the worker has `CODEX_ROLE=worker`. A container with the default role, `web`, claims no jobs.
+3. Check that the worker has the same `CODEX_DB_CONNECTION` as the app. A worker that reads another database never sees the job.
+4. Check that both containers mount the same `codex-blobs` volume. See [Files and the worker](/start/worker/).
+
+The worker looks for a job every 2 seconds. A job that shows no progress is taken over by the next worker after 10 minutes for a proof and 45 minutes for an export. This is a different failure from the sandbox refusing. A refusal fails the job at once and shows its message.
+
+## Saved AI keys answer not_configured
+
+Codex answers `not_configured` when it has no usable key. These are the messages and what to do.
+
+| Message | Fix |
+|---|---|
+| "AI integrations need a key folder. Set CODEX_DATA_PROTECTION_DIR in the server settings." | Set the variable on the `codex` and `worker` services, and mount a volume there. |
+| "The saved key can't be read with this server's key folder. Enter the key again in Settings → AI." | The key folder was lost or replaced. Restore it from backup, or enter each key again. |
+| "Connect an AI provider in Settings → AI to write drafts." | The user has no connection. Connect one. |
+| "Anthropic rejected the API key. Check it in Settings → AI." | The provider refused the key. Replace the key. The message names the provider. |
+| "Anthropic reports no credit left on this account. Check the plan and credits with the provider." | Add credit with the provider. |
+
+The key folder is not in the database, so restoring only a database backup loses every saved key. See [AI providers](/start/ai/).
+
+## /mcp answers 401
+
+The message is "Send a Codex personal access token: Authorization: Bearer cdx_pat_…. Create one under Account → Agent access."
+
+`/mcp` takes only a personal access token in the `Authorization` header. It answers 401 for each of these.
+
+- The request has no `Authorization` header.
+- The header does not start with `Bearer `.
+- The token is unknown, revoked or expired, or its user is disabled.
+- The token is a device secret that starts with `cdx_dev_`, or the request relies on the browser cookie. Neither works on `/mcp`.
+
+Create a new token on the Account page and copy it when Codex shows it, because it is shown once. See [Tokens](/agents/tokens/). A 401 on `/api` is a different problem, because that route takes the cookie and not a token.
+
+A tool call that fails with `forbidden` means the token reached Codex but lacks the scope the tool needs, which the `field` value names.
+
+## An AI endpoint on my network is refused
+
+<Shot name="start-troubleshooting-address-refused" alt="The Connect an AI provider dialog after Test connection, with a message that the address 169.254.169.254 is a link-local address, which is never allowed." />
+
+Codex shows one of these messages when it refuses a base URL.
+
+| Message | Fix |
+|---|---|
+| "Use an https:// address." | Use `https://`, or ask the server owner to allow local endpoints. |
+| "&lt;host&gt; is not on the public internet. The server owner can allow local endpoints with CODEX_AI_ALLOW_LOCAL_ENDPOINTS." | Set `CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true` on the `codex` service and recreate it. |
+| "&lt;host&gt; is a link-local address, which is never allowed." | Use another address. Local endpoints are on, and link-local addresses stay refused. |
+| "The address can't contain a user name, password, query or #fragment." | Remove that part of the address. |
+| "Couldn't find &lt;host&gt;. Check the address." | Check the name. From inside a container, `localhost` is the container itself. |
+
+See [AI providers](/start/ai/) for the full rules.
+
+<Aside type="note">
+  If a problem is not here, read the logs with `docker compose logs codex worker`. To send them to Seq, see [Logs and monitoring](/start/observability/).
+</Aside>
