@@ -181,42 +181,40 @@ export async function main(argv: string[]): Promise<void> {
   try {
     const credentials = JSON.parse(readFileSync(credentialsFile, "utf8")) as { adminPassword: string };
     // Sign in once. Every capture copies this session into a fresh context.
-    const session = await signInFromFile(baseUrl, credentialsFile);
+    let session = await signInFromFile(baseUrl, credentialsFile);
     const seed = await seedDemo(session);
     const secrets = [session.cookie, credentials.adminPassword];
-    let viewerCookie: string | undefined;
     log(`Seeded the demo in ${((Date.now() - started) / 1000).toFixed(1)} s.`);
-    if (shots.some((s) => s.as === "viewer")) {
-      const viewer = await signInViewer(session, seed.viewer.id);
-      viewerCookie = viewer.cookie;
-      secrets.push(...viewer.secrets);
-      log("Signed in as the viewer.");
-    }
     const browser = await chromium.launch();
-    // A shot with steps may change data. The capture after it starts from restored fixtures. A plain shot changes nothing.
+    // A shot with steps may change data, and a viewer shot does: setting the viewer's password and signing in write to the database.
+    // The capture after either starts from restored fixtures. A plain admin shot changes nothing.
     let dirty = false;
     try {
       for (const spec of shots) {
         const hashes: string[] = [];
         for (const theme of themes) {
+          // A viewer shot restores before each theme, so both themes start from the same state.
           if (dirty) {
             await restoreFixtures(session, seed);
-            // The restore drops sessions made after the snapshot, so the viewer signs in again when a shot needs it.
-            viewerCookie = undefined;
+            // The snapshot kept the admin's rows but not a stale session, so the admin signs in afresh.
+            session = await signInFromFile(baseUrl, credentialsFile);
+            secrets.push(session.cookie);
             dirty = false;
           }
-          if (spec.as === "viewer" && !viewerCookie) {
+          // The viewer signs in only now, after the restore, so an admin shot always sees the viewer as seeded.
+          let cookie = session.cookie;
+          if (spec.as === "viewer") {
             const viewer = await signInViewer(session, seed.viewer.id);
-            viewerCookie = viewer.cookie;
+            cookie = viewer.cookie;
             secrets.push(...viewer.secrets);
           }
           let shot: Captured;
           try {
-            shot = await capture(browser, baseUrl, spec.as === "viewer" ? viewerCookie! : session.cookie, seed, spec, theme);
+            shot = await capture(browser, baseUrl, cookie, seed, spec, theme);
           } catch (error) {
             throw new Error(`Shot "${spec.name}" (${theme}) failed: ${error instanceof Error ? error.message : "unknown error"}`);
           }
-          dirty = Boolean(spec.steps);
+          dirty = Boolean(spec.steps) || spec.as === "viewer";
           hashes.push(shot.textHash);
           writeFileSync(join(options.out, `${spec.name}-${theme}.webp`), shot.webp);
           log(`${spec.name}-${theme}.webp ${shot.width}x${shot.height} ${(shot.webp.length / 1024).toFixed(1)} KB`);
