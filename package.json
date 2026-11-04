@@ -1,0 +1,38 @@
+{
+  "name": "codex-docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.16.1",
+  "engines": { "node": "24.22.0" },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check && tsx scripts/checks/all.ts",
+    "check:page": "tsx scripts/checks/page.ts",
+    "check:final": "tsx scripts/checks/final.ts",
+    "check:config": "tsx scripts/check-config.ts",
+    "shots": "tsx scripts/shots/run.ts",
+    "shots:ci": "tsx scripts/shots/ci.ts",
+    "tools:gen": "tsx scripts/tools/gen.ts",
+    "tools:check": "tsx scripts/tools/gen.ts --check",
+    "test": "tsx --test scripts/checks/site.test.ts"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.8",
+    "@fontsource/inter": "5.3.0",
+    "astro": "7.4.5",
+    "sharp": "0.35.5",
+    "starlight-links-validator": "0.27.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@types/node": "24.0.0",
+    "playwright": "1.64.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "wrangler": "4.157.0"
+  }
+}

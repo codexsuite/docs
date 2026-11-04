@@ -1,0 +1,25 @@
+/* Maps the Codex tokens (tokens.css) onto Starlight. */
+:root {
+  --sl-font: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+  --sl-color-accent: var(--color-accent);
+  --sl-color-accent-high: var(--color-accent);
+  --sl-color-accent-low: var(--color-accent-soft);
+  --sl-color-text-accent: var(--color-accent);
+  --sl-color-white: var(--color-text);
+  --sl-color-text: var(--color-text);
+  --sl-color-gray-1: var(--color-text);
+  --sl-color-gray-2: var(--color-muted);
+  --sl-color-gray-3: var(--color-muted);
+  --sl-color-gray-4: var(--color-border);
+  --sl-color-gray-5: var(--color-surface-2);
+  --sl-color-gray-6: var(--color-surface);
+  --sl-color-bg: var(--color-bg);
+  --sl-color-bg-nav: var(--color-surface);
+  --sl-color-bg-sidebar: var(--color-surface);
+  --sl-color-hairline: var(--color-border);
+  --sl-color-hairline-light: var(--color-border);
+  --sl-color-hairline-shade: var(--color-border);
+  --sl-color-black: var(--color-bg);
+  --sl-text-body: 16px;
+}
