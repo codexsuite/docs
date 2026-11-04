@@ -80,7 +80,7 @@ export const shots: ShotSpec[] = [
   {
     name: "ui-book-settings-published",
     route: at("archive"),
-    mask: ["[data-testid^='settings-snapshot-']"],
+    mask: ["[data-testid='settings-section-archive']", "[data-testid='settings-section-book']"],
     steps: async (page) => {
       await card(page, "book");
       await page.getByTestId("settings-status-published").click();
