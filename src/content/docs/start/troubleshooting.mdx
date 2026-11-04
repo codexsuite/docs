@@ -35,7 +35,7 @@ Codex stores a session cookie named `codex.auth`. It marks the cookie Secure whe
 
 One cause after a proxy change sends you back to the sign-in page again and again. The proxy reports `https`, but the browser opens the site over plain HTTP, and the browser drops a Secure cookie that comes over HTTP. Open the site at its HTTPS address, or make the proxy report the scheme the browser used.
 
-If the proxy does not send the two headers, sign-in still holds, but a page load with no session redirects to an `http` address. Add the headers. The [Caddyfile example](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) does it with `header_up`.
+If the proxy does not send the two headers, sign-in still works, but a page load with no session redirects to an `http` address. Add the headers. The [Caddyfile example](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) does it with `header_up`.
 
 These two cause one fresh sign-in, not a loop.
 
@@ -63,13 +63,13 @@ Exit code 0 means printing works. Exit code 125 with a line that starts with `co
 
 ## A job stays queued
 
-The app queues proofs and exports in the database, and the worker claims them. A print export that no worker has claimed shows Queued on the Exports tab of the Layout screen. A Word, Markdown or EPUB copy shows Queued in the book's settings. A proof shows "Compiling…" in the status bar. None of them shows an error. If one stays that way, the worker is not claiming it.
+The app queues proofs and exports in the database, and the worker claims them. A print export that no worker has claimed shows Queued on the Exports tab of the Layout screen. A Word, Markdown or EPUB copy shows Queued in the book's settings. A proof shows "Queued… 0%" on the Layout screen and "Compiling…" in the status bar. None of them shows an error. If one stays that way, the worker is not claiming it.
 
 1. Run `docker compose ps` and check that the `worker` service is running. If it restarts, run `docker compose logs worker` and read the last lines.
 2. Check that the worker has `CODEX_ROLE=worker`. A container with the default role, `web`, claims no jobs.
 3. Check that the worker has the same `CODEX_DB_CONNECTION` as the app. A worker that reads another database never sees the job.
 
-The worker looks for a job every 2 seconds. A job the worker has started fails if it is still running 10 minutes after it began for a proof, or 45 minutes for an export. Codex does not retry it. A worker that stops cleanly puts its running job back in the queue. The proof shows "The worker stopped before the proof finished. Re-render to try again." The export shows "The worker stopped before the export finished. Export again to try once more." A sandbox refusal is different. It fails the job at once and shows its own message. For the files the worker shares with the app, see [Files and the worker](/start/worker/).
+The worker looks for a job every 2 seconds. A job the worker has started fails if it is still running 10 minutes after it began for a proof, or 45 minutes for an export. The proof shows "The worker stopped before the proof finished. Re-render to try again." The export shows "The worker stopped before the export finished. Export again to try once more." Codex does not retry the job. A sandbox refusal is different. It fails the job at once and shows its own message. A worker that stops cleanly puts its running job back in the queue. For the files the worker shares with the app, see [Files and the worker](/start/worker/).
 
 ## Saved AI keys answer not_configured
 
