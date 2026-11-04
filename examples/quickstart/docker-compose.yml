@@ -11,12 +11,12 @@ services:
         condition: service_healthy
     environment:
       - CODEX_DB_CONNECTION=Host=postgres;Port=5432;Database=codex;Username=postgres;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      # Where the app encrypts the AI keys that users save. Keep this volume, because the keys cannot be read without it.
+      # The key ring that encrypts the AI keys users save. Keep this volume, because Codex cannot read those keys without it.
       - CODEX_DATA_PROTECTION_DIR=/data/keys
-      # The first admin. The app creates this user on first boot. Remove both lines after you have signed in.
+      # The app creates this admin on first boot. Remove both lines after you have signed in.
       - CODEX_ADMIN_EMAIL=${CODEX_ADMIN_EMAIL:?Set CODEX_ADMIN_EMAIL in .env}
       - CODEX_ADMIN_PASSWORD=${CODEX_ADMIN_PASSWORD:?Set CODEX_ADMIN_PASSWORD in .env}
-      # Uploaded files, renditions and exports. The worker shares this volume.
+      # The app keeps uploaded files, renditions and exports here. The worker shares this volume.
       - CODEX_BLOB_ROOT=/data/blobs
     volumes:
       - codex-blobs:/data/blobs
@@ -50,7 +50,7 @@ services:
       - POSTGRES_DB=codex
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
-      # Loopback only, so the database is not reachable from other machines.
+      # This binds to loopback, so other machines cannot reach the database.
       - "127.0.0.1:5432:5432"
     volumes:
       # PostgreSQL 18 images keep the cluster under /var/lib/postgresql.

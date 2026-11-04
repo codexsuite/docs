@@ -12,7 +12,7 @@ const stackDir = join(repoRoot, "scripts/stack");
 export interface StackOptions {
   /** Compose project name. Lowercase letters, digits and dashes. Defaults to a name with the process id. */
   project?: string;
-  /** Adds scripts/stack/override.yml: the fake model and local AI endpoints. Capture sets this, the quick start check does not. */
+  /** Adds scripts/stack/override.yml: the fake model and local AI endpoints. Capture and the fake model checks set it. Left out, the stack is the quick start file alone. */
   override?: boolean;
   /** Extra environment for compose, such as CODEX_IMAGE. Never put a secret on a command line. */
   env?: Record<string, string>;
