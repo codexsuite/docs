@@ -23,12 +23,12 @@ The dev server prints its address, usually http://localhost:4321.
 | `pnpm build` | Builds `dist/` and runs the links validator. |
 | `pnpm check` | Runs `astro check`, every page check and the checks on the repository documents. |
 | `pnpm check:page <slug>` | Checks one page in about a second. Use `repo-docs` to check README, AGENTS.md and `docs/*.md`. |
-| `pnpm check:final` | Also fails on stub markers, missing screenshots and unlisted TODO comments. |
+| `pnpm check:final` | Fails on stub markers, missing screenshots and unlisted TODO comments. It does not run the other checks. |
 | `pnpm test` | Runs the unit tests. Run `pnpm build` first. |
 
 ## Writing pages
 
-Read [AGENTS.md](AGENTS.md) before you write or edit a page. It holds the page rules and the contracts between the scripts. All prose follows [docs/unslop.md](docs/unslop.md).
+Read [AGENTS.md](AGENTS.md) before you write or edit a page. It has the page rules and the contracts between the scripts. All prose follows [docs/unslop.md](docs/unslop.md).
 
 ## Hosting
 

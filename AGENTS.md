@@ -15,7 +15,7 @@ Do not add an exemption for a page or a word. Fix the text.
 - Every claim traces to a product source. Check it against the code, not against a plan or an old issue.
 - Write short sentences in the second person, task first.
 - Link to GitHub only with `blob/main` or `raw/main` URLs.
-- Never change a page's slug or title. Never edit `src/sidebar.ts`, `src/pagemap.ts`, `astro.config.mjs`, `package.json` or `pnpm-lock.yaml` without the conductor's approval.
+- Never change a page's slug or title. Never edit `src/sidebar.ts`, `src/pagemap.ts`, `astro.config.mjs`, `package.json` or `pnpm-lock.yaml` without the owner's approval.
 - Import image names from `src/config/site.ts`. Import example files with `?raw`.
 - Working with Codex pages use `docs/running-example.md` and invent nothing else. No real book text, quotes or people.
 - A page's frontmatter description matches its record in `src/pagemap.ts`.
@@ -37,21 +37,21 @@ Capture, the quick-start check and the browser checks run in hosted CI. `pnpm sh
 
 ## Contracts
 
-The numbers match the plan. Only the conductor changes a contract. If the other side is wrong, fix your side or stop and report.
+Only the repository owner changes a contract. If the other side is wrong, fix your side or stop and report.
 
 1. Page map. `src/pagemap.ts` has one record per page: `key`, `slug`, `title`, `description`, `group`, `order`. Each page is `src/content/docs/<slug>.mdx`. Internal links are root-relative with a trailing slash.
-2. Frozen files. `src/sidebar.ts`, `src/pagemap.ts`, `astro.config.mjs`, `package.json` and `pnpm-lock.yaml`.
+2. Frozen files. These files stay unchanged after the bootstrap: `src/sidebar.ts`, `src/pagemap.ts`, `astro.config.mjs`, `package.json` and `pnpm-lock.yaml`.
 3. Screenshots. `<Shot name="<key>-<step>" alt="..." />` shows `src/assets/shots/<name>-light.webp` and `<name>-dark.webp`.
 4. Shot specs. `scripts/shots/specs/<key>.ts` exports `shots: ShotSpec[]`, typed in `scripts/shots/types.ts`.
 5. Demo seed. `scripts/shots/seed.ts` exports `seedDemo` and `restoreFixtures`. It composes `seed/structure.ts` and `seed/references.ts` and uses the REST API only.
 6. Image names. `src/config/site.ts` exports the two image names. Examples read `${CODEX_IMAGE:-...}` and `${CODEX_WORKER_IMAGE:-...}`.
 7. Configuration. The product README table and `/start/configuration/` must list the same variables and groups. `scripts/check-config.ts <product-readme>` checks it.
-8. Examples. `examples/quickstart/` and `examples/caddy/`.
-9. Checks. The page checks are the modules listed in `scripts/checks/page.ts`.
-10. Capture in CI. Both themes at 1440x900, webp under 150 KB.
+8. Examples. The example files live in `examples/quickstart/` and `examples/caddy/`.
+9. Checks. The page checks are the modules that `scripts/checks/page.ts` lists.
+10. Capture in CI. Capture runs in both themes at 1440x900 and writes webp files under 150 KB.
 11. Stack. `scripts/lib/stack.ts` exports `up(opts)` and `down()`.
-12. Running example. `docs/running-example.md`.
-13. Diagrams. One SVG per diagram at `src/assets/diagrams/<key>.svg`, no Mermaid.
+12. Running example. `docs/running-example.md` names every person and place the pages use.
+13. Diagrams. Each diagram is one SVG at `src/assets/diagrams/<key>.svg`. Do not use Mermaid.
 14. Tool reference. `pnpm tools:gen <product>` writes `src/content/docs/agents/tools.mdx`. Do not edit that file by hand.
 
 ## Git
@@ -60,4 +60,4 @@ Start every commit message with the task key. Pull with rebase before you push. 
 
 ## This host
 
-The development host has 7 GB of RAM and no Docker. Wrap builds in `flock ~/.local/codex-docs-build.lock timeout 300` so two builds never run at once.
+The development host has 7 GB of RAM and no Docker. Wrap builds and `pnpm test` in `flock ~/.local/codex-docs-build.lock timeout 300` so two builds never run at once. Never put browser checks in a `*.test.ts` file, because `pnpm test` runs every such file on this host.
