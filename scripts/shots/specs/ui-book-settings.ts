@@ -127,6 +127,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("settings-status-revising").click();
       await page.locator("[data-testid='settings-status-revising'][aria-pressed='true']").waitFor();
       await saved(page);
+      await clearToasts(page);
     },
   },
   { name: "ui-book-settings-archive", route: at("archive"), steps: openArchiveDialog },
@@ -159,6 +160,7 @@ export const shots: ShotSpec[] = [
       await openDeleteDialog(page, ctx);
       await page.getByTestId("library-delete-book-confirm").click();
       await page.getByTestId("library-delete-book-dialog").waitFor({ state: "hidden" });
+      await page.getByText("Salt and Signal deleted.").first().waitFor();
     },
   },
   {
