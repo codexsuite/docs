@@ -230,6 +230,14 @@ export const shots: ShotSpec[] = [
     },
   },
   { name: "ui-write-replace", route: writeRoute, steps: (page, ctx) => openReplace(page, ctx, "Tobias", "Toby") },
+  {
+    name: "ui-write-replace-locked",
+    route: writeRoute,
+    steps: async (page, ctx) => {
+      await openReplace(page, ctx, "midnight", "noon");
+      await page.locator("[data-testid^='write-replace-item-']").filter({ hasText: "Locked: inside a cited passage" }).waitFor();
+    },
+  },
   { name: "ui-write-replaced", route: writeRoute, steps: replaceAll },
   {
     name: "ui-write-replace-undone",
