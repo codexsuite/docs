@@ -84,7 +84,7 @@ async function dispatch(ref: string, page: string, shot: string | undefined, sta
   // The run name carries the tag, so concurrent dispatches on the branch never get mixed up.
   let runId: string | undefined;
   while (!runId && Date.now() - started < 90_000) {
-    await sleep(4000);
+    await sleep(10_000);
     const list = gh(["run", "list", "--workflow", "capture-shots.yml", "--branch", ref, "--event", "workflow_dispatch", "--limit", "20", "--json", "databaseId,displayTitle,url"]);
     if (list.ok) {
       const found = (JSON.parse(list.out) as { databaseId: number; displayTitle: string; url: string }[]).find((r) => r.displayTitle.includes(tag));
@@ -137,7 +137,7 @@ async function main(): Promise<void> {
         break;
       }
     }
-    await sleep(8000);
+    await sleep(30_000);
   }
   const seconds = ((Date.now() - started) / 1000).toFixed(0);
   if (!conclusion) fail(`The run did not finish within ${waitLimitMs / 1000} s: ${url}`);
