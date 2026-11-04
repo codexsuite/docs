@@ -71,7 +71,7 @@ If a name or an alias belongs to another entry, Codex refuses the alias and says
 
 <Shot name="ui-knowledge-base-alias-taken" alt="The alias The Mouth typed on Edith Marrow, with the message that it is already a name or alias of Harrowmouth and the Add anyway button." />
 
-Codex saves a short or common alias but warns you. An alias of three letters or fewer, or one that matches 25 or more words in the book, gets a message such as `Matches 31 other words in the book. Underlines every "the".`
+Codex saves a short or common alias but warns you. An alias of three letters or fewer, or one that matches 25 or more words in the book, gets a message such as `Matches 106 other words in the book. Underlines every "the".`
 
 <Shot name="ui-knowledge-base-alias-warning" alt="The alias the typed on Edith Marrow, with the warning that it matches other words in the book and underlines every the." />
 
@@ -112,9 +112,9 @@ To link an entry to a scene, open the Plan and drag the entry from the sidebar o
 
 <Shot name="ui-knowledge-base-drag-linked" alt="The Plan with Harrowmouth dragged onto the card for scene 1.2, which now shows a Harrowmouth chip." />
 
-In Write, drag an entry from the sidebar onto an underlined name to turn it into a mention chip.
+In Write, drag an entry from the sidebar into the text. A mention chip appears where you drop it.
 
-<Shot name="ui-knowledge-base-drag-mention" alt="Scene 1.1 in Write after Edith Marrow was dragged onto the underlined words, which are now a mention chip." />
+<Shot name="ui-knowledge-base-drag-mention" alt="Scene 1.1 in Write after Edith Marrow was dragged from the sidebar into the text, with a mention chip at the start of the scene." />
 
 ## Highlight an entry
 
@@ -140,7 +140,9 @@ The Timeline tab holds facts that are true from a point in the book onward. It s
 
 To add a note, select Add a note at…, choose the scene, type the note and select Add note. Codex puts the note at the start of that scene as a Codex addition, so you can also see and edit it in [Write](/ui/write/). To add one from Write, type `/codex` in the scene, choose Codex addition and pick the entry.
 
-<Shot name="ui-knowledge-base-write-addition" alt="Scene 1.1 in Write with a Codex addition card for Edith Marrow at the start of the text." /> Select Edit on a note to change its text, and Save to keep the change. A toast offers Undo after an edit.
+<Shot name="ui-knowledge-base-write-addition" alt="Scene 1.1 in Write with a Codex addition card for Edith Marrow at the start of the text." />
+
+Select Edit on a note to change its text, and Save to keep the change. A toast offers Undo after an edit.
 
 <Shot name="ui-knowledge-base-timeline-add" alt="The Timeline tab for Edith Marrow with the add form open: the scene list and the note text From here Edith is head keeper and signs the logbook." />
 
@@ -160,7 +162,7 @@ Source shows the source from [References](/ui/references/) that the entry points
 
 ## Always in context
 
-Tick Always in context and Codex sends the entry's name and summary with every AI draft in the book, even when the beat does not mention it. Codex sends entries you add to a beat with that draft whether or not this box is ticked. 
+Tick Always in context and Codex sends the entry's name and summary with every AI draft in the book, even when the beat does not mention it. Codex sends entries you add to a beat with that draft whether or not this box is ticked.
 
 <Shot name="ui-knowledge-base-always-in-context" alt="Edith Marrow with Always in context ticked." />
 
@@ -214,7 +216,9 @@ To delete an entry, open its three dots menu and choose Delete entry. The dialog
 
 A toast says `Deleted <name>` with an Undo button.
 
-<Shot name="ui-knowledge-base-deleted" alt="The Plan after Edith Marrow was deleted, with the toast Deleted Edith Marrow and an Undo button." /> Undo brings back the entry, its mentions and its links. If a scene or its text changed in the meantime, Codex refuses the Undo with `Could not undo: a scene or text changed after the entry was deleted, so it stays deleted.` and the entry stays deleted.
+<Shot name="ui-knowledge-base-deleted" alt="The Plan after Edith Marrow was deleted, with the toast Deleted Edith Marrow and an Undo button." />
+
+Undo brings back the entry, its mentions and its links. If a scene or its text changed in the meantime, Codex refuses the Undo with `Could not undo: a scene or text changed after the entry was deleted, so it stays deleted.` and the entry stays deleted.
 
 ## Move an entry to a series
 

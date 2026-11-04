@@ -51,6 +51,22 @@ async function typeInScene(page: Page, ctx: SeedResult, scene: string, text: str
   );
 }
 
+/** Opens Write on scene 1.1, drags an entry from the sidebar onto the start of the text and waits for the mention and the save. */
+async function dropMention(page: Page, ctx: SeedResult, name: string): Promise<void> {
+  await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=1.1`);
+  const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`).getByTestId("prose-editor");
+  await editor.waitFor();
+  const before = await page.getByTestId("write-kb-mention").count();
+  await page.getByTestId(`shell-kb-item-${ctx.entryIds[name]}`).dragTo(editor, { targetPosition: { x: 12, y: 8 } });
+  await page.waitForFunction(
+    (n) => document.querySelectorAll("[data-testid='write-kb-mention']").length > n,
+    before,
+  );
+  await page.waitForFunction(
+    () => document.querySelector("[data-testid='editing-save-status']")?.getAttribute("data-state") === "saved",
+  );
+}
+
 async function openMenu(page: Page): Promise<void> {
   await page.getByTestId("kb-entry-menu").click();
   await page.getByTestId("kb-entry-menu-delete").waitFor();
@@ -439,11 +455,8 @@ export const shots: ShotSpec[] = [
     name: "ui-knowledge-base-ctrl-click-mention",
     route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.1`,
     steps: async (page, ctx) => {
-      // The seed has no mention in the prose, so the step makes one by dragging the entry onto its alias first.
-      await typeInScene(page, ctx, "1.1", "Mrs Marrow trimmed the wick. ");
-      const alias = page.getByTestId("write-kb-alias").first();
-      await alias.waitFor();
-      await page.getByTestId(`shell-kb-item-${ctx.entryIds["Edith Marrow"]}`).dragTo(alias);
+      // The seed has no mention in the prose, so the step drops one in first.
+      await dropMention(page, ctx, "Edith Marrow");
       const mention = page.getByTestId("write-kb-mention").first();
       await mention.waitFor();
       await mention.click({ modifiers: ["Control"] });
@@ -462,15 +475,7 @@ export const shots: ShotSpec[] = [
     name: "ui-knowledge-base-drag-mention",
     route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.1`,
     steps: async (page, ctx) => {
-      await typeInScene(page, ctx, "1.1", "Mrs Marrow trimmed the wick. ");
-      const alias = page.getByTestId("write-kb-alias").first();
-      await alias.waitFor();
-      const before = await page.getByTestId("write-kb-mention").count();
-      await page.getByTestId(`shell-kb-item-${ctx.entryIds["Edith Marrow"]}`).dragTo(alias);
-      await page.waitForFunction(
-        (n) => document.querySelectorAll("[data-testid='write-kb-mention']").length > n,
-        before,
-      );
+      await dropMention(page, ctx, "Edith Marrow");
     },
   },
   {
