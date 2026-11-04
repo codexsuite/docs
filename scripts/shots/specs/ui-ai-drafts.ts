@@ -125,10 +125,9 @@ async function editByHand(page: Page, ctx: SeedResult): Promise<string> {
   const beatId = await applyBeatDraft(page, ctx);
   await editorOf(page, ctx, "1.1").click();
   await page.keyboard.press("Control+End");
-  const saved = page.waitForResponse(isOk("PUT", /\/api\/scenes\/[^/]+\/prose$/));
   await page.keyboard.type(" Tobias had counted them twice.");
+  await page.locator("[data-testid='editing-save-status']:not([data-state='saved'])").waitFor();
   await page.getByTestId("write-manuscript").focus();
-  await saved;
   await savedStatus(page).waitFor();
   await editorOf(page, ctx, "1.1").getByText("Tobias had counted them twice.").waitFor();
   return beatId;
