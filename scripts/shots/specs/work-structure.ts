@@ -15,7 +15,9 @@ async function openBoard(page: Page, ctx: SeedResult): Promise<void> {
 async function moveSecondChapterLeft(page: Page, ctx: SeedResult): Promise<void> {
   const grip = page.getByTestId(`plan-grip-chapter-${ctx.chapterIds["2"]}`);
   await grip.focus();
+  const saved = page.waitForResponse((r) => r.request().method() === "PUT" && r.url().includes("/position"));
   await page.keyboard.press("Alt+ArrowLeft");
+  await saved;
   await page.getByTestId("plan-chapter-heading").first().getByText("Oil and Brass").waitFor();
 }
 
