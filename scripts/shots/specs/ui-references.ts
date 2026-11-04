@@ -395,6 +395,23 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("refs-add-field-title").fill("Fog Signals of the Northern Coast");
       await page.getByTestId("refs-add-save").click();
       await page.getByTestId("editing-toast").filter({ hasText: "Cited Fog Signals" }).waitFor();
+      await page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).locator("[data-testid^='write-marker-'][data-number]").first().waitFor();
+    },
+  },
+  {
+    name: "ui-references-new-source-renumbered",
+    route: referencesRoute,
+    mask: ["[data-testid='editing-toast']", "[data-testid='editing-save-status']"],
+    steps: async (page, ctx) => {
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=1.2`);
+      await openNewSource(page, ctx);
+      await page.getByTestId("refs-add-manual").click();
+      await page.getByTestId("refs-add-field-title").fill("Fog Signals of the Northern Coast");
+      await page.getByTestId("refs-add-save").click();
+      await page.getByTestId("editing-toast").filter({ hasText: "Cited Fog Signals" }).waitFor();
+      await page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).locator("[data-testid^='write-marker-'][data-number]").first().waitFor();
+      await page.goto(referencesRoute(ctx));
+      await page.locator("[data-testid^='refs-row-']").filter({ hasText: "Fog Signals of the Northern Coast" }).first().waitFor();
     },
   },
   {
@@ -406,6 +423,20 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("refs-add-input").fill("9780000000019");
       await page.getByTestId("refs-add-lookup").click();
       await page.getByTestId("refs-add-use-existing").waitFor();
+    },
+  },
+  {
+    name: "ui-references-use-existing-cited",
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.2`,
+    mask: ["[data-testid='editing-toast']", "[data-testid='editing-save-status']"],
+    steps: async (page, ctx) => {
+      await setLedgerIsbn(page, ctx);
+      await openNewSource(page, ctx);
+      await page.getByTestId("refs-add-input").fill("9780000000019");
+      await page.getByTestId("refs-add-lookup").click();
+      await page.getByTestId("refs-add-use-existing").waitFor();
+      await page.getByTestId("refs-add-use-existing").click();
+      await page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).locator("[data-testid^='write-marker-'][data-number]").first().waitFor();
     },
   },
   {
