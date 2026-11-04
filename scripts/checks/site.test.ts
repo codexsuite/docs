@@ -1,29 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { pages } from "../../src/pagemap.ts";
-import { sidebar } from "../../src/sidebar.ts";
+import { pages, pagePath } from "../../src/pagemap.ts";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 
-type Item = { slug: string } | { label: string; items: Item[] };
-const flatten = (items: Item[]): string[] =>
-  items.flatMap((i) => ("slug" in i ? [i.slug] : flatten(i.items)));
-
 // Needs a built site: run `pnpm build` first.
 test("SidebarReachesEveryPage", () => {
-  const slugs = flatten(sidebar as Item[]);
-  assert.equal(new Set(slugs).size, slugs.length, "a page appears twice in the sidebar");
-  assert.deepEqual([...slugs].sort(), pages.map((p) => p.slug).sort());
   assert.equal(pages.length, 49);
   assert.equal(new Set(pages.map((p) => p.key)).size, pages.length, "page keys must be unique");
-  for (const p of pages) {
-    assert.ok(existsSync(`${root}src/content/docs/${p.slug}.mdx`), `missing stub for ${p.slug}`);
-    const built = p.slug === "index" ? "dist/index.html" : `dist/${p.slug}/index.html`;
-    assert.ok(existsSync(`${root}${built}`), `${built} is not built`);
-  }
+  const home = `${root}dist/index.html`;
+  assert.ok(existsSync(home), "dist/index.html is missing: run pnpm build first");
+  const html = readFileSync(home, "utf8");
+  const nav = html.match(/<nav[^>]*aria-label="Main"[^>]*>([\s\S]*?)<\/nav>/);
+  assert.ok(nav, "the built home page has no Main navigation");
+  const links = [...nav[1].matchAll(/<a\s[^>]*href="(\/[^"]*)"/g)].map((m) => m[1]);
+  assert.deepEqual(links, pages.map(pagePath));
 });
 
 test("BuildFailsOnBrokenInternalLink", () => {

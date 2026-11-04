@@ -13,10 +13,10 @@
     "check:page": "tsx scripts/checks/page.ts",
     "check:final": "tsx scripts/checks/final.ts",
     "check:config": "tsx scripts/check-config.ts",
-    "shots": "tsx scripts/shots/run.ts",
+    "shots": "tsx scripts/shots/runner.ts",
     "shots:ci": "tsx scripts/shots/ci.ts",
-    "tools:gen": "tsx scripts/tools/gen.ts",
-    "tools:check": "tsx scripts/tools/gen.ts --check",
+    "tools:gen": "tsx scripts/gen-tools.ts",
+    "tools:check": "tsx scripts/gen-tools.ts --check",
     "test": "tsx --test --test-concurrency=1 \"scripts/**/*.test.ts\""
   },
   "dependencies": {

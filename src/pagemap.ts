@@ -58,7 +58,7 @@ export const pages: PageEntry[] = [
   page("start", 7, "start/sign-in", "Users and sign-in", "Email and password sign-in, the first admin, adding users and one-time passwords."),
   page("start", 8, "start/ai", "AI providers", "Provider kinds, how keys are stored, base URL rules and local endpoints."),
   page("start", 9, "start/observability", "Logs and monitoring", "Turn on Seq, traces and metrics."),
-  page("start", 10, "start/troubleshooting", "Troubleshooting", "Fixes for the problems operators meet most."),
+  page("start", 10, "start/troubleshooting", "Troubleshooting", "Fixes for failed sign-in, PDF errors on old kernels, worker jobs left unclaimed and 401s on /mcp."),
 
   page("guides", 1, "start/guides/first-book", "Your first book in 10 minutes", "Create a book, add an act, chapters and scenes, and write a scene."),
   page("guides", 2, "start/guides/import", "Import a manuscript", "Bring in a manuscript from the Markdown list or Pandoc book folder format."),
@@ -87,7 +87,7 @@ export const pages: PageEntry[] = [
   page("agents", 2, "agents/connect", "Connect an agent", "Create a token and add the Codex MCP server to your client."),
   page("agents", 3, "agents/tokens", "Tokens and scopes", "Scopes, roles, expiry and revoking."),
   page("agents", 4, "agents/tools", "Tool reference", "Every MCP tool, prompt and resource, generated from the server."),
-  page("agents", 5, "agents/prompts", "Example prompts", "Copy-paste prompts for common jobs."),
+  page("agents", 5, "agents/prompts", "Example prompts", "Prompts to paste into an agent connected to Codex over MCP."),
 
   page("work", 1, "work/flow", "The flow at a glance", "From series and book to print, in one diagram."),
   page("work", 2, "work/structure", "Planning the structure", "Acts, chapters, scenes, summaries and labels."),
@@ -99,7 +99,7 @@ export const pages: PageEntry[] = [
   page("work", 8, "work/agents", "Writing with an agent", "Which steps an agent can do over MCP and what you keep."),
 
   page("reference", 1, "reference/glossary", "Glossary", "The terms Codex uses."),
-  page("reference", 2, "reference/keyboard", "Keyboard shortcuts", "Shortcuts by screen."),
+  page("reference", 2, "reference/keyboard", "Keyboard shortcuts", "Every Codex shortcut, listed by screen."),
   page("reference", 3, "reference/prose-format", "Prose format", "The text format the editor and importers use."),
   page("reference", 4, "reference/releases", "Release notes", "Notable changes on the product's main branch."),
 ];
