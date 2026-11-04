@@ -33,15 +33,14 @@ If you lost the only admin password, no user can reset it. Stop the stack, set `
 
 Codex stores a session cookie named `codex.auth`. It marks the cookie Secure when the request it sees is HTTPS. Behind a proxy the app sees HTTP, so the proxy must send `X-Forwarded-Proto` and `X-Forwarded-Host`. With the headers, Codex marks the cookie Secure and builds redirects with `https`.
 
-These causes after a proxy change send you back to the sign-in page again and again.
+One cause after a proxy change sends you back to the sign-in page again and again. The proxy reports `https`, but the browser opens the site over plain HTTP, and the browser drops a Secure cookie that comes over HTTP. Open the site at its HTTPS address, or make the proxy report the scheme the browser used.
 
-- The proxy does not send the two headers, so Codex builds redirects with `http`. Add the headers. The [Caddyfile example](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) does it with `header_up`.
-- The proxy reports `https`, but the browser opens the site over plain HTTP. The browser drops a Secure cookie that comes over HTTP. Open the site at its HTTPS address, or make the proxy report the scheme the browser used.
+If the proxy does not send the two headers, sign-in still holds, but a page load with no session redirects to an `http` address. Add the headers. The [Caddyfile example](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) does it with `header_up`.
 
 These two cause one fresh sign-in, not a loop.
 
 - The address changed. A cookie belongs to one host name, so people sign in again at the new name.
-- The database is new or empty. The keys that sign the cookie live in the database, so every session ends. A restore from a backup keeps them, because the backup holds them.
+- The database is new or empty. The keys that sign the cookie live in the database, so every session ends. A restore from a database backup keeps them, because the backup holds them.
 
 Codex also signs a user out when an admin disables them or resets their password, or when they change their own password on another device. A page load that has no session goes to `/login?returnUrl=`. A request to `/api` answers 401 with "Sign in to continue."
 
@@ -60,17 +59,17 @@ To test the host that runs the containers, run this command.
 
 <Code code={sandboxCheck} lang="sh" title="Terminal" />
 
-Exit code 0 means printing works. Exit code 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start. The message says why. For the Landlock messages above, update the kernel, or move Codex to a host that has one. A runtime that blocks Landlock gives the same message. Docker also exits with 125 when the daemon fails or the image cannot be pulled, and then prints its own error with no `codex-sandbox:` line. Markdown export and the source archive keep working on an old kernel. See [Requirements](/start/requirements/).
+Exit code 0 means printing works. Exit code 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start. The message says why. For the Landlock messages above, update the kernel, or move Codex to a host that has one. A runtime that blocks Landlock gives the same message. Docker also exits with 125 when the daemon fails or cannot pull the image, and then prints its own error with no `codex-sandbox:` line. Markdown export and the source archive keep working on an old kernel. See [Requirements](/start/requirements/).
 
 ## A job stays queued
 
-The app queues proofs and exports in the database, and the worker claims them. A job that no worker has claimed shows as Queued on the Export tab and in Settings, with no message. If it stays Queued, the worker is not claiming it.
+The app queues proofs and exports in the database, and the worker claims them. A print export that no worker has claimed shows Queued on the Exports tab of the Layout screen. A Word, Markdown or EPUB copy shows Queued in the book's settings. A proof shows "Compiling…" in the status bar. None of them shows an error. If one stays that way, the worker is not claiming it.
 
 1. Run `docker compose ps` and check that the `worker` service is running. If it restarts, run `docker compose logs worker` and read the last lines.
 2. Check that the worker has `CODEX_ROLE=worker`. A container with the default role, `web`, claims no jobs.
 3. Check that the worker has the same `CODEX_DB_CONNECTION` as the app. A worker that reads another database never sees the job.
 
-The worker looks for a job every 2 seconds. A job the worker has started fails if it is still running 10 minutes after it began for a proof, or 45 minutes for an export. Nothing takes it over. The proof shows "The worker stopped before the proof finished. Re-render to try again." The export shows "The worker stopped before the export finished. Export again to try once more." A sandbox refusal is different. It fails the job at once and shows its own message. For the files the worker shares with the app, see [Files and the worker](/start/worker/).
+The worker looks for a job every 2 seconds. A job the worker has started fails if it is still running 10 minutes after it began for a proof, or 45 minutes for an export. Codex does not retry it. A worker that stops cleanly puts its running job back in the queue. The proof shows "The worker stopped before the proof finished. Re-render to try again." The export shows "The worker stopped before the export finished. Export again to try once more." A sandbox refusal is different. It fails the job at once and shows its own message. For the files the worker shares with the app, see [Files and the worker](/start/worker/).
 
 ## Saved AI keys answer not_configured
 
@@ -99,20 +98,20 @@ The message is "Send a Codex personal access token: Authorization: Bearer cdx_pa
 
 Create a new token on the Account page and copy it when Codex shows it, because Codex shows it only once. See [Tokens](/agents/tokens/). A 401 on `/api` is a different problem, because that route takes the cookie and not a token.
 
-A tool call that fails with `forbidden` means the token reached Codex but cannot make the call. Either the token lacks the scope the tool needs, and the `field` value names it, or the user has too low a role on the book, as in "This book is shared with you to view only.", and there is no `field`.
+A tool call that fails with `forbidden` means the token reached Codex but cannot make the call. If the token lacks the scope the tool needs, the `field` value names the scope. If the user's role on the book is too low, there is no `field`. An example of that message is "This book is shared with you to view only."
 
 ## An AI endpoint on my network is refused
 
-The capture stack for this shot allows local endpoints. A default install answers "Use an https:// address." for the same address.
+This shot comes from a server with `CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true`. A default install answers "Use an https:// address." for the same address.
 
 <Shot name="start-troubleshooting-address-refused" alt="The Connect an AI provider dialog after Test connection, with a message that the address 169.254.169.254 is a link-local address, which is never allowed." />
 
-Codex shows one of these messages when it refuses a base URL.
+Codex shows one of these messages when a base URL fails.
 
 | Message | Fix |
 |---|---|
 | "Use an https:// address." | Use `https://`, or ask the server owner to allow local endpoints. |
-| "&lt;host&gt; is not on the public internet. The server owner can allow local endpoints with CODEX_AI_ALLOW_LOCAL_ENDPOINTS." | A `localhost` address gets this message while the setting is off. Set `CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true` on the `codex` service and recreate it. |
+| "&lt;host&gt; is not on the public internet. The server owner can allow local endpoints with CODEX_AI_ALLOW_LOCAL_ENDPOINTS." | An `https://` address on `localhost` or a private network gets this message while the setting is off. An `http://` address gets the message above. Set `CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true` on the `codex` service and recreate it. |
 | "&lt;host&gt; is a link-local address, which is never allowed." | Use another address. Local endpoints are on, and link-local addresses stay refused. |
 | "The address can't contain a user name, password, query or #fragment." | Remove that part of the address. |
 | "Couldn't find &lt;host&gt;. Check the address." | Check the host name. |
