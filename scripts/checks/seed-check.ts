@@ -8,11 +8,12 @@
  */
 import { signInFromFile, expectOk } from "../lib/api.ts";
 import { down, up } from "../lib/stack.ts";
-import { seedDemo, restoreFixtures } from "../shots/seed.ts";
-import { seedStructure, restoreStructure } from "../shots/seed/structure.ts";
-import { assertStructureFieldsSet, disturbStructure, snapshotStructure } from "../shots/demo-book.ts";
+import { seedDemo } from "../shots/seed.ts";
+import { seedStructure } from "../shots/seed/structure.ts";
+import { assertStructureFieldsSet } from "../shots/demo-book.ts";
 import { viewerUser } from "../shots/types.ts";
-import { restoreReferences, seedReferences } from "../shots/seed/references.ts";
+import { seedReferences } from "../shots/seed/references.ts";
+import { proveRestore } from "./seed-proof.ts";
 import type { AdminSession, ReferencesSeed, SeedBook, SeedResult } from "../shots/types.ts";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -59,7 +60,7 @@ async function throwawayBook(session: AdminSession): Promise<SeedBook> {
 }
 
 /** The checks the brief names for the references module. */
-async function checkReferences(session: AdminSession, bookId: string, seed: ReferencesSeed): Promise<void> {
+async function checkReferences(session: AdminSession, bookId: string, draftSceneId: string, seed: ReferencesSeed): Promise<void> {
   const signalsId = seed.sourceIds["Signals at Sea"]!;
   const detail = await expectOk<{ quotedWords: number; limit: number; uses: { id: string }[]; checks: { key: string; status: string }[]; permission: { status: string } | null }>(
     session, "GET", `/api/references/${signalsId}`);
@@ -70,12 +71,21 @@ async function checkReferences(session: AdminSession, bookId: string, seed: Refe
   if (detail.permission?.status !== "draft") fail("QuoteShowsOverPublisherLimit: the permission letter is not a draft.");
   console.log("PASS QuoteShowsOverPublisherLimit");
 
-  const drafts = await expectOk<{ drafts: { status: string; sceneId: string }[] }>(session, "GET", `/api/books/${bookId}/drafts`);
-  if (!drafts.drafts.some((d) => d.status === "pending")) fail("PendingDraftAppearsOnScene: no pending draft in the book.");
+  const drafts = await expectOk<{ drafts: { status: string; sceneId: string; beatId: string | null }[] }>(session, "GET", `/api/books/${bookId}/drafts`);
+  if (!drafts.drafts.some((d) => d.status === "pending" && d.sceneId === draftSceneId && d.beatId)) {
+    fail("PendingDraftAppearsOnScene: scene 1.2 has no pending draft from a beat.");
+  }
   console.log("PASS PendingDraftAppearsOnScene");
 
-  const layout = await expectOk<{ template: string; templates: { slug: string; versionId: string | null }[] }>(session, "GET", `/api/books/${bookId}/layout`);
-  if (layout.template !== seed.templateSlug) fail(`TemplatePinned: the book uses ${layout.template}.`);
+  // The default template answers GET /layout whether or not the book pinned it. Only settings/layout is null without a pin.
+  const catalogue = await expectOk<{ templates: { slug: string; name: string; version: string }[] }>(session, "GET", `/api/books/${bookId}/layout`);
+  const wanted = catalogue.templates.find((t) => t.slug === seed.templateSlug);
+  if (!wanted) fail(`TemplatePinned: the catalogue has no ${seed.templateSlug}.`);
+  const pinned = await expectOk<{ template: { name: string; pinnedVersion: string; trimSize: string | null } | null }>(session, "GET", `/api/books/${bookId}/settings/layout`);
+  if (!pinned.template) fail("TemplatePinned: the book has no pinned template.");
+  if (pinned.template.name !== wanted.name || pinned.template.pinnedVersion !== wanted.version || pinned.template.trimSize !== "6x9") {
+    fail(`TemplatePinned: the book pins ${pinned.template.name} ${pinned.template.pinnedVersion} at ${pinned.template.trimSize ?? "no trim"}.`);
+  }
   console.log("PASS TemplatePinned");
 
   const sharing = await expectOk<{ book: { role: string; user: { email: string | null } }[] }>(session, "GET", `/api/books/${bookId}/sharing`);
@@ -83,7 +93,7 @@ async function checkReferences(session: AdminSession, bookId: string, seed: Refe
   console.log("PASS BookSharedToViewer");
 }
 
-/** Runs on a stack without the local endpoints switch: the fake model's kind of address is refused. */
+/** Runs on a stack without the local endpoints switch. A private https address is refused and the answer names the switch. */
 async function checkProviderRefused(): Promise<void> {
   down();
   const plain = await up({ override: false });
@@ -116,12 +126,6 @@ async function main(): Promise<void> {
     requireId("viewer", structure.viewer.id);
     await expectOk(session, "GET", `/api/books/${structure.bookIds.saltAndSignal}/outline`);
     await assertStructureFieldsSet(session, structure);
-    const before = await snapshotStructure(session, structure);
-    await disturbStructure(session, structure);
-    if ((await snapshotStructure(session, structure)) === before) fail("The disturbance changed nothing.");
-    await restoreStructure(session, { ...structure } as SeedResult);
-    if ((await snapshotStructure(session, structure)) !== before) fail("SeedIsRepeatableAfterRestore: the snapshot differs after restore.");
-    await assertStructureFieldsSet(session, structure);
     console.log("PASS structure");
     return;
   }
@@ -130,14 +134,13 @@ async function main(): Promise<void> {
     const book = await throwawayBook(session);
     const references = await seedReferences(session, book);
     requireIds("sourceIds", references.sourceIds, 2);
-    requireIds("useIds", references.useIds, 1);
+    requireIds("useIds", references.useIds, 3);
     requireId("aiIntegrationId", references.aiIntegrationId);
-    await checkReferences(session, book.id, references);
-    // A second run and a restore must leave the same state.
+    await checkReferences(session, book.id, book.sceneIds["1.2"]!, references);
+    // A second run must find the first one's rows.
     const again = await seedReferences(session, book);
     if (JSON.stringify(again.useIds) !== JSON.stringify(references.useIds)) fail("Running the references seed twice changed the use ids.");
-    await restoreReferences(session, { ...(references as unknown as SeedResult), sceneIds: book.sceneIds, bookIds: { saltAndSignal: book.id } as SeedResult["bookIds"] });
-    await checkReferences(session, book.id, references);
+    await checkReferences(session, book.id, book.sceneIds["1.2"]!, references);
     await checkProviderRefused();
     console.log("PASS references");
     return;
@@ -146,16 +149,15 @@ async function main(): Promise<void> {
   // The whole seed needs the structure module as well.
   const seed: SeedResult = await seedDemo(session);
   requireIds("sourceIds", seed.sourceIds, 2);
-  requireIds("useIds", seed.useIds, 1);
+  requireIds("useIds", seed.useIds, 3);
   requireId("aiIntegrationId", seed.aiIntegrationId);
   if (seed.templateSlug !== "novel-6x9") fail("templateSlug is not novel-6x9.");
   if (part === "all") {
     requireIds("sceneIds", seed.sceneIds, 12);
     requireIds("entryIds", seed.entryIds, 4);
-    await checkReferences(session, seed.bookIds.saltAndSignal, seed);
-    await restoreFixtures(session, seed);
-    await checkReferences(session, seed.bookIds.saltAndSignal, seed);
-    await checkReferences(session, seed.bookIds.saltAndSignal, seed);
+    await checkReferences(session, seed.bookIds.saltAndSignal, seed.sceneIds["1.2"]!, seed);
+    await proveRestore(session, seed);
+    await checkReferences(session, seed.bookIds.saltAndSignal, seed.sceneIds["1.2"]!, seed);
   }
   console.log(`PASS ${part}`);
 }

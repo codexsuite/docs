@@ -177,6 +177,7 @@ export async function main(argv: string[]): Promise<void> {
     credentialsFile = stack.credentialsFile;
   }
   const started = Date.now();
+  if (options.noStack) throw new Error("--no-stack cannot restore fixtures, because the restore copies the database and blobs of the stack that up() started. Run without it.");
   try {
     const credentials = JSON.parse(readFileSync(credentialsFile, "utf8")) as { adminPassword: string };
     // Sign in once. Every capture copies this session into a fresh context.
@@ -192,17 +193,30 @@ export async function main(argv: string[]): Promise<void> {
       log("Signed in as the viewer.");
     }
     const browser = await chromium.launch();
+    // A shot with steps may change data. The capture after it starts from restored fixtures. A plain shot changes nothing.
+    let dirty = false;
     try {
       for (const spec of shots) {
         const hashes: string[] = [];
         for (const theme of themes) {
-          await restoreFixtures(session, seed);
+          if (dirty) {
+            await restoreFixtures(session, seed);
+            // The restore drops sessions made after the snapshot, so the viewer signs in again when a shot needs it.
+            viewerCookie = undefined;
+            dirty = false;
+          }
+          if (spec.as === "viewer" && !viewerCookie) {
+            const viewer = await signInViewer(session, seed.viewer.id);
+            viewerCookie = viewer.cookie;
+            secrets.push(...viewer.secrets);
+          }
           let shot: Captured;
           try {
             shot = await capture(browser, baseUrl, spec.as === "viewer" ? viewerCookie! : session.cookie, seed, spec, theme);
           } catch (error) {
             throw new Error(`Shot "${spec.name}" (${theme}) failed: ${error instanceof Error ? error.message : "unknown error"}`);
           }
+          dirty = Boolean(spec.steps);
           hashes.push(shot.textHash);
           writeFileSync(join(options.out, `${spec.name}-${theme}.webp`), shot.webp);
           log(`${spec.name}-${theme}.webp ${shot.width}x${shot.height} ${(shot.webp.length / 1024).toFixed(1)} KB`);

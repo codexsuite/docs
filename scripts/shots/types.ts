@@ -2,14 +2,14 @@ import type { Page } from "playwright";
 
 /**
  * Shared shapes for the screenshot runner and the demo seed. Contracts 4 and 5.
- * Ids are the strings the REST API returns. Display numbers are "<chapter>.<scene>", such as "1.2".
+ * Ids are the strings the REST API returns. `restoreFixtures` restores a database and blob snapshot, so no id changes. Display numbers are "<chapter>.<scene>", such as "1.2".
  */
 
 /** A signed-in admin on a running instance. The sign-in helper builds it, and nothing prints it. */
 export interface AdminSession {
   /** Origin of the instance, without a trailing slash, such as "http://localhost:8080". */
   baseUrl: string;
-  /** Value of the Cookie header for the signed-in admin. Never log it. */
+  /** Value of the Cookie header for the signed-in admin. Never log it. It stays valid after a restore. */
   cookie: string;
   /** Calls the REST API as the admin. `path` is application-relative and starts with "/". */
   api(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<Response>;
@@ -34,7 +34,13 @@ export interface SeedResult {
   entryIds: Record<string, string>;
   /** Source ids by title: "The Keeper's Ledger", "Signals at Sea". */
   sourceIds: Record<string, string>;
-  /** Use ids (a source quoted in a scene) by a short name chosen by the references module. */
+  /**
+   * Use ids (a source cited in a scene) by key:
+   * - `ledgerQuote`: a quote from The Keeper's Ledger in scene 1.1.
+   * - `ledgerParaphrase`: a paraphrase of The Keeper's Ledger in scene 3.1.
+   * - `signalsQuote`: the 348-word quote from Signals at Sea in scene 2.1, over the publisher's word limit.
+   * Every id stays valid after `restoreFixtures`, because a restore puts the database back instead of creating rows again.
+   */
   useIds: Record<string, string>;
   /** The second user, with the view role on Salt and Signal. Name and email are in `viewerUser`. */
   viewer: { id: string; email: string };
