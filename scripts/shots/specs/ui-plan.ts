@@ -438,12 +438,13 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await insertChapterLink(page, ctx);
       await moveSecondChapterLeft(page, ctx);
-      await page.goto(writeRoute(ctx));
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write`);
       const link = page
         .getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`)
         .getByTestId("write-chapter-ref")
         .filter({ hasText: "§ Chapter 1" });
       await link.first().waitFor();
+      await page.waitForLoadState("networkidle");
       await link.first().evaluate((element) => element.scrollIntoView({ block: "center" }));
       await page.waitForFunction(() => {
         const element = [...document.querySelectorAll("[data-testid='write-chapter-ref']")].find((e) => e.textContent?.includes("§ Chapter 1"));
