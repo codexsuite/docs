@@ -45,6 +45,16 @@ export const shots: ShotSpec[] = [
     },
   },
   {
+    name: "ui-library-shared-viewer",
+    route: "/?view=list&group=none#filter=shared",
+    as: "viewer",
+    steps: async (page, ctx) => {
+      const book = page.getByTestId(`shell-list-row-${ctx.bookIds.saltAndSignal}`);
+      await book.getByTestId("library-owner-cell").waitFor();
+      await book.getByTestId("library-role-chip").filter({ hasText: "View only" }).waitFor();
+    },
+  },
+  {
     name: "ui-library-palette",
     route: "/",
     steps: async (page, ctx) => {
