@@ -1,12 +1,13 @@
 name: Capture shots
 
-# Dispatched by `pnpm shots:ci`. Starts the published images on this runner, captures the
-# requested shots in both themes and uploads them as the "shots" artifact.
+# Dispatched by `pnpm shots:ci`. One leg per page key, each with its own stack from the published
+# images, so no page sees another page's data. Each leg uploads an artifact named "shots-<key>".
+# A failed leg does not cancel the others, and the run fails if any leg fails.
 on:
   workflow_dispatch:
     inputs:
       page:
-        description: Page key, such as ui-library, or all
+        description: Page key, such as ui-library, or all (every page in the page map that has a spec)
         required: true
         type: string
       shot:
@@ -29,9 +30,39 @@ concurrency:
   group: capture-${{ inputs.tag || github.run_id }}
 
 jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Choose the pages
+        id: matrix
+        env:
+          PAGE: ${{ inputs.page }}
+        run: |
+          matrix=$(pnpm --silent exec tsx scripts/shots/matrix.ts "$PAGE")
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
   capture:
+    needs: plan
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v5
 
@@ -49,7 +80,7 @@ jobs:
 
       - name: Capture
         env:
-          PAGE: ${{ inputs.page }}
+          PAGE: ${{ matrix.page }}
           SHOT: ${{ inputs.shot }}
         run: |
           args=(--page "$PAGE" --out "$RUNNER_TEMP/shots")
@@ -58,7 +89,7 @@ jobs:
 
       - uses: actions/upload-artifact@v5
         with:
-          name: shots
+          name: shots-${{ matrix.page }}
           path: ${{ runner.temp }}/shots/*.webp
           if-no-files-found: error
 

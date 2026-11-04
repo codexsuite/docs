@@ -79,7 +79,18 @@ export interface ShotSpec {
   name: string;
   /** Application-relative route. */
   route: string | ((ctx: SeedResult) => string);
-  /** Gets the screen into the state to capture. Safe to repeat. Wait on locators, never on fixed sleeps. */
+  /**
+   * Gets the screen into the state to capture. Safe to repeat. Wait on locators, never on fixed sleeps.
+   * The context has a baseURL, so `page.goto("/x")` and `page.request.post("/api/x", { data })` work with relative paths.
+   * A write with a JSON `data` body passes the cross-site guard. A write with no body needs the header `x-codex-client: docs`.
+   */
   steps?: (page: Page, ctx: SeedResult) => Promise<void>;
   clip?: ShotClip;
+  /** Who is signed in for this shot. Defaults to "admin". "viewer" signs in as `viewerUser`, who has the view role. */
+  as?: "admin" | "viewer";
+  /**
+   * CSS selectors whose text differs between captures, such as a token secret or a one-time password.
+   * The light and dark comparison ignores their text. The testids `auth-token-secret` and `auth-one-time-password` are always masked.
+   */
+  mask?: string[];
 }
