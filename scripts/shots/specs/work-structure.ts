@@ -152,7 +152,11 @@ export const shots: ShotSpec[] = [
       await moveSecondChapterLeft(page, ctx);
       // The scene that held the link is now scene 2.1, because the chapters renumbered.
       await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=2.1`);
-      await page.getByTestId("write-chapter-ref").filter({ hasText: "Chapter 1" }).first().waitFor();
+      const ref = page.getByTestId("write-chapter-ref").first();
+      await ref.waitFor();
+      await ref.scrollIntoViewIfNeeded();
+      const label = (await ref.textContent()) ?? "";
+      if (!label.includes("Chapter 1")) throw new Error(`The chapter link reads "${label}".`);
     },
   },
   {
