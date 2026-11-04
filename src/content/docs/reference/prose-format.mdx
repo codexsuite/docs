@@ -5,4 +5,74 @@ sidebar:
   order: 3
 ---
 
-{/* STUB */}
+Codex stores the body of every scene, and every inline scene summary, as plain Markdown with a few extensions. You meet this text in three places. The Source view in Write shows it. A Markdown export contains it. An agent reads and changes it with `edit_prose`.
+
+## Switch between the two views
+
+Write shows a scene as Rich text by default. Press `Ctrl+/` to switch the field to Source, which shows the Markdown, and press it again to switch back. Both views edit the same text.
+
+## What Codex keeps the same
+
+Codex writes Markdown in one canonical form:
+
+- One blank line between blocks.
+- One newline at the end of a body that has text. An empty body has no characters at all.
+- LF line ends and no trailing spaces.
+
+If you paste text that is not canonical, Codex tidies it and keeps everything in it. Text Codex does not understand becomes an opaque block that is written back unchanged.
+
+## Blocks
+
+A block ends at a blank line. A paragraph also ends at a line that starts with `::` or a line that starts with three backticks.
+
+| You write | You get |
+|---|---|
+| `text` | A paragraph. A newline inside it is a soft break. |
+| `## Heading` | A heading. Use one to six `#` and one space. |
+| `> quote` | A block quote. Put `>` before each line. |
+| `- item` | A bullet list. Indent the content of an item by two spaces. |
+| `1. item` | A numbered list. The first number is the start and the rest count up. |
+| `---` alone on a line | A horizontal rule. |
+| A line of cells between bars | A table, with a header row and a delimiter row of `---`, `:---`, `:---:` or `---:`. |
+| `::pagebreak` | A page break in print. |
+| `:::aside` ... `:::` | A container. The other names are `readaloud` and `sidebar{title="..."}`. A container cannot hold another container. |
+| ```` ```{=latex} ```` ... ```` ``` ```` | A raw LaTeX block. |
+| `<!-- note -->` | A comment. Codex keeps it and never prints it. |
+
+Print flags a comment with text after the closing `-->` on its line, and a comment that never closes, because both can hide your text.
+
+Some lines are embeds that Codex creates for you. `::beat{id="..."}` marks a beat, `::kb-addition{id="..."}` a Knowledge base addition and `::figure{id="..."}` a figure. Do not type these by hand. Codex refuses to save an id that does not belong to the scene.
+
+### Tables
+
+A table needs a header line that starts with `|`, followed by a delimiter row with the same number of cells. Cells hold inline text only, never a line break or a block. Write `\|` for a bar inside a cell.
+
+If you edit a table in the editor, Codex rewrites it in a tidy form with padded columns. A table you do not touch keeps its spacing.
+
+### Raw LaTeX
+
+A raw LaTeX block or span passes through to templates that use LaTeX. Other outputs drop it and flag it. The quick preview shows a labelled placeholder, and a proof renders it. Dollar signs are plain text, so Codex has no math syntax.
+
+## Inline text
+
+| You write | You get |
+|---|---|
+| `*text*` | Italic. |
+| `**text**` | Bold. |
+| `~~text~~` | Strikethrough. |
+| `` `text` `` | Code. |
+| `[Name](kb:<entry id>)` | A mention of a Knowledge base entry. |
+| `[Title](chapter:<chapter id>)` | A link to a chapter. |
+| `[passage](ref:<use id>)` | A passage that cites a source. See [References](/ui/references/). |
+| `[text](https://example.com)` | An external link. Codex accepts `http://`, `https://` and `mailto:` targets. |
+| `` `\DndDropCapLine{F}`{=latex} `` | An inline raw LaTeX chip. |
+
+An id in a `kb:`, `chapter:` or `ref:` link is a UUID. A link with any other id stays plain text. Link text cannot hold an unescaped `[` or `]`.
+
+Put a backslash before `\`, `*`, `_`, `[` or `]` to write it as plain text.
+
+A scene summary is simpler. It is one paragraph that holds plain text, bold, italic, code and mentions.
+
+## What an agent can change
+
+An agent edits a scene with `edit_prose`. Each edit gives the exact old text and the new text, and the call needs the scene's current version. The call is all or nothing. It fails when an old text is missing, or when it matches more than once and the edit gives no occurrence. An agent cannot add a `::beat`, `::kb-addition` or `ref:` id. See [Tool reference](/agents/tools/).

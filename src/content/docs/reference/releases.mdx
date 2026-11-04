@@ -5,4 +5,28 @@ sidebar:
   order: 4
 ---
 
-{/* STUB */}
+This page lists notable changes on the main branch of Codex. It has no entries yet.
+
+Codex publishes only two image tags, `latest` and a commit SHA. An entry names the commit it describes, so you can pin that SHA in production. See [Install for production](/start/production/).
+
+## Entry format
+
+Each entry has a heading with the date and the short commit SHA, then one line per change, grouped as Added, Changed or Fixed:
+
+```md
+## YYYY-MM-DD (abc1234)
+
+### Added
+
+- A change you can see or use.
+
+### Changed
+
+- A behavior that works differently now.
+
+### Fixed
+
+- A problem that no longer happens.
+```
+
+Newest entries go first. An entry says what a reader does differently, such as a new setting or a new screen. It leaves out changes to code layout and tests.

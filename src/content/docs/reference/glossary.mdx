@@ -5,4 +5,38 @@ sidebar:
   order: 1
 ---
 
-{/* STUB */}
+These are the terms the screens, the guides and the agent tools use. They are in the order you meet them when you set up a book.
+
+## Books and structure
+
+- **Series.** A group of books. A series holds a style guide and settings that copy down to its books. See [Series](/ui/series/).
+- **Book.** One manuscript. A book holds acts, chapters and scenes, and has its own Knowledge base, sources and settings.
+- **Act.** The top level of a book's outline. It holds chapters. In Salt and Signal, The Light is an act.
+- **Chapter.** A division of an act. It holds scenes and has a number, a title and a summary.
+- **Scene.** The smallest unit you write in. A scene has a display number such as 1.2, which means the second scene of chapter 1. Its text saves as you type.
+- **Beat.** A short instruction inside a scene that tells Codex what the next stretch of text should do. You can write the text yourself or ask for a draft. See [Beats and AI drafts](/ui/ai-drafts/).
+- **Draft.** Text Codex generates from a beat or from the end of a scene. A draft stays pending until you apply or discard it.
+
+## Research and clearing
+
+- **Knowledge base entry.** A page about a person, place or idea in your book, such as Edith Marrow or Harrowmouth. An entry belongs to one book or to a whole series. See [Knowledge base](/ui/knowledge-base/).
+- **Alias.** Another name for an entry. Write underlines an entry's name and each of its aliases in your text.
+- **Source.** A work you quote or cite, such as a book or an article. A source holds the title, author, publisher, year and its licence. See [References](/ui/references/).
+- **Use.** One place in a scene where you cite a source. A use has a kind (quote, paraphrase, data, figure or lyric), an optional locator such as "pp. 41-43", and a marker number.
+- **Clearance.** Whether you may print what you quote. Codex gives each source a status of risk, needs check, cleared or not cited, and lists what blocks print. Only you sign off a source.
+
+## Print
+
+- **Template.** The package that sets how the book prints, such as `novel-6x9`. See [Print templates](/ui/templates/).
+- **Proof.** A PDF of one chapter, made by the worker with the real template. Use it to check the layout before you export the whole book.
+- **Preflight.** The list of problems Layout finds before you export. Items under Blocks export stop the export. Warnings and Notes do not.
+
+## Running Codex
+
+- **Worker.** The second container. It claims render and export jobs, so proofs and PDF exports need it. See [Files and the worker](/start/worker/).
+
+## Agents
+
+- **Agent.** An AI client, such as Claude Code, that connects to Codex over MCP and acts as one person with that person's access. See [Agents in Codex](/agents/overview/).
+- **Token.** A personal access token you create under Account. An agent sends it to prove who it acts for. See [Tokens and scopes](/agents/tokens/).
+- **Scope.** A permission a token holds. `codex:read` is always included. The others are `codex:write`, `codex:references` and `codex:generate`. A tool call also needs a high enough role on the book.
