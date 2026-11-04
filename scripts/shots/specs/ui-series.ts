@@ -116,8 +116,10 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("kb-promote-dialog").waitFor({ state: "hidden" });
       await page.goto(`/books/${ctx.bookIds.tideTables}/plan${hash}`);
       await page.getByTestId("kb-entry-summary").waitFor();
+      const saved = page.waitForResponse((r) => r.request().method() === "PATCH" && r.ok());
       await page.getByTestId("kb-entry-summary").fill("An invented fishing town on the Working Coasts, edited from Tide Tables.");
       await page.getByTestId("kb-entry-summary").blur();
+      await saved;
       await page.goto(`/books/${ctx.bookIds.saltAndSignal}/plan${hash}`);
       await page.getByTestId(`shell-kb-item-${entryId}`).waitFor();
       await page.waitForFunction(
