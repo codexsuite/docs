@@ -107,11 +107,11 @@ async function main(): Promise<void> {
         s, "POST", `/api/books/${book.id}/exports`, { draft: true },
       );
       const deadline = Date.now() + 240_000;
-      while (job.status !== "done" && job.status !== "failed" && Date.now() < deadline) {
+      while (["queued", "running"].includes(job.status) && Date.now() < deadline) {
         await sleep(3000);
         job = await expectOk(s, "GET", `/api/exports/${job.id}`);
       }
-      assert(job.status === "done", `export ended as "${job.status}": ${job.error ?? "no error text"}`);
+      assert(job.status === "succeeded", `export ended as "${job.status}": ${job.error ?? "no error text"}`);
       const file = await s.api("GET", `/api/exports/${job.id}/file`);
       assert(file.status === 200, `GET export file answered ${file.status}`);
       const bytes = Buffer.from(await file.arrayBuffer());
