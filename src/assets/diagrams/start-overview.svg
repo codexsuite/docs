@@ -32,7 +32,7 @@
     <text x="550" y="62">Chapter</text>
     <text x="710" y="62">Scene</text>
     <text x="560" y="192">Source</text>
-    <text x="700" y="192">KB entry</text>
+    <text x="700" y="192">Entry</text>
   </g>
   <g style="fill:var(--color-muted);stroke:none" font-size="12" text-anchor="middle">
     <text x="150" y="52">holds</text>
