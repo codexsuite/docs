@@ -13,6 +13,15 @@ const openUsers = async (page: Page) => {
 const userRow = (page: Page, email: string): Locator =>
   page.locator("[data-testid^='auth-user-row-']").filter({ hasText: email });
 
+
+// A public page never shows a usable-looking password, even from a throwaway stack.
+const hidePassword = async (page: Page) => {
+  await page.getByTestId("auth-one-time-password").waitFor();
+  await page.getByTestId("auth-one-time-password").evaluate((el, text) => {
+    el.textContent = text;
+  }, "••••••••••••");
+};
+
 const addUser = async (page: Page) => {
   await openUsers(page);
   await page.getByTestId("auth-add-user-email").fill(newUser.email);
@@ -43,7 +52,7 @@ export const shots: ShotSpec[] = [
     steps: async (page) => {
       await addUser(page);
       await page.getByTestId("auth-add-user-submit").click();
-      await page.getByTestId("auth-one-time-password").waitFor();
+      await hidePassword(page);
       await userRow(page, newUser.email).waitFor();
     },
   },
@@ -66,7 +75,7 @@ export const shots: ShotSpec[] = [
     steps: async (page) => {
       await openUsers(page);
       await userRow(page, viewerUser.email).getByRole("button", { name: "Reset password" }).click();
-      await page.getByTestId("auth-one-time-password").waitFor();
+      await hidePassword(page);
       await userRow(page, viewerUser.email).getByText("active · must change password").waitFor();
     },
   },
