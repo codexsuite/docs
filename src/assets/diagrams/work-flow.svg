@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 250" role="img" aria-labelledby="t d" font-family="var(--font-sans)" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+  <title id="t">The flow of Salt and Signal from series to print</title>
+  <desc id="d">Seven stages in order: series and book, structure, research, draft, clear, lay out and print. The first four are in the top row and the last three in the bottom row.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="currentColor" stroke="none"/>
+    </marker>
+  </defs>
+  <g style="color:var(--color-muted)">
+    <path d="M170 55H200" marker-end="url(#arrow)"/>
+    <path d="M360 55H390" marker-end="url(#arrow)"/>
+    <path d="M550 55H580" marker-end="url(#arrow)"/>
+    <path d="M665 80V120H85V160" marker-end="url(#arrow)"/>
+    <path d="M170 185H200" marker-end="url(#arrow)"/>
+    <path d="M360 185H390" marker-end="url(#arrow)"/>
+  </g>
+  <g style="fill:var(--color-surface);stroke:var(--color-border)">
+    <rect x="10" y="30" width="160" height="50" rx="8"/>
+    <rect x="200" y="30" width="160" height="50" rx="8"/>
+    <rect x="390" y="30" width="160" height="50" rx="8"/>
+    <rect x="580" y="30" width="170" height="50" rx="8"/>
+    <rect x="10" y="160" width="160" height="50" rx="8"/>
+    <rect x="200" y="160" width="160" height="50" rx="8"/>
+    <rect x="390" y="160" width="160" height="50" rx="8"/>
+  </g>
+  <g style="fill:var(--color-text);stroke:none" text-anchor="middle" dominant-baseline="middle">
+    <text x="90" y="55">1. Series and book</text>
+    <text x="280" y="55">2. Structure</text>
+    <text x="470" y="55">3. Research</text>
+    <text x="665" y="55">4. Draft</text>
+    <text x="90" y="185">5. Clear</text>
+    <text x="280" y="185">6. Lay out</text>
+    <text x="470" y="185">7. Print</text>
+  </g>
+</svg>

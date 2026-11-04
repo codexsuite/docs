@@ -76,4 +76,16 @@ export const shots: ShotSpec[] = [
       await page.getByText("Scene archived", { exact: false }).first().waitFor();
     },
   },
+  {
+    name: "work-structure-merge-refused",
+    route: planRoute,
+    steps: async (page, ctx) => {
+      await openBoard(page, ctx);
+      const id = ctx.sceneIds["1.2"];
+      await page.getByTestId(`plan-scene-${id}`).hover();
+      await page.getByTestId(`plan-scene-more-${id}`).click();
+      await page.getByTestId(`plan-scene-merge-${id}`).click();
+      await page.getByText("Could not merge the scene: Apply or discard the draft first.").waitFor();
+    },
+  },
 ];
