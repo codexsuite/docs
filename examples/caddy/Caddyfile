@@ -1,0 +1,11 @@
+# Caddy in front of Codex. Set CODEX_DOMAIN in .env to the host name that points at this machine.
+# Caddy gets and renews a TLS certificate for that name on its own.
+{$CODEX_DOMAIN} {
+	encode zstd gzip
+
+	reverse_proxy codex:8080 {
+		# Codex marks its sign-in cookie Secure only when it sees https here, so send the scheme and host on.
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+	}
+}

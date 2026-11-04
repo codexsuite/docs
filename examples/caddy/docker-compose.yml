@@ -1,0 +1,27 @@
+# Adds Caddy to the production install. Run it with:
+#   docker compose -f docker-compose.yml -f caddy/docker-compose.yml up -d
+# The first file is your Codex compose file. Set CODEX_DOMAIN in .env first.
+services:
+  codex:
+    # Only Caddy reaches the app, so drop the published port.
+    ports: !reset []
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - codex
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CODEX_DOMAIN=${CODEX_DOMAIN:?Set CODEX_DOMAIN in .env}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Caddy keeps its certificates here. Keep this volume, or it asks for new ones on every start.
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:
