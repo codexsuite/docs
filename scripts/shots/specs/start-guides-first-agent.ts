@@ -1,7 +1,7 @@
 import type { Page } from "playwright";
 import type { ShotSpec } from "../types.ts";
 
-/** Guide: connect Claude Code. The shots cover the Codex side: the token form, the one-time box and the Library the agent reads back. */
+/** Guide: connect Claude Code. The shots cover the Codex side: the Agent access section, the token form, the one-time box, and the Library and Plan the agent reads. */
 
 const section = "auth-tokens-section";
 

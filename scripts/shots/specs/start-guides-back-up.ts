@@ -24,6 +24,7 @@ async function exportWord(page: Page): Promise<void> {
   await page.getByTestId("settings-manuscript-submit").click();
   await page.getByTestId("settings-manuscript-job").waitFor();
   await page.getByTestId("settings-manuscript-download").waitFor(longWait);
+  await page.getByTestId("settings-manuscript-job").evaluate((row) => row.scrollIntoView({ block: "center" }));
   await page.getByText("Docx finished.").waitFor({ state: "hidden", timeout: 30_000 });
 }
 
