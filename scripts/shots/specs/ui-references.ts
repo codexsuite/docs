@@ -12,7 +12,10 @@ const signals = "Signals at Sea";
 const beacon = "Beacon Keeping Notes";
 const manual = "Lamp Trimming Manual";
 const referencesRoute = (ctx: SeedResult) => `/books/${ctx.bookIds.saltAndSignal}/references`;
-const sourceRoute = (ctx: SeedResult, title: string) => `${referencesRoute(ctx)}#${ctx.sourceIds[title]}`;
+/** Ids of the sources the steps add, by title. addExtras fills it again after every restore. */
+const extraIds: Record<string, string> = {};
+const idOf = (ctx: SeedResult, title: string) => extraIds[title] ?? ctx.sourceIds[title];
+const sourceRoute = (ctx: SeedResult, title: string) => `${referencesRoute(ctx)}#${idOf(ctx, title)}`;
 const sentMask = [
   "[data-testid='refs-perm-sent-label']",
   "[data-testid='refs-perm-responded-label']",
@@ -72,7 +75,8 @@ async function addSource(page: Page, ctx: SeedResult, title: string, licence: st
 async function addExtras(page: Page, ctx: SeedResult): Promise<void> {
   await call(page, "POST", `/api/references/${ctx.sourceIds[ledger]}/sign-off`);
   const beaconId = await addSource(page, ctx, beacon, "cc_by_nc_4", "Harbour Press");
-  await addSource(page, ctx, manual, "public_domain", null);
+  extraIds[beacon] = beaconId;
+  extraIds[manual] = await addSource(page, ctx, manual, "public_domain", null);
   const sceneId = ctx.sceneIds["1.2"] as string;
   const version = await appendParagraph(page, sceneId, beaconQuote);
   await call(page, "POST", "/api/citations", {
@@ -215,7 +219,7 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await openWithExtras(page, ctx);
       await page.getByTestId("refs-chip-needs_check").click();
-      await page.getByTestId(`refs-row-${ctx.sourceIds[beacon]}`).waitFor();
+      await page.getByTestId(`refs-row-${idOf(ctx, beacon)}`).waitFor();
     },
   },
   {
