@@ -44,6 +44,7 @@ export const shots: ShotSpec[] = [
       await addChapter(page);
       await addScene(page);
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      await page.mouse.move(800, 700);
     },
   },
   {
