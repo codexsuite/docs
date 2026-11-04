@@ -5,4 +5,59 @@ sidebar:
   order: 6
 ---
 
-{/* STUB */}
+Codex runs as two containers from two images, `codex` and `codex-worker`, plus a PostgreSQL database. The worker builds PDFs and other exports. The app serves the site and talks to the browser. Both read the same database and the same folders.
+
+## What each container does
+
+| | `codex` (web) | `codex-worker` |
+|---|---|---|
+| Role | `CODEX_ROLE=web`, the default | `CODEX_ROLE=worker` |
+| Serves the site, the API and `/mcp` | Yes | No |
+| Applies database migrations | Yes (`CODEX_DB_MIGRATE=true`) | No (`CODEX_DB_MIGRATE=false`) |
+| Claims proof and export jobs | No | Yes |
+| Listens for book events from other processes | Yes | No (`CODEX_EVENTS_LISTEN=false`) |
+| Holds Tectonic, pandoc and `codex-sandbox` | Only for Quick preview and template thumbnails | Yes, for every print job |
+
+The worker image holds the print tools: Tectonic, pandoc, the sandbox, the built-in layout templates and an offline copy of the Tectonic packages those templates use. A render has no network access.
+
+Setting `CODEX_ROLE=all` runs both roles in one process. The quick start does not use it.
+
+## What the worker does
+
+The worker claims jobs that the app queues in the database. It checks for a new job every 2 seconds. These jobs are:
+
+- Proofs, which are the exact-page PDFs from the Layout workspace.
+- Exports: the PDF for the printer, Word, EPUB, Markdown and the source archive.
+
+Each worker runs one export and one proof at a time. A running job records its step and progress in the database. If the worker stops while a job runs, the job goes back to the queue. A job that has shown no progress for 10 minutes (proofs) or 45 minutes (exports) is taken over by the next worker that polls.
+
+The asset worker, which makes the resized copies of uploaded images, runs in both containers, so uploads do not wait for the worker container.
+
+## What stops without the worker
+
+The app keeps working. You can write, plan and read, and Quick preview still renders in the app container. A new proof or export stays queued, and the job never starts. Start the worker and the queue drains in order. This includes Markdown export and the source archive, which need no sandbox but still go through the worker.
+
+If a job stays queued, check that the worker container is running and that it has the same `CODEX_DB_CONNECTION` as the app. [Troubleshooting](/start/troubleshooting/) lists the other causes.
+
+## Why they share volumes
+
+The app and the worker never send files to each other. The app writes an upload into the blob folder, and the worker reads it from there. The worker writes the finished PDF into the same folder, and the app serves it. So both containers mount the same two volumes.
+
+| Volume | Mounted at | Variable | Why both need it |
+|---|---|---|---|
+| `codex-blobs` | `/data/blobs` | `CODEX_BLOB_ROOT` | Uploads, renditions and exports. |
+| `codex-keys` | `/data/keys` | `CODEX_DATA_PROTECTION_DIR` | The key ring for saved AI keys. Share it with the worker. |
+
+The images create both folders owned by the app user, so a new named volume starts writable. If you use a bind mount instead of a named volume, make the host folder writable by the user ID the container runs as.
+
+Each render also writes a work folder under `CODEX_RENDER_WORK`, which defaults to the container's temp folder. It does not need to be shared. When a process starts, Codex removes work folders that a crashed run left behind and that are a day old.
+
+## Printing needs a newer kernel
+
+The worker runs every render inside `codex-sandbox`, and the sandbox needs Landlock ABI 4. That arrived in Linux 6.7. On an older kernel, including WSL2 on kernel 6.6, `codex-sandbox` refuses to run, and proofs, Export for printer, Word and EPUB export fail. Markdown export and the source archive still work. There is no setting that turns the sandbox off. The [requirements](/start/requirements/) page has a command that tests your host.
+
+## Next steps
+
+- To size the host for renders, see [install for production](/start/production/).
+- To watch jobs run, see [logs and monitoring](/start/observability/).
+- To set the render limits, see the Print group in the [configuration reference](/start/configuration/).
