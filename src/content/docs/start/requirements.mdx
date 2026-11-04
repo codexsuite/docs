@@ -50,7 +50,7 @@ Run this on the host that will run the containers. It starts the sandbox from th
 
 <Code code={sandboxCheck} lang="sh" title="Terminal" />
 
-An exit code of 0 means the sandbox works and the sandbox starts on this host. An exit code of 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start, and the message tells you why. Docker also exits with 125 when the daemon fails, for example when the image cannot be pulled. In that case Docker prints its own error and no `codex-sandbox:` line.
+An exit code of 0 means the sandbox starts on this host. An exit code of 125 with a line that starts with `codex-sandbox:` means the sandbox refused to start, and the message tells you why. Docker also exits with 125 when the daemon fails, for example when the image cannot be pulled. In that case Docker prints its own error and no `codex-sandbox:` line.
 
 On a kernel with Landlock ABI 3, the output looks like this.
 
@@ -63,7 +63,7 @@ On a kernel with no Landlock, the message starts with `codex-sandbox: this kerne
 
 ### What you see when the sandbox refuses
 
-A failed export lists the refusal on the export, and so does a failed proof. Each of those messages starts with the same sentence, followed by the text the sandbox printed.
+A failed export shows the refusal message on the export, and a failed proof shows it on the proof. Both messages start with the same sentence, followed by the text the sandbox printed.
 
 ```text
 The print sandbox could not start: codex-sandbox: Landlock ABI 3 cannot restrict TCP (needs 4); refusing to run
@@ -71,7 +71,7 @@ The print sandbox could not start: codex-sandbox: Landlock ABI 3 cannot restrict
 
 A failed Quick preview shows a different message. The Layout screen says "The preview could not be made" with the detail "Something went wrong on the server." The screen gives no reason. A failed template thumbnail in the template library in settings shows a blank page and no message. For both, run `docker compose logs codex` and look for the error in the app container log.
 
-In both cases the fix is on the host, not in Codex. See [Troubleshooting](/start/troubleshooting/).
+In every case the fix is on the host, not in Codex. See [Troubleshooting](/start/troubleshooting/).
 
 <Aside type="note">
   `CODEX_SANDBOX` sets the path to the `codex-sandbox` program. It does not turn the sandbox off. See the [configuration reference](/start/configuration/).
