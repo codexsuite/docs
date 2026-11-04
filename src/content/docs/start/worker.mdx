@@ -12,11 +12,12 @@ Codex runs as two containers from two images, `codex` and `codex-worker`, plus a
 | | `codex` (web) | `codex-worker` |
 |---|---|---|
 | Role | `CODEX_ROLE=web`, the default | `CODEX_ROLE=worker` |
-| Serves the site, the API and `/mcp` | Yes | No |
+| Publishes a port in the quick start Compose file | Yes (8080) | No |
 | Applies database migrations | Yes (`CODEX_DB_MIGRATE=true`) | No (`CODEX_DB_MIGRATE=false`) |
 | Claims proof and export jobs | No | Yes |
 | Listens for book events from other processes | Yes | No (`CODEX_EVENTS_LISTEN=false`) |
-| Holds Tectonic, pandoc and `codex-sandbox` | Only for Quick preview and template thumbnails | Yes, for every print job |
+| Holds pandoc and `codex-sandbox` | Yes, for Quick preview and template thumbnails | Yes, for every print job |
+| Holds Tectonic | No | Yes |
 
 The worker image holds the print tools: Tectonic, pandoc, the sandbox, the built-in layout templates and an offline copy of the Tectonic packages those templates use. A render has no network access.
 
@@ -29,13 +30,13 @@ The worker claims jobs that the app queues in the database. It checks for a new 
 - Proofs, which are the exact-page PDFs from the Layout workspace.
 - Exports: the PDF for the printer, Word, EPUB, Markdown and the source archive.
 
-Each worker runs one export and one proof at a time. A running job records its step and progress in the database. If the worker stops while a job runs, the job goes back to the queue. A job that has shown no progress for 10 minutes (proofs) or 45 minutes (exports) is taken over by the next worker that polls.
+Each worker runs one export and one proof at a time. A running job records its step and progress in the database. If you stop the worker cleanly, a running job goes back to the queue. If the worker crashes, the job stays marked as running. A polling worker marks it failed once it has run for 10 minutes (proofs) or 45 minutes (exports). The page then shows "The worker stopped before the export finished. Export again to try once more." for an export, or "Re-render to try again" for a proof. Press Export again or Re-render.
 
 The asset worker, which makes the resized copies of uploaded images, runs in both containers, so uploads do not wait for the worker container.
 
 ## What stops without the worker
 
-The app keeps working. You can write, plan and read, and Quick preview still renders in the app container. A new proof or export stays queued, and the job never starts. Start the worker and the queue drains in order. This includes Markdown export and the source archive, which need no sandbox but still go through the worker.
+The app keeps working. You can write, plan and read, and Quick preview still renders in the app container. A new proof or export stays queued, and the job never starts. Start the worker and it runs the queued jobs. This includes Markdown export and the source archive, which need no sandbox but still go through the worker.
 
 If a job stays queued, check that the worker container is running and that it has the same `CODEX_DB_CONNECTION` as the app. [Troubleshooting](/start/troubleshooting/) lists the other causes.
 
@@ -54,7 +55,7 @@ Each render also writes a work folder under `CODEX_RENDER_WORK`, which defaults 
 
 ## Printing needs a newer kernel
 
-The worker runs every render inside `codex-sandbox`, and the sandbox needs Landlock ABI 4. That arrived in Linux 6.7. On an older kernel, including WSL2 on kernel 6.6, `codex-sandbox` refuses to run, and proofs, Export for printer, Word and EPUB export fail. Markdown export and the source archive still work. There is no setting that turns the sandbox off. The [requirements](/start/requirements/) page has a command that tests your host.
+The worker runs every render inside `codex-sandbox`, and the sandbox needs Landlock ABI 4. That arrived in Linux 6.7. On an older kernel, including WSL2 on kernel 6.6, `codex-sandbox` refuses to run, and proofs, Export for printer, Word and EPUB export fail. Quick preview and the template thumbnails fail the same way. Markdown export and the source archive still work. There is no setting that turns the sandbox off. The [requirements](/start/requirements/) page has a command that tests your host.
 
 ## Next steps
 

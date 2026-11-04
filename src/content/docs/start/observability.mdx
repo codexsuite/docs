@@ -44,13 +44,13 @@ docker run --name seq -d --restart unless-stopped \
       - CODEX_SEQ_API_KEY=${CODEX_SEQ_API_KEY:-}
 ```
 
-4. Run `docker compose up -d`, then open `http://localhost:5342` for the Seq UI.
+4. Run `docker compose up -d`, then open `http://localhost:5342` for the Seq UI. If you added Caddy, run `docker compose -f docker-compose.yml -f caddy/docker-compose.yml up -d` instead, so Compose keeps port 8080 closed.
 
 Compose names the default network `<project>_default`, where the project is the name of your compose folder. The command above publishes the Seq UI on the loopback address only. Seq's own ingestion port 5341 stays inside the Docker network.
 
 ## Send traces, metrics and logs to a collector
 
-Codex exports all three signals over OpenTelemetry when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. The variable is read when the process starts, so a change needs a restart. With it unset, nothing is registered and nothing leaves the process. Set the variables on both services.
+Codex exports all three signals over OpenTelemetry when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Codex reads the variable when the process starts, so a change needs a restart. With it unset, Codex registers no exporter and sends nothing out of the process. Set the variables on both services.
 
 | Variable | What it does |
 |---|---|
@@ -58,11 +58,11 @@ Codex exports all three signals over OpenTelemetry when `OTEL_EXPORTER_OTLP_ENDP
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | `grpc` or `http/protobuf`. Logs use the `/v1/logs` path with `http/protobuf`. |
 | `OTEL_EXPORTER_OTLP_HEADERS` | Comma-separated `key=value` pairs, such as a backend's credentials. |
 | `OTEL_EXPORTER_OTLP_TIMEOUT` | Milliseconds an export may take before Codex gives up. The default is 10000. |
-| `OTEL_SERVICE_NAME` | The name on every signal. The default is `codex`. Set `codex-worker` on the worker so the two tell apart. |
+| `OTEL_SERVICE_NAME` | The name on every signal. The default is `codex`. Set `codex-worker` on the worker so you can tell the two apart. |
 
 Every signal carries `service.name`, `service.version` (the build, as `/health` reports it) and `service.instance.id`, which changes on every restart.
 
-Exporting runs in batches off the request path. A collector that is down costs you the dropped telemetry and nothing else.
+Exporting runs in batches off the request path. If the collector is down, Codex drops the telemetry it could not send. Requests are not affected.
 
 Do not set `CODEX_SEQ_URL` on a host whose collector forwards to Seq. Codex posts to Seq directly as well, so every record would arrive twice.
 
@@ -72,7 +72,7 @@ Do not set `CODEX_SEQ_URL` on a host whose collector forwards to Seq. Codex post
 - Each database command gets a child span with its SQL text and no parameter values.
 - Each outgoing call, such as one to your AI provider, gets a span with the scheme, host and path of the URL only.
 - MCP tool calls get `mcp.tool_call` spans, and export, proof and asset rendition jobs get `job.*` spans.
-- Health checks and the live-update connection at `/hubs/book` are not traced.
+- Codex does not trace health checks or the live-update connection at `/hubs/book`.
 
 ### Metrics
 
@@ -91,9 +91,9 @@ The built-in metrics for ASP.NET Core, Kestrel, SignalR, outgoing HTTP calls, th
 
 Logs go to the collector as well as to the console and Seq. A record written during a request carries the request's trace and span IDs, so a backend can link a log line to its trace.
 
-## What Codex never records
+## What spans and metrics leave out
 
-Telemetry holds no email addresses, names, user IDs, tokens, passwords, AI keys, query strings, SQL parameter values or manuscript text. Metric tags are a tool name, a job kind and an outcome.
+Span attributes and metric tags hold no email addresses, names, user IDs, tokens, passwords, AI keys, query strings, SQL parameter values or manuscript text. Metric tags are a tool name, a job kind and an outcome. Log lines are not covered by this rule. For example, Codex logs the admin email at warning level at first boot, and the logs reach the console, Seq and the collector.
 
 ## Next steps
 

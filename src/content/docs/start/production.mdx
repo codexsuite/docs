@@ -7,14 +7,15 @@ sidebar:
 
 import caddyfile from "../../../../examples/caddy/Caddyfile?raw";
 import caddyCompose from "../../../../examples/caddy/docker-compose.yml?raw";
+import { codexImage, workerImage } from "../../../config/site";
 
-This page takes the [quick start](/start/quickstart/) install and makes it fit to keep. You add TLS, back up the three places Codex stores data, pin an image version and size the host for print runs.
+This page takes the [quick start](/start/quickstart/) install and prepares it for long-term use. You add TLS, back up the three places Codex stores data, pin an image version and size the host for print runs.
 
 ## Add TLS with Caddy
 
 Codex listens on plain HTTP on port 8080. Put a reverse proxy in front of it that holds the certificate. The example below uses Caddy, which gets and renews a certificate for your domain by itself.
 
-Codex marks its sign-in cookie Secure when the request it sees is HTTPS. Behind a proxy the app sees HTTP, so the proxy must send `X-Forwarded-Proto` and `X-Forwarded-Host`. The Caddyfile sets both. Without them, the cookie is not marked Secure even though the browser uses HTTPS.
+Codex marks its sign-in cookie Secure when the request it sees is HTTPS. Behind a proxy the app sees HTTP, so the proxy must send `X-Forwarded-Proto` and `X-Forwarded-Host`. The Caddyfile sets both. Without them, Codex does not mark the cookie Secure, even though the browser uses HTTPS.
 
 1. Point a DNS record for your domain at the machine. Open ports 80 and 443 on its firewall.
 2. Make a folder named `caddy` beside your `docker-compose.yml`. Save the two files below into it.
@@ -27,6 +28,8 @@ docker compose -f docker-compose.yml -f caddy/docker-compose.yml up -d
 
 The second file removes the published port 8080 from the app, so only Caddy reaches it. Port 80 must stay open, because Caddy uses it to prove to the certificate authority that you own the domain. Keep the `caddy-data` volume, or Caddy asks for new certificates on every start.
 
+From now on, every `docker compose` command that starts or recreates containers needs both files, as in step 4. With only the base file, Compose publishes port 8080 again, which bypasses Caddy, and leaves the `caddy` container running on its own.
+
 The files are in the docs repository: [Caddyfile](https://github.com/codexsuite/docs/blob/main/examples/caddy/Caddyfile) and [docker-compose.yml](https://github.com/codexsuite/docs/blob/main/examples/caddy/docker-compose.yml).
 
 ```txt title="caddy/Caddyfile"
@@ -37,13 +40,13 @@ The files are in the docs repository: [Caddyfile](https://github.com/codexsuite/
 {caddyCompose}
 ```
 
-Caddy sets these headers itself and ignores any copy a client sends. The `header_up` lines state them so the file shows what Codex needs. For Caddy's own options, see its [reverse_proxy reference](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy). Another proxy works if it sends the same two headers.
+Caddy sets these headers itself and ignores any copy a client sends. The `header_up` lines state them so the file shows what Codex needs. Caddy logs an "Unnecessary header_up" warning for each of the two lines when it validates the file. Expect those warnings. For Caddy's own options, see its [reverse_proxy reference](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy). Another proxy works if it sends the same two headers.
 
 Check the result with `curl https://codex.example.com/health`. It answers `{"status":"ok","version":"..."}` and needs no sign-in.
 
 ## What to back up
 
-Codex keeps data in three places. A backup of one without the others does not restore a working install.
+Codex keeps data in three places. Back up all three.
 
 | Store | Where it lives | What it holds |
 |---|---|---|
@@ -51,7 +54,7 @@ Codex keeps data in three places. A backup of one without the others does not re
 | Blob folder | The `codex-blobs` volume, mounted at `CODEX_BLOB_ROOT` | Uploaded files, image renditions and exports. |
 | Key ring | The `codex-keys` volume, mounted at `CODEX_DATA_PROTECTION_DIR` | The keys that encrypt the AI keys users save. |
 
-Back up all three at the same time, and keep the key ring apart from the database dump. The key ring is meant to live outside the database, so that a dump alone cannot decrypt anyone's AI key.
+Back up all three at the same time, and keep the key ring apart from the database dump. Codex keeps the key ring outside the database, so that a dump alone cannot decrypt anyone's AI key.
 
 To dump the database:
 
@@ -66,7 +69,35 @@ docker run --rm -v <project>_codex-blobs:/data:ro -v "$PWD":/backup alpine tar -
 docker run --rm -v <project>_codex-keys:/data:ro -v "$PWD":/backup alpine tar -czf /backup/codex-keys.tgz -C /data .
 ```
 
-To restore, stop the stack, put the three stores back, and start it again. A restored database without its key ring still opens. Only the saved AI keys are lost.
+To restore, put the three stores back in this order. The database restore needs Postgres running, and Codex and the worker must be stopped while you do it.
+
+1. Create the containers and volumes without starting them, then start only Postgres. On a host that already runs Codex, run `docker compose stop codex worker` instead.
+
+```sh
+docker compose up --no-start
+docker compose up -d postgres
+```
+
+2. Load the dump.
+
+```sh
+docker compose exec -T postgres pg_restore -U postgres -d codex --clean --if-exists --no-owner < codex.dump
+```
+
+3. Unpack the two tar files into their volumes.
+
+```sh
+docker run --rm -v <project>_codex-blobs:/data -v "$PWD":/backup alpine tar -xzf /backup/codex-blobs.tgz -C /data
+docker run --rm -v <project>_codex-keys:/data -v "$PWD":/backup alpine tar -xzf /backup/codex-keys.tgz -C /data
+```
+
+4. Start everything. If you added Caddy, use both compose files, as in the TLS section.
+
+```sh
+docker compose up -d
+```
+
+A restored database without its key ring still opens. Only the saved AI keys are lost.
 
 ### If you lose the key ring
 
@@ -79,23 +110,28 @@ Users can also back up one book from inside the app. That backup holds the book,
 The images have two tags, `latest` and the full commit SHA of the build. `latest` moves on every build, so a production file that uses it upgrades on whichever day you next pull. Pin a SHA instead.
 
 1. Back up the three stores.
-2. Pick a build. The running app reports its commit: `curl https://codex.example.com/health` returns a version such as `1.0.0+35618f3...`. The part after the plus sign is the commit. Tags on [the app image page](https://github.com/codexsuite/codex/pkgs/container/codex) list the builds.
-3. Set the same SHA for both images in `.env`:
+2. Pick a build. Ask the running app for its commit. `curl https://codex.example.com/health` returns a version such as `1.0.0+35618f3...`, and the part after the plus sign is the commit. Tags on [the app image page](https://github.com/codexsuite/codex/pkgs/container/codex) list the builds.
+3. Set the same SHA for both images in `.env`. The names below come from the images the quick start pulls.
 
 ```sh
-CODEX_IMAGE=ghcr.io/codexsuite/codex:<full commit SHA>
-CODEX_WORKER_IMAGE=ghcr.io/codexsuite/codex-worker:<full commit SHA>
+CODEX_IMAGE={codexImage}:<full commit SHA>
+CODEX_WORKER_IMAGE={workerImage}:<full commit SHA>
 ```
 
-4. Run `docker compose pull` and then `docker compose up -d`.
+4. Pull and recreate. These commands include the Caddy file. If you did not add Caddy, leave out the second `-f` option.
+
+```sh
+docker compose -f docker-compose.yml -f caddy/docker-compose.yml pull
+docker compose -f docker-compose.yml -f caddy/docker-compose.yml up -d
+```
 
 Use the same SHA for the app and the worker, because they share one database schema and one set of job rules. The web service applies database migrations when it starts, and the worker does not (`CODEX_DB_MIGRATE=false`). After an upgrade the worker can start before the web service has finished migrating. Its job loop logs the error and tries again every 2 seconds, so it recovers by itself once the schema is current.
 
-To go back, set the older SHAs and run the same two commands. Migrations are not reversed, so restore the database backup from before the upgrade when the newer version changed the schema.
+To go back, set the older SHAs and run the same two commands from step 4. Migrations are not reversed, so restore the database backup from before the upgrade when the newer version changed the schema.
 
 ## Run more than one web host
 
-Run one `codex` service. Live updates between processes go through a Postgres notification bridge. The product documents that bridge for two cases only: edits from the worker and from the stdio MCP server reaching the web host. It does not describe web host to web host, so nothing here promises that several web hosts show each other's changes. Blob storage is also one folder on one disk, so extra web hosts would need a shared disk.
+Run one `codex` service. Live updates between processes go through a Postgres notification bridge. The product documents that bridge for one case: the worker's job progress reaching the web host. It does not describe web host to web host, so nothing here promises that several web hosts show each other's changes. Blob storage is also one folder on one disk, so extra web hosts would need a shared disk.
 
 ## Size the host
 
@@ -105,7 +141,6 @@ Codex does not state a memory or CPU minimum. These figures come from the code a
 - One run may take 300 seconds (`CODEX_RENDER_TIMEOUT_SECONDS`) and may write a PDF of up to 1024 MB (`CODEX_RENDER_MAX_PDF_MB`). Lower the limits to fail a runaway run sooner.
 - One worker runs one export and one proof at a time, and polls for new jobs every 2 seconds. Exports queue behind each other. A longer book makes each run longer, and a second worker is the way to run more at once.
 - The worker container writes each run under `CODEX_RENDER_WORK`, which defaults to the container's temp folder. Keep enough free disk for the largest PDF.
-- Postgres needs the usual headroom for its cache. The database holds text, so it stays small beside the blob folder.
 
 Printing also needs a Linux kernel with Landlock ABI 4, which arrived in Linux 6.7. See the [requirements](/start/requirements/) for the command that tests your host.
 
