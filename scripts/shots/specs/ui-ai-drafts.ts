@@ -50,6 +50,7 @@ async function writeInstruction(page: Page, beatId: string, text: string): Promi
   await page.getByTestId(`write-beat-body-${beatId}`).fill(text);
   await page.getByTestId("write-manuscript").focus();
   await saved;
+  await savedStatus(page).waitFor();
 }
 
 /** Removes the AI integration, so Write has no provider. */
