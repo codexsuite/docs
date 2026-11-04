@@ -618,7 +618,7 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await openWithExtrasSource(page, ctx, beacon);
       await page.getByTestId("refs-verdict-action").click();
-      await page.getByTestId("refs-fair-use-reason").fill("Eight words, quoted to be discussed.");
+      await page.getByTestId("refs-fair-use-reason").fill("Nine words, quoted to be discussed.");
     },
   },
   {
@@ -628,7 +628,7 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await openWithExtrasSource(page, ctx, beacon);
       await page.getByTestId("refs-verdict-action").click();
-      await page.getByTestId("refs-fair-use-reason").fill("Eight words, quoted to be discussed.");
+      await page.getByTestId("refs-fair-use-reason").fill("Nine words, quoted to be discussed.");
       await page.getByTestId("refs-fair-use-accept").click();
       await page.locator("[data-testid='refs-verdict-reason']").filter({ hasText: "Ready to sign off" }).waitFor();
       await page.getByTestId("refs-verdict-action").click();
