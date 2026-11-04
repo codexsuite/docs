@@ -1,4 +1,22 @@
+import type { Page } from "playwright";
 import { type ShotSpec, viewerUser } from "../types.ts";
+
+const maskedToken = "cdx_pat_\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
+
+// Replaces a real token in the page text, and in the Claude Code command that contains it, before the shot.
+async function maskTokens(page: Page): Promise<void> {
+  await page.evaluate((masked) => {
+    const secretEl = document.querySelector("[data-testid='auth-token-secret']");
+    const secret = secretEl?.textContent?.trim() ?? "";
+    if (secretEl) secretEl.textContent = masked;
+    for (const code of document.querySelectorAll("code.break-all")) {
+      if (secret) code.textContent = (code.textContent ?? "").split(secret).join(masked);
+    }
+    for (const cell of document.querySelectorAll("td.font-mono")) {
+      cell.textContent = masked;
+    }
+  }, maskedToken);
+}
 
 export const shots: ShotSpec[] = [
   {
@@ -90,6 +108,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("auth-token-scope-write").check();
       await page.getByTestId("auth-token-create").click();
       await page.getByTestId("auth-token-secret").waitFor();
+      await maskTokens(page);
     },
   },
   {
@@ -101,6 +120,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("auth-token-create").click();
       await page.getByTestId("auth-token-secret-dismiss").click();
       await page.locator("[data-testid^='auth-token-row-']").first().waitFor();
+      await maskTokens(page);
     },
   },
 ];
