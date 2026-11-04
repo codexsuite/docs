@@ -1,0 +1,63 @@
+---
+/**
+ * Contract 3. <Shot name="<key>-<step>" alt="..." /> shows
+ * src/assets/shots/<name>-light.webp or <name>-dark.webp for the reader's theme.
+ * If either file is missing, a labelled placeholder renders and the build logs a warning.
+ * `pnpm check:final` fails on a missing shot.
+ */
+interface Props {
+  name: string;
+  alt: string;
+}
+const { name, alt } = Astro.props;
+
+const files = import.meta.glob<ImageMetadata>("/src/assets/shots/*.webp", { eager: true, import: "default" });
+const light = files[`/src/assets/shots/${name}-light.webp`];
+const dark = files[`/src/assets/shots/${name}-dark.webp`];
+const missing = [light ? "" : "light", dark ? "" : "dark"].filter(Boolean);
+if (missing.length > 0) {
+  console.warn(`[Shot] missing ${missing.join(" and ")} file for "${name}" in src/assets/shots`);
+}
+---
+
+{
+  light && dark ? (
+    <figure class="shot">
+      <img class="shot-light" src={light.src} width={light.width} height={light.height} alt={alt} loading="lazy" />
+      <img class="shot-dark" src={dark.src} width={dark.width} height={dark.height} alt={alt} loading="lazy" />
+    </figure>
+  ) : (
+    <figure class="shot shot-missing" role="img" aria-label={alt} data-shot={name}>
+      Screenshot missing: {name} ({missing.join(" and ")})
+    </figure>
+  )
+}
+
+<style is:global>
+  .shot {
+    margin: 1rem 0;
+  }
+  .shot img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+  }
+  .shot .shot-dark {
+    display: none;
+  }
+  :root[data-theme="dark"] .shot .shot-light {
+    display: none;
+  }
+  :root[data-theme="dark"] .shot .shot-dark {
+    display: block;
+  }
+  .shot-missing {
+    padding: 2rem 1rem;
+    border: 2px dashed var(--sl-color-gray-4);
+    border-radius: 0.5rem;
+    color: var(--sl-color-gray-2);
+    text-align: center;
+  }
+</style>
