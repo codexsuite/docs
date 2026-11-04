@@ -1,0 +1,74 @@
+name: Site checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly, so a link that rots after merge fails here.
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  built-site:
+    name: Search and 390px width
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # Real Pagefind queries in a browser, and every page at 390px wide.
+      - run: pnpm exec tsx --test --test-concurrency=1 scripts/checks/site/search.check.ts scripts/checks/site/overflow.check.ts
+
+  external-links:
+    name: External links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec tsx --test scripts/checks/site/external-links.check.ts
+
+  repo-documents:
+    name: Unslop copy and repository documents
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm check:page repo-docs
