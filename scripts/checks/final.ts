@@ -13,7 +13,6 @@ import type { Problem } from "./types.ts";
 export const allowedTodos: { file: string; contains: string }[] = [
   { file: "scripts/shots/seed/structure.ts", contains: "TODO" },
   { file: "scripts/shots/seed/references.ts", contains: "TODO" },
-  { file: ".github/workflows/capture-shots.yml", contains: "TODO" },
 ];
 
 /** Folders scanned for TODOs, as well as the page files. */
