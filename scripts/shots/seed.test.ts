@@ -17,15 +17,13 @@ test("SeedComposesBothModules", async () => {
         sceneIds: { "1.1": "sc" },
         entryIds: { E: "e" },
         viewer: { id: "v", email: "v@x" },
-        aiIntegrationId: "ai",
-        templateSlug: "t",
       };
     },
     async seedReferences(s, book) {
       calls.push("seedReferences");
       assert.equal(s, session);
       assert.deepEqual(book, { id: "b1", sceneIds: { "1.1": "sc" }, entryIds: { E: "e" } });
-      return { sourceIds: { S: "src" }, useIds: { u: "use" } };
+      return { sourceIds: { S: "src" }, useIds: { u: "use" }, aiIntegrationId: "ai", templateSlug: "t" };
     },
     async restoreStructure(_s, r) {
       calls.push(`restoreStructure:${r.seriesId}`);

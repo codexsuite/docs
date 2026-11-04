@@ -11,8 +11,8 @@ export interface SeedModules {
 }
 
 /**
- * Composition only. Structure runs first, then references on Salt and Signal.
- * Restore runs in the same order. Data lives in seed/structure.ts and seed/references.ts.
+ * This function only composes the two modules. Structure runs first, then references on Salt and Signal.
+ * Restore runs in the same order. The data lives in seed/structure.ts and seed/references.ts.
  */
 export function composeSeed(modules: SeedModules) {
   return {

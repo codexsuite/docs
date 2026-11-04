@@ -5,7 +5,7 @@ import type { Page } from "playwright";
  * Ids are the strings the REST API returns. Display numbers are "<chapter>.<scene>", such as "1.2".
  */
 
-/** A signed-in admin on a running instance. The runner builds it and never prints it. */
+/** A signed-in admin on a running instance. The sign-in helper builds it, and nothing prints it. */
 export interface AdminSession {
   /** Origin of the instance, without a trailing slash, such as "http://localhost:8080". */
   baseUrl: string;
@@ -32,19 +32,26 @@ export interface SeedResult {
   sourceIds: Record<string, string>;
   /** Use ids (a source quoted in a scene) by a short name chosen by the references module. */
   useIds: Record<string, string>;
-  /** The second user, with the view role on Salt and Signal. */
+  /** The second user, with the view role on Salt and Signal. Name and email are in `viewerUser`. */
   viewer: { id: string; email: string };
-  /** The AI integration used by the fake model. */
+  /** The AI integration that points at the fake model. */
   aiIntegrationId: string;
   /** Print template slug, "novel-6x9". */
   templateSlug: string;
 }
 
-/** What seed/structure.ts returns: everything in SeedResult except the references. */
-export type StructureSeed = Omit<SeedResult, "sourceIds" | "useIds">;
+/**
+ * The second user, with the view role on Salt and Signal. The structure module creates it.
+ * The references module shares the book to this email, so both modules import this value.
+ * The values are invented and match docs/running-example.md.
+ */
+export const viewerUser = { displayName: "Ines Calloway", email: "ines.calloway@example.test" } as const;
 
-/** What seed/references.ts returns. */
-export type ReferencesSeed = Pick<SeedResult, "sourceIds" | "useIds">;
+/** What seed/structure.ts returns: everything in SeedResult except what the references module creates. */
+export type StructureSeed = Omit<SeedResult, keyof ReferencesSeed>;
+
+/** What seed/references.ts returns: sources, uses, the AI integration and the print template. */
+export type ReferencesSeed = Pick<SeedResult, "sourceIds" | "useIds" | "aiIntegrationId" | "templateSlug">;
 
 /** The book the references module attaches sources to. */
 export interface SeedBook {

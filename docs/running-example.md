@@ -13,16 +13,16 @@ The series is **Working Coasts**. It has two books.
 
 The book has three acts: The Light, The Keepers and The Last Watch. It has at least six chapters, two in each act, and at least twelve scenes, two in each chapter. Every chapter and scene has a summary. Scenes use display numbers, so scene 1.2 is the second scene of chapter 1.
 
-Labels include *Needs research*. Use *Needs research* on the scenes that cite a source.
+Labels include *Needs research*.
 
 ## Knowledge base
 
 | Entry | Category | Aliases | Note |
 |---|---|---|---|
-| Edith Marrow | Keeper (person) | Mrs Marrow, E. Marrow | The keeper who ran the light for most of the book. |
-| Tobias Venn | Engineer (person) | Toby Venn | The engineer who rebuilt the signal station. |
-| Harrowmouth | Place | The Mouth | An invented town on the coast. |
-| Fresnel lens | Idea | The lens, the optic | The lens in the lamp room. |
+| Edith Marrow | People | Mrs Marrow, E. Marrow | The keeper who ran the light for most of the book. |
+| Tobias Venn | People | Toby Venn | The engineer who rebuilt the signal station. |
+| Harrowmouth | Places | The Mouth | An invented town on the coast. |
+| Fresnel lens | Ideas | The lens, the optic | The lens in the lamp room. |
 
 ## Sources
 
@@ -36,5 +36,5 @@ Labels include *Needs research*. Use *Needs research* on the scenes that cite a 
 ## Template, users and drafts
 
 - The print template is `novel-6x9`.
-- A second user has the view role on Salt and Signal. Sharing screens use this user.
+- A second user, the viewer, has the view role on Salt and Signal. Sharing screens use this user. The display name is Ines Calloway and the email is ines.calloway@example.test, both invented. The structure seed creates the user. The references seed shares the book to this email and reads it from `viewerUser` in `scripts/shots/types.ts`.
 - Scene 1.2 has a pending AI draft.
