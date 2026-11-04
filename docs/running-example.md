@@ -9,6 +9,8 @@ The series is **Working Coasts**. It has two books.
 - **Salt and Signal** is the running example. It is non-fiction.
 - **Tide Tables** is a second book. Series screens use it.
 
+The author of both books is **Mara Quill**, an invented writer who researches coastal trades.
+
 ## Salt and Signal
 
 The book has three acts: The Light, The Keepers and The Last Watch. It has at least six chapters, two in each act, and at least twelve scenes, two in each chapter. Every chapter and scene has a summary. Scenes use display numbers, so scene 1.2 is the second scene of chapter 1.

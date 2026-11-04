@@ -15,6 +15,8 @@ test("SeedComposesBothModules", async () => {
         seriesId: "s",
         bookIds: { saltAndSignal: "b1", tideTables: "b2" },
         sceneIds: { "1.1": "sc" },
+        actIds: { A: "a" },
+        chapterIds: { "1": "c" },
         entryIds: { E: "e" },
         viewer: { id: "v", email: "v@x" },
       };
@@ -36,7 +38,7 @@ test("SeedComposesBothModules", async () => {
   const result = await seed.seedDemo(session);
   assert.deepEqual(calls, ["seedStructure", "seedReferences"]);
   assert.deepEqual(Object.keys(result).sort(), [
-    "aiIntegrationId", "bookIds", "entryIds", "sceneIds", "seriesId", "sourceIds", "templateSlug", "useIds", "viewer",
+    "actIds", "aiIntegrationId", "bookIds", "chapterIds", "entryIds", "sceneIds", "seriesId", "sourceIds", "templateSlug", "useIds", "viewer",
   ]);
 
   await seed.restoreFixtures(session, result as SeedResult);

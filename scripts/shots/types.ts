@@ -26,6 +26,10 @@ export interface SeedResult {
   };
   /** Scene ids of Salt and Signal by display number: "1.1", "1.2" and so on. */
   sceneIds: Record<string, string>;
+  /** Act ids of Salt and Signal by act title: "The Light", "The Keepers", "The Last Watch". Restore needs them because the outline leaves out archived acts. */
+  actIds: Record<string, string>;
+  /** Chapter ids of Salt and Signal by chapter number as a string: "1" to "6". The numbers run on across acts. */
+  chapterIds: Record<string, string>;
   /** Knowledge base entry ids by name: "Edith Marrow", "Tobias Venn", "Harrowmouth", "Fresnel lens". */
   entryIds: Record<string, string>;
   /** Source ids by title: "The Keeper's Ledger", "Signals at Sea". */
