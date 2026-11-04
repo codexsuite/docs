@@ -4,6 +4,9 @@ import { pages as sitePages, type PageEntry } from "../../src/pagemap.ts";
 import { frontmatter } from "./page-modules/frontmatter.ts";
 import { internalLinks } from "./page-modules/internal-links.ts";
 import { stubMarker } from "./page-modules/stub-marker.ts";
+import { devContent } from "./dev-content.ts";
+import { linksMain } from "./links-main.ts";
+import { checkRepoDocs, slop } from "./slop.ts";
 import type { PageCheck, PageContext, Problem } from "./types.ts";
 
 export const defaultRoot = fileURLToPath(new URL("../../", import.meta.url)).replace(/\/$/, "");
@@ -12,7 +15,7 @@ export const defaultRoot = fileURLToPath(new URL("../../", import.meta.url)).rep
  * Contract 9. The page checks, in the order they run. Add a module here and it runs for
  * `check:page`, `check` and `check:final`.
  */
-export const pageChecks: PageCheck[] = [frontmatter, stubMarker, internalLinks];
+export const pageChecks: PageCheck[] = [frontmatter, stubMarker, internalLinks, slop, linksMain, devContent];
 
 export interface CheckOptions {
   root?: string;
@@ -72,7 +75,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     console.error("usage: pnpm check:page <slug>");
     process.exit(2);
   }
-  const problems = checkPage(id);
+  // `pnpm check:page repo-docs` reads README.md, AGENTS.md, docs/*.md and the Unslop copy.
+  const problems = id === "repo-docs" ? checkRepoDocs(defaultRoot) : checkPage(id);
   for (const p of problems) console.error(formatProblem(p));
   console.log(problems.length === 0 ? `check:page ${id}: ok` : `check:page ${id}: ${problems.length} problem(s)`);
   process.exit(problems.length === 0 ? 0 : 1);
