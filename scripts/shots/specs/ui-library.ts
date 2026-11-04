@@ -102,10 +102,17 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("library-import").click();
       await page.getByTestId("library-import-dialog").waitFor();
       await page.getByTestId("library-import-source-pandoc").click();
-      await page.getByTestId("library-import-file").setInputFiles([
-        { name: "Chapter 1.md", mimeType: "text/markdown", buffer: Buffer.from("# The Lamp Room\n\nOrla climbed the stair with the oil can and counted the steps.\n") },
-        { name: "Chapter 2.md", mimeType: "text/markdown", buffer: Buffer.from("# Low Water\n\nThe tide went out past the last marker, and Orla wrote it in the log.\n") },
-      ]);
+      // The folder input takes only a directory path, so build the files in the page and fire the change event.
+      const chapters = [
+        { name: "Chapter 1.md", text: "# The Lamp Room\n\nOrla climbed the stair with the oil can and counted the steps.\n" },
+        { name: "Chapter 2.md", text: "# Low Water\n\nThe tide went out past the last marker, and Orla wrote it in the log.\n" },
+      ];
+      await page.getByTestId("library-import-file").evaluate((input: HTMLInputElement, files) => {
+        const transfer = new DataTransfer();
+        for (const file of files) transfer.items.add(new File([file.text], file.name, { type: "text/markdown" }));
+        input.files = transfer.files;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }, chapters);
       await page.getByTestId("library-import-file-name").waitFor();
       await page.getByTestId("library-import-next").click();
       await page.getByTestId("import-preview").waitFor();

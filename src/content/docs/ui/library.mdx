@@ -11,13 +11,17 @@ The Library lists every book you own or that someone shared with you. Use it to 
 
 <Shot name="ui-library-overview" alt="The Library with the Working Coasts series stack, the New book tile and the toolbar above them." />
 
-A series appears as a stack of up to three covers with a badge that counts its books. Click the stack to open the [series](/ui/series/). Standalone books sit below the stacks. Click a book to open it on its Plan.
+A series appears as a stack of up to three covers with a badge that counts its books. Select the stack to open the [series](/ui/series/). Standalone books follow the stacks. Select a book to open it on the screen you last used in that book, or on its Plan if you have not opened it before.
 
 ## Find a book
 
 Type in the search box to filter by book name or series name. The list updates when you pause typing. If nothing matches, the Library says `No books match "tide".` and offers to clear the search.
 
 <Shot name="ui-library-search" alt="The Library after searching for tide, showing only the matching series." />
+
+To jump to a book from any screen, press Ctrl+K or Cmd+K, type part of its name and press Enter. See [Navigation](/ui/navigation/).
+
+<Shot name="ui-library-palette" alt="The command palette opened over the Library, with tide typed in." />
 
 The toolbar has four more controls.
 
@@ -26,9 +30,9 @@ The toolbar has four more controls.
 - **Group** groups by Series, Status or None.
 - **Status** shows only books with one status: Planning, Draft, Writing, Revising, Published or Archived.
 
-The last control switches between Grid and List. The list has the columns Title, Owner, Series, Words, Progress, Status and Edited. The address keeps your choices, so you can bookmark a view or use Back to return to it.
+The last control switches between Grid and List. The list has the columns Title, Owner, Series, #, Words, Progress, Status and Edited. Select a row to open the book. The address keeps Sort, Group, Status and the view, so you can bookmark them and Back steps through them. It also keeps the search and the owner filter, but Back skips those.
 
-<Shot name="ui-library-list" alt="The Library in list view, with a row for each book." />
+<Shot name="ui-library-list" alt="The Library in list view, grouped by series, with a row for each book." />
 
 ## Create a book
 
@@ -51,15 +55,19 @@ The new book opens on its [Plan](/ui/plan/) with one empty act. If the title is 
 3. Tick the standalone books to gather. The order you tick them in sets their numbers, Book 001, Book 002 and so on. You can tick none and add books later.
 4. Select Create series.
 
-<Shot name="ui-library-new-series" alt="The New series dialog with the name Harbour Lights typed in and no standalone books to pick." />
+<Shot name="ui-library-new-series" alt="The New series dialog with the name Harbour Lights typed in and the standalone book Lamp Room Notes ticked." />
 
 A name that another series already uses only shows a notice. You can still create the series. An empty name shows `A series needs a name.`
 
+The `+ Add book` tile on the [Series](/ui/series/) screen creates a new book. To put a book you already have into a series, open its Book settings and choose the series under Series. See [Add an existing book](/ui/series/#add-an-existing-book-or-take-one-out).
+
 ## Import a book
 
-Select Import to create a book from files you already have. The dialog has two steps. First choose a source and a file or folder. Then check the preview, which lists what the import creates and what it skips. Nothing is written until you select Import book. Your files are not changed, and the new book opens on its Plan.
+Select Import to create a book from files you already have. The dialog has two steps. First choose a source and a file or folder. Then check the preview, which lists what the import creates and what it skips. Codex writes nothing until you select Import book. Your files are not changed, and the new book opens on its Plan.
 
 <Shot name="ui-library-import" alt="The Import dialog listing the five sources." />
+
+<Shot name="ui-library-import-preview" alt="The Import preview for a Pandoc folder of two chapter files, listing what the import creates." />
 
 The sources are:
 

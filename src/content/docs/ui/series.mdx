@@ -7,7 +7,7 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-The Series screen groups books that belong together, such as Salt and Signal and Tide Tables in the Working Coasts series. Use it to see the totals, set the book order and share Knowledge base categories across the books. The screen is at `/#series=<id>`. To open it, select a series stack in the [Library](/ui/library/).
+The Series screen shows the books in one series, such as Salt and Signal and Tide Tables in the Working Coasts series, with their totals. Use it to set the book order and to archive or delete the series. A book in a series shares the series' Knowledge base, labels, style guide and publication settings. The screen is at `/#series=<id>`. To open it, select a series stack in the [Library](/ui/library/), then select a book to open its Plan. Back on the Plan returns to the series.
 
 <Shot name="ui-series-overview" alt="The Working Coasts series screen with its totals and its two books." />
 
@@ -18,7 +18,7 @@ The breadcrumb reads Library, then the series name. Select Library to go back. T
 - Published is the number of published books.
 - Last edit is when any book last changed.
 
-Below the header are the books in order. The same Grid and List switch as the Library applies. Select `+ Add book` to open the New book dialog with this series already chosen and the next number filled in.
+Below the header are the books in order. The same Grid and List switch as the Library applies. Select `+ Add book` to open the New book dialog with this series already chosen and the next number filled in. This creates a new book. To bring in a book you already have, see below.
 
 ## Change the name, description or book order
 
@@ -29,13 +29,29 @@ Below the header are the books in order. The same Grid and List switch as the Li
 
 <Shot name="ui-series-settings" alt="The Series settings dialog with the name, description and the book order list." />
 
+<Shot name="ui-series-reordered" alt="The Working Coasts series screen after Tide Tables was moved up and saved, so it is Book 001." />
+
 A series needs a name. If you clear it, the dialog says `A series needs a name.` and saves nothing.
 
-The dialog also tells you that Knowledge base categories on the series, like Characters and Places, are shared by every book in the series, and that each book can add its own.
+The dialog also tells you that Knowledge base categories on the series, like Characters and Places, are shared by every book in the series, and that each book can add its own. To move a Knowledge base entry up to the series, or to edit a series entry from any of its books, see [Knowledge base](/ui/knowledge-base/).
+
+## Add an existing book or take one out
+
+Both start in the book, not on the Series screen. Open the book, select Settings, then the Series section. See [Book settings](/ui/book-settings/).
+
+1. Choose the series in the Series list, or choose None (standalone) to take the book out.
+2. Select Review move. The dialog lists each step, such as the labels and Knowledge base entries that Codex copies onto the book when it leaves.
+3. Select Move book.
+
+A book you add joins as the next number. When a book leaves, the books after it close the gap in the numbering. Only the owner can move a book.
+
+<Shot name="ui-series-add-book" alt="The Review move dialog for Lamp Room Notes joining the Working Coasts series." />
+
+<Shot name="ui-series-take-out" alt="The Review move dialog for Tide Tables leaving the Working Coasts series." />
 
 ## Archive a series
 
-Select Series settings, then Archive series. The series leaves the Library at once, with no confirmation. A message says `Working Coasts archived. Restore it from the Archived list.` To bring it back, choose Archived in the Library's Status control and select Restore series.
+Select Series settings, then Archive series. The series disappears from the Library at once, with no confirmation. A message says `Working Coasts archived. Restore it from the Archived list.` Its books show as archived while the series is archived. Archiving also removes the sharing grants on the series, and Restore series does not bring them back. People who saw the books only through the series stay locked out until you share again. To restore, choose Archived in the Library's Status control and select Restore series.
 
 ## Delete a series
 
@@ -47,9 +63,9 @@ Deleting a series keeps its books. They become standalone.
 
 <Shot name="ui-series-delete" alt="The delete series dialog stating that two books become standalone." />
 
-A message says `Working Coasts deleted. Its books are standalone.` The series row is archived, not erased. Deleting a series also removes the sharing grants on the series. People who saw its books only through the series lose access, unless they have a grant on the book itself.
+A message says `Working Coasts deleted. Its books are standalone.` The deleted series appears in the Library's Archived list as `Series · no books`, with Restore series. Restoring it brings back an empty series, without its books. Deleting a series also removes the sharing grants on the series. People who saw its books only through the series lose access, unless they have a grant on the book itself.
 
-If the delete fails, the dialog shows the server's message, or `The series could not be deleted.` Only the owner can delete a series.
+If the delete fails, the dialog shows the server's message. Only the owner can delete a series.
 
 ## Series shared with you
 
