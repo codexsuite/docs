@@ -122,6 +122,7 @@ export const shots: ShotSpec[] = [
     name: "work-print-bibliography-apa",
     route: referencesRoute,
     steps: async (page, ctx) => {
+      await grantPermission(page, ctx);
       await page.goto(`/books/${ctx.bookIds.saltAndSignal}/settings#citations`);
       await page.getByTestId("settings-citation-style").waitFor();
       await chooseApa(page);

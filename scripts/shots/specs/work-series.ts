@@ -144,6 +144,7 @@ export const shots: ShotSpec[] = [
     route: "/",
     steps: async (page, ctx) => {
       // Salt and Signal is first, so the dialog has a renumber line for Tide Tables.
+      await promoteEdith(page, ctx);
       await reviewMove(page, ctx.bookIds.saltAndSignal, "");
     },
   },
