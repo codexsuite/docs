@@ -32,6 +32,8 @@ async function exportBackup(page: Page): Promise<void> {
   await page.getByTestId("settings-export-source").click();
   await page.getByTestId("settings-export-download").waitFor(longWait);
   await page.getByTestId("settings-export-notes").waitFor();
+  await page.getByText("Source finished.").waitFor({ state: "hidden", timeout: 30_000 });
+  await page.getByTestId("settings-export-source").evaluate((button) => button.scrollIntoView({ block: "center" }));
 }
 
 /** Downloads the backup the way the browser would and picks it in Library, Import. */
