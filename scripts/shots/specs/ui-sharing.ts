@@ -17,6 +17,8 @@ async function removeViewer(page: Page): Promise<void> {
   await page.getByTestId("settings-sharing-remove").first().click();
   await page.getByTestId("settings-sharing-person").first().waitFor({ state: "detached" });
   await page.getByTestId("settings-sharing-empty").first().waitFor();
+  // The message can arrive after the list changes, so wait for it before a caller dismisses messages.
+  await page.getByText("Removed Ines Calloway.").first().waitFor();
 }
 
 /** Dismisses every message so a shot shows only the message of its own step. */
