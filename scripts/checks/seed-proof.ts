@@ -108,13 +108,13 @@ export async function disturbEverything(session: AdminSession, seed: SeedResult)
     }));
   await step("change source fields", () =>
     expectOk(session, "PATCH", `/api/references/${ledger}`, {
-      details: { ...sourceFields, title: "The Keeper's Ledger", licence: "all_rights_reserved", rightsHolder: "Changed holder" },
+      details: { ...sourceFields, title: "The Keeper's Ledger", licence: "cc_by_nc_4", rightsHolder: "Changed holder" },
       entry: null,
     }));
   await step("retype a use", () =>
     expectOk(session, "PATCH", `/api/reference-uses/${seed.useIds["ledgerQuote"]}`, { kind: "paraphrase" }));
   await step("accept fair use", () =>
-    expectOk(session, "POST", `/api/references/${signals}/fair-use`, { reason: "Changed by a spec." }));
+    expectOk(session, "POST", `/api/references/${ledger}/fair-use`, { reason: "Changed by a spec." }));
   await step("raise the quote word limit", () =>
     expectOk(session, "PATCH", `/api/books/${book}/publication-settings`, { quoteWordLimit: 500 }));
 
