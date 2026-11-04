@@ -11,7 +11,6 @@ import type { Problem } from "./types.ts";
  * Add an entry only when the conductor agrees the TODO ships.
  */
 export const allowedTodos: { file: string; contains: string }[] = [
-  { file: "scripts/shots/seed/references.ts", contains: "TODO" },
 ];
 
 /** Folders scanned for TODOs, as well as the page files. */
