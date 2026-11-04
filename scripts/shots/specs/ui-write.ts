@@ -358,9 +358,13 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await open(page, ctx, "1.2");
       await page.getByTestId(`write-scene-label-add-${ctx.sceneIds["1.2"]}`).click();
-      const saved = page.waitForResponse((r) => r.request().method() === "PUT" && /\/labels$/.test(new URL(r.url()).pathname) && r.ok());
+      const put = () => page.waitForResponse((r) => r.request().method() === "PUT" && /\/labels$/.test(new URL(r.url()).pathname) && r.ok());
+      const added = put();
       await page.locator("[data-testid^='editing-label-option-']").filter({ hasText: "Ready to write" }).click();
-      await saved;
+      await added;
+      const removed = put();
+      await page.locator("[data-testid^='editing-label-option-']").filter({ hasText: "Needs research" }).click();
+      await removed;
       await page.goto(`/books/${ctx.bookIds.saltAndSignal}/plan`);
       await page.getByTestId(`plan-scene-${ctx.sceneIds["1.2"]}`).getByText("Ready to write").waitFor();
     },
