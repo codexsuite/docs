@@ -22,11 +22,11 @@ const isOk = (method: string, path: RegExp) => (r: { url(): string; request(): {
 
 /** Clicks in the scene, moves the caret to the end and starts a new line. */
 async function caretOnNewLine(page: Page, ctx: SeedResult, scene: string): Promise<void> {
-  // Click low in the editor, inside the last paragraph, so the caret starts near the end.
+  // Click at the right end of the last line, so the caret starts at the end of the scene text.
   const editor = editorOf(page, ctx, scene);
   const box = await editor.boundingBox();
   if (box === null) throw new Error(`The editor of scene ${scene} is not on screen.`);
-  await editor.click({ position: { x: 12, y: box.height - 8 } });
+  await editor.click({ position: { x: box.width - 4, y: box.height - 8 } });
   // ProseMirror can undo a key pressed straight after a click, so let its zero-delay timer run first.
   await page.evaluate(() => new Promise((resolve) => setTimeout(resolve)));
   await page.keyboard.press("Control+End");
