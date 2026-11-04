@@ -61,8 +61,10 @@ async function throwawayBook(session: AdminSession): Promise<SeedBook> {
 /** The checks the brief names for the references module. */
 async function checkReferences(session: AdminSession, bookId: string, seed: ReferencesSeed): Promise<void> {
   const signalsId = seed.sourceIds["Signals at Sea"]!;
-  const detail = await expectOk<{ quotedWords: number; limit: number; checks: { key: string; status: string }[]; permission: { status: string } | null }>(
+  const detail = await expectOk<{ quotedWords: number; limit: number; uses: { id: string }[]; checks: { key: string; status: string }[]; permission: { status: string } | null }>(
     session, "GET", `/api/references/${signalsId}`);
+  const liveUses = new Set(detail.uses.map((u) => u.id));
+  if (!liveUses.has(seed.useIds["signalsQuote"]!)) fail("QuoteShowsOverPublisherLimit: the Signals at Sea use is not live.");
   if (!(detail.quotedWords > detail.limit)) fail(`QuoteShowsOverPublisherLimit: ${detail.quotedWords} words against a limit of ${detail.limit}.`);
   if (!detail.checks.some((c) => c.key === "words" && c.status === "danger")) fail("QuoteShowsOverPublisherLimit: the words check is not red.");
   if (detail.permission?.status !== "draft") fail("QuoteShowsOverPublisherLimit: the permission letter is not a draft.");
@@ -134,7 +136,7 @@ async function main(): Promise<void> {
     // A second run and a restore must leave the same state.
     const again = await seedReferences(session, book);
     if (JSON.stringify(again.useIds) !== JSON.stringify(references.useIds)) fail("Running the references seed twice changed the use ids.");
-    await restoreReferences(session, { ...(references as unknown as SeedResult), sceneIds: book.sceneIds });
+    await restoreReferences(session, { ...(references as unknown as SeedResult), sceneIds: book.sceneIds, bookIds: { saltAndSignal: book.id } as SeedResult["bookIds"] });
     await checkReferences(session, book.id, references);
     await checkProviderRefused();
     console.log("PASS references");
@@ -152,6 +154,7 @@ async function main(): Promise<void> {
     requireIds("entryIds", seed.entryIds, 4);
     await checkReferences(session, seed.bookIds.saltAndSignal, seed);
     await restoreFixtures(session, seed);
+    await checkReferences(session, seed.bookIds.saltAndSignal, seed);
   }
   console.log(`PASS ${part}`);
 }

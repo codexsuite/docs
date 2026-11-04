@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { expectOk } from "../../lib/api.ts";
 import { viewerUser } from "../types.ts";
 import type { AdminSession, ReferencesSeed, SeedBook, SeedResult } from "../types.ts";
@@ -17,6 +16,9 @@ const ledgerQuoteScene = "1.1";
 const signalsQuoteScene = "2.1";
 const ledgerParaphraseScene = "3.1";
 const draftScene = "1.2";
+
+/** Fixed, so a restore can write the same beat line back after something else rewrote the prose. */
+const draftBeatId = "5b0c7e44-2f1a-4c61-9d3e-8a6f12c7b9d0";
 
 const ledgerQuote =
   "The lamp was lit at dusk and trimmed at midnight, and the keeper wrote both hours in the book before she slept.";
@@ -178,10 +180,12 @@ async function ensurePendingDraft(session: AdminSession, book: SeedBook, integra
   const drafts = await expectOk<DraftList>(session, "GET", `/api/books/${book.id}/drafts`);
   if (drafts.drafts.some((d) => d.sceneId === sceneId && d.status === "pending")) return;
 
-  const beatId = randomUUID();
+  const beatId = draftBeatId;
   const prose = await readProse(session, sceneId);
-  const body = `${prose.body.trimEnd()}${prose.body.trim() ? "\n\n" : ""}::beat{id="${beatId}"}\n`;
-  await expectOk(session, "POST", `/api/scenes/${sceneId}/beats`, { beatId, body, version: prose.version });
+  if (!prose.body.includes(`::beat{id="${beatId}"}`)) {
+    const body = `${prose.body.trimEnd()}${prose.body.trim() ? "\n\n" : ""}::beat{id="${beatId}"}\n`;
+    await expectOk(session, "POST", `/api/scenes/${sceneId}/beats`, { beatId, body, version: prose.version });
+  }
   await expectOk(session, "PATCH", `/api/beats/${beatId}`, {
     title: "Edith counts the flashes",
     body: "Edith counts the flashes until dawn while Tobias checks the lens.",
@@ -289,39 +293,72 @@ export async function seedReferences(session: AdminSession, book: SeedBook): Pro
 }
 
 /**
- * Puts sources and uses back to the state seedReferences left: a missing use is cited again, a use a spec added is
- * removed, and the Signals at Sea permission request goes back to a draft.
+ * Writes the beat line and the source links back into a scene whose prose something else rewrote. The scene already
+ * owns those ids, so the save accepts them and the database un-archives the beat and the uses.
+ */
+async function putBackMarkers(
+  session: AdminSession,
+  sceneId: string,
+  links: { useId: string; passage: string }[],
+  beatId?: string,
+): Promise<void> {
+  const prose = await readProse(session, sceneId);
+  let body = prose.body;
+  for (const { useId, passage } of links) {
+    if (body.includes(`(ref:${useId})`)) continue;
+    const link = `[${passage}](ref:${useId})`;
+    body = body.includes(passage) ? body.replace(passage, link) : `${body.trimEnd()}${body.trim() ? "\n\n" : ""}${link}`;
+  }
+  if (beatId && !body.includes(`::beat{id="${beatId}"}`)) {
+    body = `${body.trimEnd()}${body.trim() ? "\n\n" : ""}::beat{id="${beatId}"}\n`;
+  }
+  if (body !== prose.body) {
+    await expectOk(session, "PUT", `/api/scenes/${sceneId}/prose`, { body, version: prose.version });
+  }
+}
+
+/**
+ * Puts sources and uses back to the state seedReferences left. Restoring the structure rewrites the prose of the
+ * scenes that hold the beat and the source links, so this writes the same beat line and links back under the same
+ * ids. A use a spec added is removed, and the Signals at Sea permission request goes back to a draft.
  */
 export async function restoreReferences(session: AdminSession, seed: SeedResult): Promise<void> {
-  const expected: { source: string; use: string; scene: string; passage: string; kind: string; locator: string }[] = [
-    { source: ledgerTitle, use: "ledgerQuote", scene: ledgerQuoteScene, passage: ledgerQuote, kind: "quote", locator: "p. 12" },
-    {
-      source: ledgerTitle,
-      use: "ledgerParaphrase",
-      scene: ledgerParaphraseScene,
-      passage: ledgerParaphrase,
-      kind: "paraphrase",
-      locator: "pp. 40-41",
-    },
-    { source: signalsTitle, use: "signalsQuote", scene: signalsQuoteScene, passage: signalsQuote, kind: "quote", locator: "pp. 88-91" },
+  const place: { scene: string; use: string; passage: string }[] = [
+    { scene: ledgerQuoteScene, use: "ledgerQuote", passage: ledgerQuote },
+    { scene: ledgerParaphraseScene, use: "ledgerParaphrase", passage: ledgerParaphrase },
+    { scene: signalsQuoteScene, use: "signalsQuote", passage: signalsQuote },
   ];
+  const sceneOf = (number: string): string => {
+    const id = seed.sceneIds[number];
+    if (!id) throw new Error(`The seed has no scene ${number}.`);
+    return id;
+  };
+  for (const row of place) {
+    const useId = seed.useIds[row.use];
+    if (!useId) throw new Error(`The seed has no use "${row.use}".`);
+    await putBackMarkers(session, sceneOf(row.scene), [{ useId, passage: row.passage }]);
+  }
+  await putBackMarkers(session, sceneOf(draftScene), [], draftBeatId);
+
+  const keep = new Set(Object.values(seed.useIds));
   for (const title of [ledgerTitle, signalsTitle]) {
     const sourceId = seed.sourceIds[title];
     if (!sourceId) throw new Error(`The seed has no source "${title}".`);
     const detail = await expectOk<Detail>(session, "GET", `/api/references/${sourceId}`);
-    const keep = new Set(Object.values(seed.useIds));
     for (const use of detail.uses) {
       if (keep.has(use.id)) continue;
       const prose = await readProse(session, use.sceneId);
       await expectOk(session, "POST", `/api/citations/${use.id}/remove`, { version: prose.version });
     }
     const live = new Set(detail.uses.map((u) => u.id));
-    for (const row of expected.filter((e) => e.source === title)) {
-      if (live.has(seed.useIds[row.use]!)) continue;
-      const sceneId = seed.sceneIds[row.scene];
-      if (!sceneId) throw new Error(`The seed has no scene ${row.scene}.`);
-      await cite(session, sceneId, sourceId, row.passage, row.kind, row.locator);
+    for (const row of place.filter((r) => (title === ledgerTitle) === (r.use !== "signalsQuote"))) {
+      if (!live.has(seed.useIds[row.use]!)) throw new Error(`The use "${row.use}" is not live after the restore.`);
     }
   }
   await ensurePermissionDraft(session, seed.sourceIds[signalsTitle]!);
+  await ensurePendingDraft(
+    session,
+    { id: seed.bookIds.saltAndSignal, sceneIds: seed.sceneIds, entryIds: seed.entryIds },
+    seed.aiIntegrationId,
+  );
 }
