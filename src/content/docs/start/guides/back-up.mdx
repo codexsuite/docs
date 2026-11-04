@@ -27,7 +27,7 @@ The dialog opens on Word and Full manuscript, with both boxes off. If sources in
 
 <Shot name="start-guides-back-up-chapter" alt="The Export manuscript dialog with Markdown chosen, One chapter as the scope, a chapter picked and Include summaries ticked." />
 
-A row for the job appears under the Export manuscript button. It reads Queued, then Running, then `Done` and the file name, with a Download link. The list updates itself, and a reload keeps it.
+A row for the job appears under the description of Export manuscript. It reads Queued, then Running, then `Done` and the file name, with a Download link. The list updates itself, and a reload keeps it.
 
 <Shot name="start-guides-back-up-manuscript-done" alt="The Export manuscript row showing Word (.docx) with Done and the file name and a Download link." />
 
@@ -36,37 +36,37 @@ A row for the job appears under the Export manuscript button. It reads Queued, t
 - A title block with the book's title and author.
 - One heading for each act, only when you export the full manuscript.
 - One heading for each chapter, written `Chapter 1: Title`. A chapter that is not numbered keeps its plain title.
-- The scenes of a chapter in order, with a line of `* * *` between them. An empty scene is left out.
+- The scenes of a chapter in order, with a line of `* * *` between them. The export leaves out an empty scene.
 - Link text in place of Knowledge base and chapter links. The link itself is gone.
-- Source markers as footnotes in Chicago style, one for the first use of each citation. With APA or Harvard, they become `(Author Year, locator)` in the text. A Bibliography of the cited sources ends the file. The citation style is a setting in the book's publication settings.
+- Source markers as footnotes in Chicago style, one for the first use of each citation. With APA or Harvard, they become `(Author Year, locator)` in the text. A Bibliography of the cited sources ends the file. To change the citation style, open Citations & permissions in Book settings.
 - Headings inside a scene, moved down two levels so they sit below the chapter heading.
 
-Archived acts, chapters and scenes are not exported.
+The export skips archived acts, chapters and scenes.
 
 ### What the file leaves out
 
-Images are not part of these formats, and raw LaTeX blocks are skipped. The job row lists what was left out, for example `1 raw-LaTeX block skipped` or `2 figures not included (images are not part of this export)`. Word and EPUB files come from the Markdown through Pandoc inside the print sandbox, so they need the host support that [Requirements](/start/requirements/) describes. The Markdown file does not.
+These exports leave out images and raw LaTeX blocks. The job row lists what was left out, for example `1 raw-LaTeX block skipped` or `2 figures not included (images are not part of this export)`. Word and EPUB files come from the Markdown through Pandoc inside the print sandbox, so they need the host support that [Requirements](/start/requirements/) describes. The Markdown file does not.
 
 ### When an export does not start
 
 | What you see | Meaning |
 |---|---|
-| `Nothing to export. This book has no chapters.` | The book has no live chapter, and Export stays off. Add a chapter first. |
+| `Nothing to export. This book has no chapters.` | Every chapter is archived, or the book has none. Export stays off. Add a chapter first. |
 | `An export is already running` | A job of the same format is queued or running. Export stays off until it finishes. Other formats can run at the same time. |
 | Export is off with One chapter chosen | Pick a chapter from the list. |
-| `Failed` and an error, with a Retry button | The conversion failed. Retry opens the dialog on the same format. Scope and boxes are not remembered, so set them again. |
+| `Failed` and an error, with a Retry button | The conversion failed. Retry opens the dialog on the same format. The dialog does not keep the scope or the boxes, so set them again. |
 
 ## Make a backup
 
-A backup holds the whole book. To make one:
+A backup holds the book's acts, chapters, scenes, beats, Knowledge base, References and labels. To make one:
 
 1. In Archive & export, select Export .zip. There is no dialog.
-2. Wait for the line under the button to read `Export succeeded.` The button is off while the job runs.
-3. Select Download and keep the file somewhere safe.
+2. Wait for the line under the description of Export source to read `Export succeeded.` The button is off while the job runs.
+3. Select Download.
 
 <Shot name="start-guides-back-up-backup-done" alt="The Export source row reading Export succeeded, with the Download link and a note about pending AI drafts and images." />
 
-The line under the button also lists what the backup left out, such as `1 pending AI draft is not included · 0 images not included`.
+The next line lists what the backup left out, such as `1 pending AI draft is not included · 0 images not included`.
 
 ### What the backup holds
 
@@ -94,7 +94,7 @@ A restore always makes a new book. It never changes the book you made the backup
 
 <Shot name="start-guides-back-up-restore" alt="The Import dialog with Codex backup chosen and salt-and-signal.zip picked." />
 
-Step 2 reads the file and shows what it will create, with nothing written yet.
+Step 2 of 2 in the dialog reads the file and shows what it will create. Codex writes nothing yet.
 
 <Shot name="start-guides-back-up-restore-preview" alt="The import preview for the backup of Salt and Signal, listing its chapters, scenes, Knowledge base entries, sources and labels." />
 
@@ -102,7 +102,7 @@ Select Import book. The restored book opens on its Plan with the import banner. 
 
 <Shot name="start-guides-back-up-restored" alt="The Plan of Salt and Signal (restored), with the import banner counting acts, chapters, scenes, Knowledge base entries and sources." />
 
-Sources come back with their sign-offs and permission requests, so References shows the same clearance. A pending AI draft does not come back, and neither do the source uses that belonged to it, so a source that only the draft cited can read differently. Each scene has one `import` revision in its history, because prose history is not in a backup.
+Sources come back with their sign-offs and permission requests, so References shows the same clearance. A pending AI draft does not come back, and neither do the source uses that belonged to it, so a source that only the draft cited comes back with no uses. Each scene with prose has one `import` revision in its history, because prose history is not in a backup.
 
 ### When a restore is rejected
 
@@ -115,4 +115,4 @@ Sources come back with their sign-offs and permission requests, so References sh
 
 ## Back up the whole installation
 
-A book backup does not cover users, accounts or the AI settings. To protect the installation, back up the three places Codex stores data, as [Production](/start/production/) describes.
+A book backup does not cover users or AI settings. To protect the installation, back up the three places Codex stores data, as [Production](/start/production/) describes.
