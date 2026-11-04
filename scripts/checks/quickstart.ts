@@ -91,6 +91,38 @@ async function main(): Promise<void> {
       assert(test.models.includes("fake-model"), "the model list lacks fake-model");
     });
 
+    await check("DraftFinishesThroughFakeModel", async () => {
+      const integration = await expectOk<{ id: string }>(s, "POST", "/api/ai/integrations", {
+        kind: "openai_compatible",
+        label: "Fake model",
+        baseUrl: "http://fake-model:4010/v1",
+        apiKey: "fake-key",
+        defaultModel: "fake-model",
+      });
+      const book = await expectOk<{ id: string }>(s, "POST", "/api/books", { title: "Draft proof" });
+      const act = await expectOk<{ chapters: { scenes: { id: string }[] }[] }>(
+        s, "POST", `/api/books/${book.id}/acts`, { title: "Act one" },
+      );
+      const sceneId = act.chapters[0]?.scenes[0]?.id;
+      assert(sceneId, "the new act has no scene");
+      const response = await s.api("POST", `/api/scenes/${sceneId}/continue`, {
+        model: "fake-model",
+        integrationId: integration.id,
+      });
+      assert(response.status === 200, `POST continue answered ${response.status}`);
+      const events = (await response.text())
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => JSON.parse(line) as { text?: string; final?: { words: number }; error?: { code?: string; message?: string } });
+      const failure = events.find((e) => e.error);
+      assert(!failure, `the draft stream ended with an error: ${failure?.error?.code ?? ""} ${failure?.error?.message ?? ""}`);
+      const final = events.find((e) => e.final);
+      assert(final && final.final!.words > 0, "the draft stream had no final event with words");
+      const drafts = await expectOk<{ drafts: { status: string; text: string }[] }>(s, "GET", `/api/books/${book.id}/drafts`);
+      assert(drafts.drafts.some((d) => d.status === "pending" && d.text.length > 0), "no pending draft with text after the stream");
+      return `${final.final!.words} words`;
+    });
+
     await check("PdfExportSucceedsThroughWorker", async () => {
       const book = await expectOk<{ id: string }>(s, "POST", "/api/books", { title: "Quick start proof" });
       const act = await expectOk<{ chapters: { scenes: { id: string }[] }[] }>(
