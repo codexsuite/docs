@@ -23,7 +23,7 @@ To jump to a book from any screen, press Ctrl+K or Cmd+K, type part of its name 
 
 <Shot name="ui-library-palette" alt="The command palette opened over the Library, with tide typed in." />
 
-The toolbar has four more controls.
+The toolbar has five more controls.
 
 - **All, Mine and Shared with me** narrow the list by owner.
 - **Sort** orders by Last edited, Title, Series or Progress.
@@ -57,13 +57,17 @@ The new book opens on its [Plan](/ui/plan/) with one empty act. If the title is 
 
 <Shot name="ui-library-new-series" alt="The New series dialog with the name Harbour Lights typed in and the standalone book Lamp Room Notes ticked." />
 
+The dialog closes and the Library shows the new series as a stack.
+
+<Shot name="ui-library-series-created" alt="The Harbour Lights series screen with Lamp Room Notes as Book 001 and Fog Signal Log as Book 002." />
+
 A name that another series already uses only shows a notice. You can still create the series. An empty name shows `A series needs a name.`
 
 The `+ Add book` tile on the [Series](/ui/series/) screen creates a new book. To put a book you already have into a series, open its Book settings and choose the series under Series. See [Add an existing book](/ui/series/#add-an-existing-book-or-take-one-out).
 
 ## Import a book
 
-Select Import to create a book from files you already have. The dialog has two steps. First choose a source and a file or folder. Then check the preview, which lists what the import creates and what it skips. Codex writes nothing until you select Import book. Your files are not changed, and the new book opens on its Plan.
+Select Import to create a book from files you already have. The dialog has two steps. First choose a source and a file or folder. Then check the preview, which lists what the import creates and what it skips. Codex writes nothing until you select Import book. Codex does not change your files, and the new book opens on its Plan.
 
 <Shot name="ui-library-import" alt="The Import dialog listing the five sources." />
 
@@ -81,6 +85,8 @@ The sources are:
 
 Choose Archived in the Status control to see archived books. Each one has a Restore button and a menu with Delete permanently. The delete dialog counts the chapters, scenes, words and sources that go with the book, offers Export source first, and enables the delete button only after you type the book's title. An archived series appears as one row with Restore series, which brings its books back too.
 
+<Shot name="ui-series-archived" alt="The Library's Archived list with the Working Coasts series and its Restore series button." />
+
 ## Books shared with you
 
-A book someone shared with you shows who shared it and your role: View only, Comment or Edit. View only means you can read the book but not change it. Edit means you can change content, but sharing, moving and archiving stay with the owner. Shared with me is empty until someone shares a book. See [Sharing a book](/ui/sharing/).
+A book someone shared with you shows who shared it and your role: View only, Comment or Edit. View only means you can read the book but not change it. Edit means you can change content, but only the owner can share, move or archive the book. Shared with me is empty until someone shares a book. See [Sharing a book](/ui/sharing/).
