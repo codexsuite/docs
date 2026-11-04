@@ -48,19 +48,6 @@ export const shots: ShotSpec[] = [
     },
   },
   {
-    name: "work-series-guide",
-    route: (ctx) => `/books/${ctx.bookIds.tideTables}/settings#writing`,
-    steps: async (page, ctx) => {
-      const response = await page.request.patch(`/api/books/${ctx.seriesId}/settings`, {
-        data: { styleGuide: "Plain past tense. Metric units. Give each keeper a full name on first mention." },
-      });
-      if (!response.ok()) throw new Error(`PATCH series settings answered ${response.status()}.`);
-      await page.reload();
-      await page.getByTestId("settings-series-guide").waitFor();
-      await page.getByTestId("settings-series-guide").scrollIntoViewIfNeeded();
-    },
-  },
-  {
     name: "work-series-promote",
     route: (ctx) => planRoute(ctx.bookIds.saltAndSignal),
     steps: startPromote,
