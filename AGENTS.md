@@ -43,7 +43,7 @@ Only the repository owner changes a contract. If the other side is wrong, fix yo
 2. Frozen files. These files stay unchanged after the bootstrap: `src/sidebar.ts`, `src/pagemap.ts`, `astro.config.mjs`, `package.json` and `pnpm-lock.yaml`.
 3. Screenshots. `<Shot name="<key>-<step>" alt="..." />` shows `src/assets/shots/<name>-light.webp` and `<name>-dark.webp`.
 4. Shot specs. `scripts/shots/specs/<key>.ts` exports `shots: ShotSpec[]`, typed in `scripts/shots/types.ts`.
-5. Demo seed. `scripts/shots/seed.ts` exports `seedDemo` and `restoreFixtures`. It composes `seed/structure.ts` and `seed/references.ts` and uses the REST API only.
+5. Demo seed. `scripts/shots/seed.ts` exports `seedDemo` and `restoreFixtures`. It composes `seed/structure.ts` and `seed/references.ts`. The seed uses the REST API only. `restoreFixtures` restores a database and blob snapshot taken after the seed.
 6. Image names. `src/config/site.ts` exports the two image names. Examples read `${CODEX_IMAGE:-...}` and `${CODEX_WORKER_IMAGE:-...}`.
 7. Configuration. The product README table and `/start/configuration/` must list the same variables and groups. `scripts/check-config.ts <product-readme>` checks it.
 8. Examples. The example files live in `examples/quickstart/` and `examples/caddy/`.
