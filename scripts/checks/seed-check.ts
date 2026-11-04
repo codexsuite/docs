@@ -89,9 +89,9 @@ async function checkProviderRefused(): Promise<void> {
   const settings = await expectOk<{ localEndpointsAllowed: boolean }>(session, "GET", "/api/ai/integrations");
   if (settings.localEndpointsAllowed) fail("error:provider-refused-without-local-endpoints: the plain stack allows local endpoints.");
   const response = await session.api("POST", "/api/ai/integrations/test", { kind: "openai_compatible", baseUrl: "https://10.0.0.5/v1", apiKey: "fake-key-for-docs" });
-  const body = (await response.json().catch(() => ({}))) as { message?: string };
-  if (response.status !== 400 || !body.message?.includes("CODEX_AI_ALLOW_LOCAL_ENDPOINTS")) {
-    fail(`error:provider-refused-without-local-endpoints: status ${response.status}, message ${body.message ?? "none"}.`);
+  const body = (await response.json().catch(() => ({}))) as { error?: string };
+  if (response.status !== 400 || !body.error?.includes("CODEX_AI_ALLOW_LOCAL_ENDPOINTS")) {
+    fail(`error:provider-refused-without-local-endpoints: status ${response.status}, message ${body.error ?? "none"}.`);
   }
   console.log("PASS error:provider-refused-without-local-endpoints");
 }
