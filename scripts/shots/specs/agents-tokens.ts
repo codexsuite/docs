@@ -34,8 +34,8 @@ export const shots: ShotSpec[] = [
   {
     name: "agents-tokens-secret",
     route: "/account",
-    // The box also prints the claude mcp add command, which holds the secret.
-    mask: ["[role=status] code"],
+    // The box also prints the claude mcp add command, which holds the secret. The list shows the token prefix.
+    mask: ["[role=status] code", "tbody td:nth-child(2)"],
     steps: async (page) => {
       await openAgentAccess(page);
       await createToken(page, "Claude Code on my laptop", ["write"], "90 days");
@@ -47,7 +47,7 @@ export const shots: ShotSpec[] = [
   {
     name: "agents-tokens-list",
     route: "/account",
-    mask: ["tbody td:nth-child(4)"],
+    mask: ["tbody td:nth-child(2)", "tbody td:nth-child(4)"],
     steps: async (page) => {
       await openAgentAccess(page);
       await createToken(page, "Claude Code on my laptop", ["write"], "90 days");
