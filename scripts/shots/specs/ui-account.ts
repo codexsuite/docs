@@ -69,6 +69,7 @@ export const shots: ShotSpec[] = [
   {
     name: "ui-account-token-created",
     route: "/account",
+    mask: ["code.break-all", "td.font-mono"],
     steps: async (page) => {
       await page.getByTestId("auth-token-name").fill("Claude Code on the desktop");
       await page.getByTestId("auth-token-scope-write").check();
@@ -79,6 +80,7 @@ export const shots: ShotSpec[] = [
   {
     name: "ui-account-token-list",
     route: "/account",
+    mask: ["td.font-mono"],
     steps: async (page) => {
       await page.getByTestId("auth-token-name").fill("Claude Code on the desktop");
       await page.getByTestId("auth-token-create").click();
