@@ -7,13 +7,13 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-Use this page to add people to your Codex, reset a password, unlock an account, disable a user, make someone an admin and revoke agent tokens. Only admins see it.
+Use this page to add people to your Codex, reset a password, unlock an account, disable a user, make someone an admin and revoke personal access tokens. Only admins see it.
 
 **Address:** `/settings/users`. Admins also reach it from the account menu, under **Users**.
 
 <Shot name="ui-users-overview" alt="The Users page with an Email field, a Display name field and an Add user button above a table of two users, with their status, last sign-in and token count." />
 
-The table lists every user, sorted by name. The columns are Name, Email, Admin, Status, Last sign-in, Created and Tokens. **Last sign-in** reads "Never" until the user signs in. **Tokens** counts the personal access tokens that still work. A token that is revoked or expired does not count. Each row has buttons for the actions below.
+The table lists every user, sorted by name. The columns are Name, Email, Admin, Status, Last sign-in, Created and Tokens. **Last sign-in** reads "Never" until the user signs in. **Tokens** counts the personal access tokens that are not revoked and have not expired. Each row has buttons for the actions below.
 
 The first admin comes from `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` on first start. See [Configuration](/start/configuration/).
 
@@ -35,7 +35,7 @@ The new row reads "active · must change password" under **Status** until the pe
 
 A new user sees no books until a book owner shares one with them. See [Sharing a book](/ui/sharing/).
 
-If an account with that email already exists, Codex shows "A user with the email ... already exists." in red and adds nothing. Codex ignores capital letters when it compares emails. The browser refuses an address with no `@` before Codex sees it, and Codex answers "Enter an email address such as name@example.com." to one it does not accept.
+If an account with that email already exists, Codex shows "A user with the email ... already exists." in red and adds nothing. Codex ignores capital letters when it compares emails. The browser refuses an address with no `@`. If Codex does not accept an address, it shows "Enter an email address such as name@example.com."
 
 <Shot name="ui-users-duplicate" alt="The Users page after adding ines.calloway@example.test again, with the message A user with the email ines.calloway@example.test already exists in red above the table." />
 
@@ -51,36 +51,36 @@ Ten wrong passwords in a row lock an account for 15 minutes. A locked row reads 
 
 <Shot name="ui-users-locked" alt="The Users page with the row for Ines Calloway marked locked in orange and an Unlock button among her row buttons." />
 
-After you click it, the row reads "active" again and the button goes.
+After you click it, the status no longer reads "locked" and the button disappears.
 
-<Shot name="ui-users-unlocked" alt="The same row after Unlock, with the status active and no Unlock button." />
+<Shot name="ui-users-unlocked" alt="The same row after Unlock, with the status active · must change password and no Unlock button." />
 
 ## Disable a user
 
-Codex has no delete, because every user owns books. Disable the account instead. A disabled user cannot sign in, and their access tokens stop working. Their books stay.
+Codex has no delete, because every user owns books. Disable the account instead. A disabled user cannot sign in, and their personal access tokens stop working. Their books stay.
 
 1. Click **Disable** on the person's row. The status reads "disabled".
 2. To let them back in, click **Enable**. Their old password still works, unless you reset it.
 
 <Shot name="ui-users-disabled" alt="The Users page with the row for Ines Calloway marked disabled and the button in her row now reading Enable." />
 
-You cannot disable your own account, so the buttons in your own row are dimmed. Codex also refuses to leave the instance with no active admin.
+You cannot disable your own account, so Codex dims **Disable** in your own row. Codex also refuses to leave the instance with no active admin.
 
 ## Make someone an admin
 
-Click **Make admin** on a row. The **Admin** column reads "Admin" and the button becomes **Remove admin**. An admin sees the **Users** item in the account menu. The change takes effect on the person's next request. You cannot remove your own admin rights.
+Click **Make admin** on a row. The **Admin** column reads "Admin" and the button becomes **Remove admin**. An admin sees the **Users** item in the account menu. The change takes effect on the person's next request. You cannot remove your own admin rights, so Codex dims **Remove admin** in your own row.
 
 <Shot name="ui-users-make-admin" alt="The Users page with Admin in the Admin column of Ines Calloway's row and the button in her row now reading Remove admin." />
 
-## Revoke agent tokens
+## Revoke personal access tokens
 
-Click **Revoke tokens** on a row to stop every personal access token that person has. Use it when a laptop is lost or a person leaves a project. The button is dimmed when the **Tokens** count is 0. The person can create new tokens from their own account. See [Tokens and scopes](/agents/tokens/).
+Click **Revoke tokens** on a row to stop every personal access token that person has. Use it when a laptop is lost or a person leaves a project. Codex dims the button when the **Tokens** count is 0. The person can create new tokens from their own account. See [Tokens and scopes](/agents/tokens/).
 
 <Shot name="ui-users-revoke-tokens" alt="The Users page after Revoke tokens on the admin's own row, with the Tokens count at 0 and the Revoke tokens button dimmed." />
 
 ## If you are not an admin
 
-A signed-in user who opens `/settings/users` sees "Only admins can manage users" and a **Back to Library** link. The server also answers 403 to any user request that is not from an admin.
+A signed-in user who opens `/settings/users` sees "Only admins can manage users" and a **Back to Library** link. The server also refuses these actions with a 403 for anyone who is not an admin.
 
 <Shot name="ui-users-not-admin" alt="The Users page for a user who is not an admin, with the heading Only admins can manage users and a Back to Library link." />
 
