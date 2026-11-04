@@ -61,7 +61,7 @@ export const pages: PageEntry[] = [
   page("start", 10, "start/troubleshooting", "Troubleshooting", "Fixes for failed sign-in, PDF errors on old kernels, worker jobs left unclaimed and 401s on /mcp."),
 
   page("guides", 1, "start/guides/first-book", "Your first book in 10 minutes", "Create a book, add an act, chapters and scenes, and write a scene."),
-  page("guides", 2, "start/guides/import", "Import a manuscript", "Bring in a manuscript from the Markdown list or Pandoc book folder format."),
+  page("guides", 2, "start/guides/import", "Import a manuscript", "Bring in a manuscript from a Markdown folder, a Novelcrafter export, a Word file or a Pandoc book folder."),
   page("guides", 3, "start/guides/clear-a-quote", "Clear a quote for print", "Cite a source, check the word count, draft a permission letter and record the answer."),
   page("guides", 4, "start/guides/export-pdf", "Export a print-ready PDF", "Pick a template, proof, fix preflight warnings and export with bleed and crop marks."),
   page("guides", 5, "start/guides/back-up", "Export and back up a book", "Export a manuscript and make a backup you can restore."),
