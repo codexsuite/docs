@@ -33,9 +33,9 @@ async function applyDraft(page: Page, ctx: SeedResult): Promise<void> {
 /** Types a sentence at the end of scene 1.2 by hand and waits until it is saved. */
 async function editByHand(page: Page, ctx: SeedResult): Promise<void> {
   const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).getByTestId("prose-editor");
-  await editor.click();
-  await page.keyboard.press("Control+End");
-  await page.keyboard.type(" She wrote the count in the log.");
+  await editor.click({ position: { x: 12, y: 8 } });
+  await page.keyboard.press("Control+Home");
+  await page.keyboard.type("She wrote the count in the log. ");
   await page.locator("[data-testid='editing-save-status']:not([data-state='saved'])").waitFor();
   await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
 }
@@ -81,8 +81,8 @@ export const shots: ShotSpec[] = [
       await page.goto(writeRoute(ctx));
       await page.locator("[data-testid^='write-draft-apply-']").first().waitFor();
       const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.2"]}`).getByTestId("prose-editor");
-      await editor.click();
-      await page.keyboard.press("Control+End");
+      await editor.click({ position: { x: 12, y: 8 } });
+      await page.keyboard.press("Control+Home");
       const inserted = page.waitForResponse(
         (r) => r.request().method() === "POST" && new URL(r.url()).pathname === `/api/scenes/${ctx.sceneIds["1.2"]}/beats` && r.ok(),
       );
