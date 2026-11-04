@@ -91,6 +91,7 @@ async function selectInEditor(editor: Locator, first: string, last: string): Pro
       const to = nodes.find((n) => end <= n.start + (n.node.textContent ?? "").length)!;
       window.getSelection()!.setBaseAndExtent(from.node, at - from.start, to.node, end - to.start);
       document.dispatchEvent(new Event("selectionchange"));
+      from.node.parentElement?.scrollIntoView({ block: "center" });
     },
     [first, last],
   );
