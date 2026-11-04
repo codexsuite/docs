@@ -14,6 +14,14 @@ async function fillForm(page: Page): Promise<void> {
 
 export const shots: ShotSpec[] = [
   {
+    name: "start-guides-first-agent-overview",
+    route: "/account",
+    steps: async (page) => {
+      await page.getByTestId(section).waitFor();
+      await page.getByTestId(section).scrollIntoViewIfNeeded();
+    },
+  },
+  {
     name: "start-guides-first-agent-form",
     route: "/account",
     steps: fillForm,
@@ -35,6 +43,14 @@ export const shots: ShotSpec[] = [
     route: "/",
     steps: async (page) => {
       await page.getByTestId("library-new-book").waitFor();
+    },
+  },
+  {
+    name: "start-guides-first-agent-plan",
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/plan`,
+    steps: async (page, ctx) => {
+      await page.getByTestId("plan-board").waitFor();
+      await page.getByTestId(`plan-act-${ctx.actIds["The Light"]}`).waitFor();
     },
   },
 ];
