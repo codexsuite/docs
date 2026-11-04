@@ -7,7 +7,7 @@ const settingsRoute = (ctx: SeedResult) => `/books/${ctx.bookIds.saltAndSignal}/
 const longWait = { timeout: 150_000 };
 
 async function openArchive(page: Page): Promise<void> {
-  await page.getByTestId("settings-card-archive").waitFor();
+  await page.getByTestId("settings-section-archive").waitFor();
   await page.getByTestId("settings-export-manuscript").scrollIntoViewIfNeeded();
 }
 
