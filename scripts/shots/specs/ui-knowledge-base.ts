@@ -127,6 +127,8 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("kb-alias-input").fill("Edie");
       await page.getByTestId("kb-alias-input").press("Enter");
       await page.getByTestId("kb-alias-Edie").waitFor();
+      // The chip shows as soon as the save returns; the input closes after the warning check, so wait for it.
+      await page.getByTestId("kb-alias-input").waitFor({ state: "detached" });
     },
   },
   {
@@ -256,6 +258,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("kb-alias-input").fill("the");
       await page.getByTestId("kb-alias-input").press("Enter");
       await page.getByTestId("kb-alias-warning").waitFor();
+      await page.getByTestId("kb-alias-input").waitFor({ state: "detached" });
     },
   },
   {
