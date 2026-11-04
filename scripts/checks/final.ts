@@ -31,7 +31,8 @@ function* walk(dir: string): Generator<string> {
 const shotTag = /<Shot\b((?:"[^"]*"|'[^']*'|\{[^}]*\}|[^>"'])*)>/g;
 
 /** Everything `check:page` does on every page, plus missing shots and unlisted TODOs in the shipped files. */
-export function checkFinal(opts: CheckOptions = {}): Problem[] {
+export function checkFinal(opts: CheckOptions & { allowedTodos?: { file: string; contains: string }[] } = {}): Problem[] {
+  const allowed = opts.allowedTodos ?? allowedTodos;
   const root = opts.root ?? defaultRoot;
   const pages: PageEntry[] = opts.pages ?? sitePages;
   const problems = pages.flatMap((p) => checkPage(p.slug, { root, pages }));
@@ -62,7 +63,7 @@ export function checkFinal(opts: CheckOptions = {}): Problem[] {
     readFileSync(`${root}/${file}`, "utf8")
       .split("\n")
       .forEach((line, i) => {
-        if (/\bTODO\b/.test(line) && !allowedTodos.some((a) => a.file === file && line.includes(a.contains))) {
+        if (/\bTODO\b/.test(line) && !allowed.some((a) => a.file === file && line.includes(a.contains))) {
           problems.push({ check: "todo", slug, line: i + 1, message: `unlisted TODO: ${line.trim()}` });
         }
       });

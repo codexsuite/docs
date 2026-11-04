@@ -68,5 +68,7 @@ test("CheckFinalFailsOnTodoInScriptsAndWorkflows", () => {
 
 test("CheckFinalAllowsListedSeedStubTodos", () => {
   const root = makeRoot(files("Text.", { "scripts/shots/seed/structure.ts": "// TODO: replace with the real seed\n" }));
-  assert.deepEqual(checkFinal({ root, pages }).filter((p) => p.check === "todo"), []);
+  const allowedTodos = [{ file: "scripts/shots/seed/structure.ts", contains: "replace with the real seed" }];
+  assert.deepEqual(checkFinal({ root, pages, allowedTodos }).filter((p) => p.check === "todo"), []);
+  assert.equal(checkFinal({ root, pages }).filter((p) => p.check === "todo").length, 1);
 });
