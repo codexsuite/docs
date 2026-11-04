@@ -165,7 +165,11 @@ export const shots: ShotSpec[] = [
       const alias = page.getByTestId("write-kb-alias").first();
       await alias.waitFor();
       const before = await page.getByTestId("write-kb-mention").count();
-      await page.getByTestId(`shell-kb-item-${ctx.entryIds["Edith Marrow"]}`).dragTo(alias);
+      const box = await alias.boundingBox();
+      if (!box) throw new Error("The underlined words are not on screen.");
+      await page.getByTestId(`shell-kb-item-${ctx.entryIds["Edith Marrow"]}`).dragTo(alias, {
+        targetPosition: { x: box.width - 1, y: box.height / 2 },
+      });
       await page.waitForFunction(
         (n) => document.querySelectorAll("[data-testid='write-kb-mention']").length > n,
         before,
