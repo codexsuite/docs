@@ -241,6 +241,27 @@ export const shots: ShotSpec[] = [
   },
   { name: "ui-write-replaced", route: writeRoute, steps: replaceAll },
   {
+    name: "ui-write-replaced-one",
+    route: writeRoute,
+    steps: async (page, ctx) => {
+      await openReplace(page, ctx, "Tobias", "Toby");
+      await page.getByTestId("write-replace-item-0").click();
+      await page.getByTestId("write-replace-one").click();
+      await page.getByTestId("editing-toast").filter({ hasText: "Replaced 1 in 1 scene" }).waitFor();
+    },
+  },
+  {
+    name: "ui-write-replace-draft",
+    route: writeRoute,
+    steps: async (page, ctx) => {
+      await open(page, ctx);
+      await page.getByTestId("write-find").fill("turned slowly");
+      await page.getByTestId("write-replace-toggle").click();
+      await page.getByTestId("write-replace-input").fill("spun");
+      await page.getByTestId("write-replace-drafts").waitFor();
+    },
+  },
+  {
     name: "ui-write-replace-undone",
     route: writeRoute,
     steps: async (page, ctx) => {
@@ -269,8 +290,18 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await confirmRestore(page, ctx);
       await page.getByTestId("write-history-confirm").click();
-      await page.getByTestId("editing-toast-undo").waitFor();
+      await page.getByTestId("editing-toast").filter({ hasText: "Restored the version" }).waitFor();
       await page.locator("[data-testid^='write-history-row-'][data-source='restore']").first().waitFor();
+    },
+  },
+  {
+    name: "ui-write-history-undone",
+    route: writeRoute12,
+    steps: async (page, ctx) => {
+      await confirmRestore(page, ctx);
+      await page.getByTestId("write-history-confirm").click();
+      await page.getByTestId("editing-toast").filter({ hasText: "Restored the version" }).getByTestId("editing-toast-undo").click();
+      await page.locator("[data-testid^='write-history-row-'][data-source='restore']").nth(1).waitFor();
     },
   },
   { name: "ui-write-failed-save", route: writeRoute, steps: failSave },

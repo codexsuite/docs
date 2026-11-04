@@ -11,9 +11,9 @@ Write shows the whole manuscript as one continuous page, chapter after chapter. 
 
 **Address:** `/books/<id>/write`. A link ending in `#scene=1.2` or `#chapter=1` scrolls to that scene or chapter.
 
-<Shot name="ui-write-overview" alt="Write showing scene 1.1 of Salt and Signal, with the gutter on the left, the minimap on the right and the book bar above." />
+<Shot name="ui-write-overview" alt="Write showing scene 1.1 of Salt and Signal, with the gutter to the right of the text, the minimap at the far right and the book bar above." />
 
-Each scene has a gutter on its left with its number, labels, summary, linked entries, a Label button and its word count. The minimap on the right has a tick for each scene and a mark for each chapter. Select it, or drag on it, to jump. An empty scene shows a hollow tick, and a scene with a draft waiting is highlighted. The toolbar has a chapter list with arrows, the scene you are reading, and Find in manuscript. The Scope list, Format and Focus are in the book bar.
+Each scene has a gutter to the right of its text with its number, labels, summary, linked entries, a Label button and its word count. The minimap on the right has a tick for each scene and a mark for each chapter. Select it, or drag on it, to jump. An empty scene shows a hollow tick, and a scene with a draft waiting is highlighted. The toolbar has a chapter list with arrows, the scene you are reading, and Find in manuscript. The Scope list, Format and Focus are in the book bar.
 
 ## Write and edit
 
@@ -39,7 +39,7 @@ To label a scene, select Label in its gutter and tick or untick labels. Each cha
 
 <Shot name="ui-write-label-picker" alt="The Label list open on scene 1.2, with the book's labels as checkboxes." />
 
-<Shot name="ui-write-label-changed" alt="Scene 1.2 after Ready to write was added and Needs research was removed." />
+<Shot name="ui-write-label-changed" alt="Scene 1.2 with Ready to write in place of Needs research." />
 
 <Shot name="ui-write-label-plan" alt="The Plan with scene 1.2 showing Draft pending and the new label Ready to write, which the card cuts off after Ready. Needs research is gone." />
 
@@ -51,29 +51,33 @@ The Scope list narrows Write to a whole act, one chapter or one scene. The count
 
 Format sets the text width (Narrow, Medium, Wide), paragraphs (Spaced, Indented), whether scene beats and summaries show, whether Codex names are underlined, and the Preview pane. Codex remembers these settings per book in your browser. Preview in Layout opens [Layout](/ui/layout/) at the scene you are in.
 
-<Shot name="ui-write-format" alt="The Format list open with Narrow and Indented chosen." />
+<Shot name="ui-write-format" alt="The Format list open with Narrow and Indented chosen. The list runs past the right edge of the window, so Wide does not show." />
 
-Select Focus in the book bar to hide the sidebar, toolbar, minimap and gutters. Only the text stays, and the book bar fades until you point at it. Saving carries on. Press `Esc` to leave Focus.
+Select Focus in the book bar to hide the sidebar, toolbar, minimap and gutters. The text, its beats and its AI drafts stay, and the book bar fades until you point at it. Codex keeps saving. Press `Esc` to leave Focus.
 
-<Shot name="ui-write-focus" alt="Write in Focus with chapter 1 scoped, narrow indented text and the bar faded." />
+<Shot name="ui-write-focus" alt="Write in Focus with chapter 1 scoped, narrow indented text and the book bar faded." />
 
 <Shot name="ui-write-focus-left" alt="Write after Esc, with the sidebar and minimap back and the scope set to Full manuscript." />
 
 ## Find and replace
 
-Type in Find in manuscript to mark every match in the text on screen. The count shows how many. Press `Enter` for the next match and `Shift+Enter` for the previous one. Press `Esc` to clear the search. Find does not search summaries or beats, and it is not in Focus.
+Type in Find in manuscript to mark every match in the prose, beats and AI drafts of the scope. The count shows how many. Press `Enter` for the next match and `Shift+Enter` for the previous one. Press `Esc` to clear the search. Find does not search summaries, and the toolbar that holds it is hidden in Focus.
 
-<Shot name="ui-write-find" alt="The word Tobias searched for, with the matches marked and the count shown as 1 of N." />
+<Shot name="ui-write-find" alt="Tobias in Find at 1 of 3, with the word marked in scene 1.2 and in its beat." />
 
-To replace, type the text in Find, then select Replace and type the new text. Search in has Prose, Summaries and Beat instructions. Prose is on by default. Match case, Whole word and Include archived scenes are off. The panel counts matches across the scope, including chapters that are not on screen, and lists up to 50 of them.
+To replace, type the text in Find, then select Replace and type the new text. Search in has Prose, Summaries and Beat instructions. Prose is on by default. Match case, Whole word and Include archived scenes are off. The panel counts matches across the scope, including chapters that are not on screen, and lists up to 50 of them. With only Prose on, the panel leaves out beats, so its count can be lower than the count in Find.
 
 <Shot name="ui-write-replace" alt="The Replace panel with Tobias in Find, Toby in Replace with, and the matches listed." />
 
-Select a match and then Replace to change that one, or Replace all to change every one that can change. Codex does not change a passage inside a cited quote or paraphrase, and it does not change a match that spans a link. Those matches say `Locked: inside a cited passage` or `Locked: spans a link`. A match in a pending AI draft is counted and left alone. A mention keeps its link when you change its text, and the Knowledge base entry keeps its name. A toast reports what changed, for example `Replaced 3 in 2 scenes`, and offers Undo, which takes back the whole Replace all as one action. If some text cannot be saved first, the toast says `Some text could not be saved, so nothing was replaced.`
+Select a match and then Replace to change that one, or Replace all to change every one that can change. Codex does not change a passage inside a cited quote or paraphrase, and it does not change a match that spans a link. Those matches say `Locked: inside a cited passage` or `Locked: spans a link`. A match in a pending AI draft stays as it is, and the panel says, for example, `1 in a pending draft. Replace all skips them.` A mention keeps its link when you change its text, and the Knowledge base entry keeps its name. A toast reports what changed, for example `Replaced 3 in 2 scenes`, and offers Undo, which takes back the whole Replace all as one action. If some text cannot be saved first, the toast says `Some text could not be saved, so nothing was replaced.`
 
 <Shot name="ui-write-replace-locked" alt="The Replace panel with midnight in Find, and the match inside the cited quote in scene 1.1 marked Locked: inside a cited passage." />
 
-<Shot name="ui-write-replaced" alt="The toast Replaced after Replace all, with Undo." />
+<Shot name="ui-write-replaced" alt="The toast Replaced 2 in 2 scenes after Replace all, with Undo." />
+
+<Shot name="ui-write-replaced-one" alt="Scene 1.2 reads Toby Venn after Replace on one match, with the toast Replaced 1 in 1 scene and the chapter 4 match still listed." />
+
+<Shot name="ui-write-replace-draft" alt="The Replace panel with turned slowly in Find and the note 1 in a pending draft. Replace all skips them." />
 
 <Shot name="ui-write-replace-undone" alt="The Replace panel after Undo, with the matches back." />
 
@@ -83,7 +87,7 @@ Every scene keeps its history. To see it, point at a scene's heading in the gutt
 
 <Shot name="ui-write-history" alt="Version history for scene 1.2 listing Edited with the Current tag, AI draft applied and an earlier Edited version." />
 
-Select a version to compare it with the text now. Words only in the current text are marked, and words only in the version are struck through. The counter reads, for example, `−7 words`. To restore a version, select Restore this version and then Restore. The prompt says `Replaces the current text with the version from 14:02. The current text stays in history.` A toast says `Restored the version from 14:02.` and offers Undo. A restore adds a new row, so nothing is lost. Restore this version is dimmed on a version that holds the text you have now. Esc, or the close button, closes the panel. Up and Down move between versions.
+Select a version to compare it with the text now. Codex marks words only in the current text and strikes through words only in the version. The counter reads, for example, `−7 words`. To restore a version, select Restore this version and then Restore. The prompt says `Replaces the current text with the version from 14:02. The current text stays in history.` A toast says `Restored the version from 14:02.` and offers Undo. A restore adds a new row, so nothing is lost. On a version that holds the text you have now, Restore this version does nothing. On the Current row the panel also says `This is the current version`. Esc, or the close button, closes the panel. Up and Down move between versions.
 
 <Shot name="ui-write-history-compare" alt="A version selected in Version history, with the words only in the current text marked and the word counter." />
 
@@ -91,31 +95,33 @@ Select a version to compare it with the text now. Words only in the current text
 
 <Shot name="ui-write-history-restored" alt="Version history after a restore, with a new Restored row and the toast offering Undo." />
 
+<Shot name="ui-write-history-undone" alt="Version history after Undo, with a second Restored row holding the text from before the restore." />
+
 An archived scene's history is read-only. With the View or Comment role you can read history but not restore. If the scene changed elsewhere since you loaded it, the panel says `Updated elsewhere. Restoring now replaces that text; it stays in history.`
 
 ## When a save fails
 
 Your text stays in the editor while a save fails.
 
-If the server refuses a save, the bar says `Unsaved · Retry`. Select Retry to send the text again.
+If the server refuses a save, the book bar says `Unsaved · Retry`. Select Retry to send the text again.
 
-<Shot name="ui-write-failed-save" alt="The bar reading Unsaved with a Retry button after the server refused a save." />
+<Shot name="ui-write-failed-save" alt="The book bar reading Unsaved with a Retry button after the server refused a save." />
 
-<Shot name="ui-write-failed-save-retried" alt="The bar reading Saved after Retry." />
+<Shot name="ui-write-failed-save-retried" alt="The book bar reading Saved after Retry." />
 
-If your browser is offline, the bar says `Offline · 1 change waiting`, and Codex also keeps the text in your browser. The edit saves by itself when the connection returns.
+If your browser is offline, the book bar says `Offline · 1 change waiting`, and Codex also keeps the text in your browser. The edit saves by itself when the connection returns.
 
-<Shot name="ui-write-offline" alt="The bar reading Offline · 1 change waiting while the typed text stays in the scene." />
+<Shot name="ui-write-offline" alt="The book bar reading Offline · 1 change waiting while the typed text stays in the scene." />
 
-<Shot name="ui-write-offline-back" alt="The bar reading Saved after the connection returned." />
+<Shot name="ui-write-offline-back" alt="The book bar reading Saved after the connection returned." />
 
-Closing the tab or following a link inside Codex while an edit is stuck asks first with `You have changes that are not saved`. Choose to stay and the editor stays as it was.
+Following a link inside Codex while an edit is stuck asks first with `You have changes that are not saved. Leave anyway?`. Closing the tab shows your browser's own prompt. Choose to stay and the editor stays as it was.
 
 ## Updated elsewhere
 
-If another tab or person saves a scene you have open, the bar says `Updated elsewhere` with a Reload button. Select Reload to show the saved text.
+If another tab or person saves a scene you have open, the book bar says `Updated elsewhere` with a Reload button. Select Reload to show the saved text.
 
-<Shot name="ui-write-updated-elsewhere" alt="The bar reading Updated elsewhere with a Reload button." />
+<Shot name="ui-write-updated-elsewhere" alt="The book bar reading Updated elsewhere with a Reload button." />
 
 <Shot name="ui-write-reloaded" alt="The scene after Reload, showing the text saved in the other tab." />
 
