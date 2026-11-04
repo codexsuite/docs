@@ -16,6 +16,16 @@ async function waitFor(page: Page, testId: string): Promise<void> {
   await page.getByTestId(testId).first().waitFor();
 }
 
+/** Dismisses every message so a shot shows only the message of its own step. */
+async function clearToasts(page: Page): Promise<void> {
+  const dismiss = page.getByTestId("editing-toast-dismiss");
+  while (await dismiss.count()) await dismiss.first().click();
+}
+
+async function saved(page: Page): Promise<void> {
+  await page.locator("[data-testid='editing-save-status'][data-state='saved']").waitFor();
+}
+
 /** Opens the Archive card and clicks Archive, then waits for the dialog. */
 async function openArchiveDialog(page: Page): Promise<void> {
   await card(page, "archive");
@@ -30,6 +40,17 @@ async function archiveBook(page: Page): Promise<void> {
   await page.getByTestId("settings-archived-bar").scrollIntoViewIfNeeded();
 }
 
+/** Archives the book, then opens the permanent delete dialog from its row in the Library and types the title. */
+async function openDeleteDialog(page: Page, ctx: SeedResult): Promise<void> {
+  await archiveBook(page);
+  const id = ctx.bookIds.saltAndSignal;
+  await page.goto("/?status=archived");
+  await page.getByTestId(`library-book-menu-${id}`).click();
+  await page.getByTestId(`library-delete-book-${id}`).click();
+  await waitFor(page, "library-delete-book-impact");
+  await page.getByTestId("library-delete-book-title").fill("Salt and Signal");
+}
+
 export const shots: ShotSpec[] = [
   { name: "ui-book-settings-overview", route: base, steps: (page) => card(page, "book") },
   {
@@ -42,7 +63,8 @@ export const shots: ShotSpec[] = [
       await page.keyboard.type("Plain words. Past tense. British spelling. Name Edith Marrow in full on first mention.");
       await page.getByTestId("settings-style-guide-words").waitFor();
       await page.getByTestId("settings-title").focus();
-      await page.locator("[data-testid='editing-save-status'][data-state='saved']").waitFor();
+      await saved(page);
+      await card(page, "writing");
     },
   },
   { name: "ui-book-settings-citations", route: at("citations"), steps: (page) => card(page, "citations") },
@@ -55,6 +77,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("settings-quote-limit").blur();
       await page.locator("[data-testid='settings-impact'][data-limit='400']").waitFor();
       await waitFor(page, "settings-quote-limit-reset");
+      await saved(page);
     },
   },
   {
@@ -89,6 +112,21 @@ export const shots: ShotSpec[] = [
       await card(page, "archive");
       await page.locator("[data-testid^='settings-snapshot-download-']").first().waitFor(longWait);
       await page.getByTestId("settings-snapshots").scrollIntoViewIfNeeded();
+      await saved(page);
+    },
+  },
+  {
+    name: "ui-book-settings-status-back",
+    route: base,
+    mask: ["[data-testid='settings-section-archive']"],
+    steps: async (page) => {
+      await card(page, "book");
+      await page.getByTestId("settings-status-published").click();
+      await page.getByTestId("settings-publish-confirm").click();
+      await page.getByTestId("settings-publish-dialog").waitFor({ state: "hidden" });
+      await page.getByTestId("settings-status-revising").click();
+      await page.locator("[data-testid='settings-status-revising'][aria-pressed='true']").waitFor();
+      await saved(page);
     },
   },
   { name: "ui-book-settings-archive", route: at("archive"), steps: openArchiveDialog },
@@ -105,6 +143,22 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("settings-restore").click();
       await page.getByTestId("settings-archived-bar").waitFor({ state: "detached" });
       await page.getByTestId("settings-archive").waitFor();
+      await clearToasts(page);
+      await card(page, "archive");
+    },
+  },
+  {
+    name: "ui-book-settings-delete",
+    route: at("archive"),
+    steps: async (page, ctx) => openDeleteDialog(page, ctx),
+  },
+  {
+    name: "ui-book-settings-deleted",
+    route: at("archive"),
+    steps: async (page, ctx) => {
+      await openDeleteDialog(page, ctx);
+      await page.getByTestId("library-delete-book-confirm").click();
+      await page.getByTestId("library-delete-book-dialog").waitFor({ state: "hidden" });
     },
   },
   {
@@ -114,6 +168,26 @@ export const shots: ShotSpec[] = [
       await card(page, "archive");
       await page.getByTestId("settings-duplicate").click();
       await waitFor(page, "settings-duplicate-dialog");
+    },
+  },
+  {
+    name: "ui-book-settings-edition",
+    route: at("archive"),
+    steps: async (page) => {
+      await card(page, "archive");
+      await page.getByTestId("settings-new-edition").click();
+      await waitFor(page, "settings-duplicate-dialog");
+    },
+  },
+  {
+    name: "ui-book-settings-edition-done",
+    route: at("archive"),
+    steps: async (page) => {
+      await card(page, "archive");
+      await page.getByTestId("settings-new-edition").click();
+      await page.getByTestId("settings-duplicate-confirm").click();
+      await waitFor(page, "settings-duplicate-done");
+      await page.getByTestId("settings-duplicate-done").scrollIntoViewIfNeeded();
     },
   },
   {

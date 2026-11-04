@@ -11,19 +11,19 @@ Sharing lets other people open your book. You give each person one of three role
 
 <Shot name="ui-sharing-overview" alt="The Sharing card of Salt and Signal with the owner and Ines Calloway, who can view." />
 
-The card lists the owner first, marked Owner. Under the owner come the people you shared the book with, each with an email address and a role. The owner row cannot be changed or removed. A number beside Sharing in the left list counts the people besides the owner.
+The card lists the owner first, marked Owner. Under the owner come the people you shared the book with, each with an email address and a role. You cannot change or remove the owner row. A number beside Sharing in the left list counts the people besides the owner.
 
 ## What each role can do
 
 | Role | What the person can do |
 | --- | --- |
 | Can view | Opens every tab of the book, read-only. |
-| Can comment | Opens every tab of the book, read-only. Codex has no comment tools yet, so this role does the same as Can view. |
+| Can comment | Opens every tab of the book, read-only. The card's legend says this role adds comments, but Codex has no comment tools, so it does the same as Can view. |
 | Can edit | Changes the text, plan, Knowledge base, References and settings. |
 
-Only the owner can share, move, duplicate, publish or archive the book. A person with Can edit sees these actions turned off, with a note that the owner owns them.
+Only the owner can share, move, duplicate, publish or archive the book. A person with Can edit finds Duplicate, Start a new edition, Published, Archive and the Series controls turned off, and sees no controls on the Sharing card.
 
-A person you shared a book with sees it in their [Library](/ui/library/) with a chip: View only, Comment only or Edit. Inside the book, a View only or Comment only chip sits in the top bar. Typing and changes are turned off.
+A person you shared a book with sees it in their [Library](/ui/library/) with a chip: View only, Comment or Edit. Inside the book, a View only or Comment only chip appears in the top bar, and the person cannot type or change anything.
 
 ## Share a book with someone
 
@@ -46,11 +46,11 @@ Pressing Enter in the email field also adds the person.
 
 ## Change a role or remove someone
 
-To change a role, open the role list on the person's row and choose another. The change saves at once, and a message reads, for example, `Ines Calloway can now edit Salt and Signal`.
+To change a role, open the role list on the person's row and choose another. The change saves at once, and a message reads, for example, `Ines Calloway can now edit Salt and Signal`. Each message has an Undo link.
 
 <Shot name="ui-sharing-role" alt="The Sharing card with Ines Calloway's role changed to Can edit and the confirmation message." />
 
-To remove someone, select Remove on their row. The message reads `Removed Ines Calloway. Their open tabs go back to Library.`
+To remove someone, select Remove on their row. The message reads `Removed Ines Calloway. Their open tabs go back to Library.` Each message has an Undo link.
 
 <Shot name="ui-sharing-removed" alt="The Sharing card after Ines Calloway is removed, with the message that her open tabs go back to Library." />
 
@@ -62,18 +62,18 @@ When a book belongs to a series, the card has two lists. The first is for this b
 
 <Shot name="ui-sharing-series" alt="The Sharing card with Ines Calloway added to every book in Working Coasts as Can comment." />
 
-A person's roles combine, and the higher one wins. The row shows the other role in grey, for example `Can view through the series`. If a person already has a role through the series, a grant on one book can only raise it. The card says `<name> has Can view through <series> already. Pick a higher role for this book.` If the person can already edit the series, the card says so and adds nothing.
+A person with two roles gets the higher one. The row shows the other role in grey, for example `Can comment through the series`. If a person already has a role through the series, a grant on one book can only raise it. The card says `<name> has Can view through <series> already. Pick a higher role for this book.` If the person can already edit the series, the card says so and adds nothing.
 
 ## When you archive or move the book
 
 Archiving a book removes the access of everyone you shared it with directly. Restoring the book does not share it again. The Archive dialog names the people who lose access. People with access through the series keep it. See [Book settings](/ui/book-settings/#archive-and-export).
 
-Moving a book into or out of a series changes who can open it. The move dialog lists the people who gain or lose access. See [Series](/ui/series/).
+Moving a book into or out of a series changes who can open it. The Review move dialog says how many people gain or lose access. See [Series](/ui/series/).
 
 ## What a shared person sees
 
-A person with View only or Comment only reads the Sharing card without the controls. Each role shows as text, and the card says `Only <owner>, the owner, can change this.`
+Anyone but the owner reads the Sharing card without the controls. Each role shows as text, email addresses do not show, and the card says `Only <owner>, the owner, can change this.`
 
 <Shot name="ui-sharing-viewer" alt="The Sharing card as Ines Calloway sees it, with roles as text and no Add or Remove controls." />
 
-The rest of Book settings is read-only for that person too. See [Book settings](/ui/book-settings/#when-the-book-is-shared-with-you).
+For a person with Can view or Can comment, the rest of Book settings is read-only too. See [Book settings](/ui/book-settings/#when-the-book-is-shared-with-you).

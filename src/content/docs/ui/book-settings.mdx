@@ -7,7 +7,7 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-Book settings holds everything about one book that is not its text: the title and status, the Writing style guide, citation rules, print template, sharing, copies, exports and archiving. Changes save as you make them, and the top bar shows Saved or Unsaved. The screen is at `/books/<id>/settings`. To open it, select the settings icon in the book's top bar.
+Use Book settings to change one book's title, status, style guide, citation rules, print template and sharing. You also copy, export and archive the book here. Changes save as you make them, and the top bar shows Saved or Unsaved. The screen is at `/books/<id>/settings`. To open it, select the settings icon in the book's top bar.
 
 <Shot name="ui-book-settings-overview" alt="The Book settings screen of Salt and Signal with the Book card and the section list on the left." />
 
@@ -19,35 +19,39 @@ Edit the Title, the Author as it prints on the cover, title page and permission 
 
 ### Publish a book
 
-Select Published in Status. Only the owner can. The dialog shows the word count and how many sources are at risk. At-risk sources do not stop you from publishing, but they keep Export for printer blocked. Select Mark as published. Codex saves a snapshot of the book, a source export that appears under Snapshots in Archive & export. A book with no chapters says `Nothing to publish. Add a chapter first.` Published does not lock editing, and you can set another status later.
+Select Published in Status. Only the owner can publish. The dialog shows the word count and how many sources are at risk. At-risk sources do not stop you from publishing, but they keep Export for printer blocked. Select Mark as published. Codex saves a snapshot of the book, a source export that appears under Snapshots in Archive & export. If the book has no chapters, the dialog says `Nothing to publish. Add a chapter first.` Published does not lock editing, and you can set another status later.
 
 <Shot name="ui-book-settings-publish" alt="The Mark Salt and Signal as published dialog with the word count and the sources at risk." />
 
 <Shot name="ui-book-settings-published" alt="The Archive and export card with one Published snapshot and its Download link." />
 
+<Shot name="ui-book-settings-status-back" alt="The Book card with Revising chosen after the book was published." />
+
 ## Series
 
-This section puts the book in a series, takes it out and sets its number. See [Series](/ui/series/#add-an-existing-book-or-take-one-out). The Series screen has no setting that shares a style guide or publication settings, so set those on each book.
+Use this section to put the book in a series, take it out or set its number. Only the owner can. See [Series](/ui/series/#add-an-existing-book-or-take-one-out). The Series screen has no setting that shares a style guide or publication settings, so set those on each book.
 
 ## Writing
 
-The style guide is Markdown that Codex sends with every AI draft from this book, together with the beat, its context and the scene so far. Write voice, tense, point of view, spelling and words to avoid. A word count sits below it. Keep it short, because it counts against the model's context. It does not change text you already wrote.
+The style guide is Markdown that Codex sends with every AI draft from this book, together with the beat, its context and the scene so far. Write voice, tense, point of view, spelling and words to avoid. A word count appears below it. Keep it short, because it counts against the model's context. It does not change text you already wrote.
 
 <Shot name="ui-book-settings-writing" alt="The Writing card with a short style guide for Salt and Signal typed in." />
 
 ## Citations and rules
 
-Choose a Citation style: Chicago, APA or Harvard. An example shows how each formats a source. The style drives the bibliography, the citation in each source's panel and print. Changing it updates every citation and leaves your text alone.
+Choose a Citation style: Chicago, APA or Harvard. An example shows how each formats a source. Codex uses the style in the bibliography, in the citation in each source's panel and in print. Changing it updates every citation and does not change your text.
 
 <Shot name="ui-book-settings-citations" alt="The Citations and permissions card with the citation style buttons and an example." />
 
-Under Publisher rules, Quoted prose sets how many words from one source you may quote without permission. Codex rechecks every source in the book when you change it, and changing it back undoes it. A strip shows each quoted source against the limit and says how many sources are at copyright risk. Select Reset to restore the default. Song lyrics and poems always need permission, and figures and images need it unless the licence allows reuse. Those two rules are fixed.
+Under Publisher rules, Quoted prose sets how many words from one source you may quote without permission. Codex rechecks every source in the book when you change it, and changing it back undoes it. A strip shows each quoted source against the limit and says how many sources are at copyright risk. Select Reset to restore the default. Song lyrics and poems need permission at any length, unless the licence allows reuse or the work is in the public domain. Figures, tables and images need permission unless the licence allows reuse. You cannot change those two rules.
+
+In a book in a series, each value shows a Series chip. When you change a value, the chip reads This book. Select its × to go back to the series value.
 
 <Shot name="ui-book-settings-rules" alt="The Quoted prose limit set to 400 words, with the strip reading No sources at risk and a Reset to 300 button." />
 
 ## Letters
 
-Permission letters use the Publisher, Publication year, Formats, First print run and Territory and language. Fill them in so the letter reads right. A preview, Letters will say, shows the wording with missing values highlighted. Requests you already sent keep the wording they had. See [References](/ui/references/#ask-for-permission).
+Permission letters use the Publisher, Publication year, Formats, First print run and Territory and language. Fill them in before you draft a permission request. A preview, Letters will say, shows the wording with missing values highlighted. Requests you already sent keep the wording they had. See [References](/ui/references/#ask-for-permission).
 
 <Shot name="ui-book-settings-letters" alt="The Permission letters fields and the Letters will say preview with missing values highlighted." />
 
@@ -59,7 +63,7 @@ Layout & print shows the template and trim size the book uses. Change the templa
 
 ## Sharing
 
-Add people, set roles and remove them here. See [Sharing a book](/ui/sharing/).
+Add and remove people and set their roles here. See [Sharing a book](/ui/sharing/).
 
 ## Archive and export
 
@@ -71,9 +75,13 @@ Duplicate makes a new book with this one's structure, prose, beats, Knowledge ba
 
 <Shot name="ui-book-settings-duplicated" alt="The Archive and export card with the link to the new copy under the Duplicate button." />
 
+<Shot name="ui-book-settings-edition" alt="The Start a new edition dialog with the title Salt and Signal (2nd edition)." />
+
+<Shot name="ui-book-settings-edition-done" alt="The Archive and export card with the link to Salt and Signal (2nd edition) under the Duplicate button." />
+
 ### Export a manuscript
 
-Export manuscript makes a Word, Markdown or EPUB copy for an editor or beta reader. It is not for print. Choose the format, then the scope, the full manuscript or one chapter. Include beats and Include summaries are off by default. If sources are at risk, the dialog says so and still exports. A book with no chapters says `Nothing to export. This book has no chapters.` One export of each format runs at a time. Select Export. A row under the button shows Queued, Running, then Done with a Download link. A failed row shows its error and a Retry button. For the full steps, see [Back up a book](/start/guides/back-up/).
+Export manuscript makes a Word, Markdown or EPUB copy for an editor or beta reader. It is not for print. Choose the format, then the scope, the full manuscript or one chapter. Include beats and Include summaries are off by default. If sources are at risk, the dialog says so and still exports. If the book has no chapters, the dialog says `Nothing to export. This book has no chapters.` One export of each format runs at a time. Select Export. A row under the button shows Queued, Running, then Done with a Download link. A failed row shows its error and a Retry button. For the full steps, see [Back up a book](/start/guides/back-up/).
 
 <Shot name="ui-book-settings-manuscript" alt="The Export manuscript dialog with the Word format chosen and the sources at risk note." />
 
@@ -81,17 +89,21 @@ Export manuscript makes a Word, Markdown or EPUB copy for an editor or beta read
 
 ### Back up a book
 
-Export .zip makes a backup: Markdown with one file per scene, plus the Knowledge base, References and labels as JSON. Pending AI drafts and images are not in it. When the job finishes, a status line, Download link and a note on what the file left out appear. Import the file from Library, then Import, then Codex backup. See [Back up a book](/start/guides/back-up/).
+Export .zip makes a backup: Markdown with one file per scene, plus the Knowledge base, References and labels as JSON. Pending AI drafts and images are not in it. When the job finishes, the row shows `Export succeeded.`, a Download link and a note on what the backup leaves out. Import the file from Library, then Import, then Codex backup. See [Back up a book](/start/guides/back-up/).
 
 <Shot name="ui-book-settings-backup-done" alt="The Export source row with the Export succeeded status, the Download link and the left-out note." />
 
 ### Archive a book
 
-Archive hides the book from Library and the command palette. Nothing is deleted, and the book keeps its number in its series. Only the owner can archive. The dialog names anyone who loses access, because archiving removes direct shares and Restore does not bring them back.
+Archive hides the book from Library and the command palette. Codex deletes nothing, and the book keeps its number in its series. Only the owner can archive. The dialog names anyone who loses access, because archiving removes direct shares and Restore does not bring them back.
 
 <Shot name="ui-book-settings-archive" alt="The Archive Salt and Signal dialog with the note that Ines Calloway loses access." />
 
-After you archive, a bar reads `This book is archived: hidden from Library and the palette. Nothing was deleted.` Select Restore in the bar, or Undo in the message, to bring it back. You can also restore it from the Archived status in the [Library](/ui/library/#archived-books), where you can delete an archived book for good.
+After you archive, a bar reads `This book is archived: hidden from Library and the palette. Nothing was deleted.` Select Restore in the bar, or Undo in the message, to bring it back. You can also restore it from the Archived status in the [Library](/ui/library/#archived-books), where you can delete an archived book for good. To delete it, open the menu on its row, select Delete permanently, type the title and select Delete.
+
+<Shot name="ui-book-settings-delete" alt="The Delete Salt and Signal permanently dialog with what goes with the book and the title typed in." />
+
+<Shot name="ui-book-settings-deleted" alt="The Library's Archived list with the message Salt and Signal deleted." />
 
 <Shot name="ui-book-settings-archived" alt="The archived bar at the top of the Archive and export card with its Restore button." />
 
@@ -99,6 +111,6 @@ After you archive, a bar reads `This book is archived: hidden from Library and t
 
 ## When the book is shared with you
 
-If the owner shared the book with you as Can view or Can comment, every field is turned off. A note at the top reads `View only. <owner> shared <book> with you to read. These are its settings as they are now; ask <owner> for edit access to change them.` With Can edit you change everything except the owner-only actions: publish, duplicate, new edition and archive.
+If the owner shared the book with you as Can view or Can comment, you cannot change any field. With Can view, a note at the top reads `View only. <owner> shared <book> with you to read. These are its settings as they are now; ask <owner> for edit access to change them.` With Can comment, the note starts `Comment only.` and says `to read and comment on`. With Can edit, you can change the fields, but you cannot publish the book or take it out of Published, move it, change its number, share it, duplicate it, start a new edition, archive it or restore it.
 
 <Shot name="ui-book-settings-viewer" alt="Book settings as Ines Calloway sees it, with the View only note and every field turned off." />
