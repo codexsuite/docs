@@ -439,11 +439,12 @@ export const shots: ShotSpec[] = [
       await insertChapterLink(page, ctx);
       await moveSecondChapterLeft(page, ctx);
       await page.goto(writeRoute(ctx));
-      await page
+      const link = page
         .getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`)
         .getByTestId("write-chapter-ref")
-        .filter({ hasText: "§ Chapter 1" })
-        .waitFor();
+        .filter({ hasText: "§ Chapter 1" });
+      await link.first().waitFor();
+      await link.first().scrollIntoViewIfNeeded();
     },
   },
   {
