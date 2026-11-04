@@ -61,6 +61,7 @@ export const shots: ShotSpec[] = [
   {
     name: "work-drafting-sent",
     route: writeRoute,
+    mask: ["[data-testid^='write-draft-text-']", "[data-testid^='write-draft-meta-']", "[data-testid^='write-draft-sent-popover-']"],
     steps: async (page, ctx) => {
       await openDraft(page, ctx);
       await addTobiasVenn(page, ctx);
