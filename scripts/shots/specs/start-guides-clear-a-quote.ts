@@ -60,14 +60,9 @@ export const shots: ShotSpec[] = [
     name: "start-guides-clear-a-quote-count",
     route: sourceRoute,
     steps: async (page, ctx) => {
-      await openSource(page, ctx);
+      await withdrawDraft(page, ctx);
       await page.getByTestId("refs-verdict-reason").filter({ hasText: "Quoted prose" }).waitFor();
     },
-  },
-  {
-    name: "start-guides-clear-a-quote-ask",
-    route: sourceRoute,
-    steps: withdrawDraft,
   },
   {
     name: "start-guides-clear-a-quote-letter",
