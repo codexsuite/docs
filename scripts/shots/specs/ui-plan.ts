@@ -43,6 +43,48 @@ async function dragChapterOverFirst(page: Page, ctx: SeedResult): Promise<void> 
 const headingOf = (page: Page, chapterId: string, text: string) =>
   chapterOf(page, chapterId).getByTestId("plan-chapter-heading").filter({ hasText: text });
 
+const writeRoute = (ctx: SeedResult) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.1`;
+
+/** In Write, puts a link to the second chapter at the start of scene 1.1 and waits until the server has it. */
+async function insertChapterLink(page: Page, ctx: SeedResult): Promise<void> {
+  await page.goto(writeRoute(ctx));
+  const editor = page.getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`).getByTestId("prose-editor");
+  await editor.waitFor();
+  await editor.click({ position: { x: 12, y: 8 } });
+  await editor.evaluate((element) => {
+    window.getSelection()?.collapse(element.firstElementChild, 0);
+    document.dispatchEvent(new Event("selectionchange"));
+  });
+  await page.keyboard.type("See /chapter");
+  await page.getByTestId("prose-slash-item-chapter-reference").click();
+  await page.getByTestId("write-chapter-picker").waitFor();
+  await page.getByTestId(`write-chapter-picker-${ctx.chapterIds["2"]}`).click();
+  await page.getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`).getByTestId("write-chapter-ref").first().waitFor();
+  await page.getByTestId("write-manuscript").focus();
+  await page.waitForFunction(
+    () => document.querySelector("[data-testid='editing-save-status']")?.getAttribute("data-state") === "saved",
+  );
+}
+
+/** On the Plan, moves the second chapter before the first with Alt and Left and waits for the write. */
+async function moveSecondChapterLeft(page: Page, ctx: SeedResult): Promise<void> {
+  await page.goto(planRoute(ctx));
+  await page.getByTestId(`plan-chapter-${ctx.chapterIds["2"]}`).waitFor();
+  const moving = ctx.chapterIds["2"];
+  await chapterOf(page, moving).hover();
+  await page.getByTestId(`plan-grip-chapter-${moving}`).focus();
+  const saved = page.waitForResponse(isPositionWrite);
+  await page.keyboard.press("Alt+ArrowLeft");
+  await saved;
+}
+
+async function deleteChapter(page: Page, id: string): Promise<void> {
+  await chapterOf(page, id).hover();
+  await page.getByTestId(`plan-chapter-more-${id}`).click();
+  await page.getByTestId(`plan-chapter-delete-${id}`).click();
+  await chapterOf(page, id).waitFor({ state: "detached" });
+}
+
 export const shots: ShotSpec[] = [
   {
     name: "ui-plan-overview",
@@ -261,7 +303,7 @@ export const shots: ShotSpec[] = [
       await page.keyboard.press("Alt+ArrowDown");
       await saved;
       await page.getByTestId(`plan-act-${ctx.actIds["The Keepers"]}`).getByTestId(`plan-chapter-${moving}`).waitFor();
-      await chapterOf(page, moving).hover();
+      await chapterOf(page, moving).getByTestId("plan-chapter-heading").hover();
     },
   },
   {
@@ -388,6 +430,72 @@ export const shots: ShotSpec[] = [
       await openBoard(page, ctx);
       await page.getByTestId("plan-label-filter").click();
       await page.getByTestId("plan-label-filter-panel").waitFor();
+    },
+  },
+  {
+    name: "ui-plan-moved-chapter-link",
+    route: writeRoute,
+    steps: async (page, ctx) => {
+      await insertChapterLink(page, ctx);
+      await moveSecondChapterLeft(page, ctx);
+      await page.goto(writeRoute(ctx));
+      await page
+        .getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`)
+        .getByTestId("write-chapter-ref")
+        .filter({ hasText: "§ Chapter 1" })
+        .waitFor();
+    },
+  },
+  {
+    name: "ui-plan-split-scene",
+    route: planRoute,
+    steps: async (page, ctx) => {
+      const scene = ctx.sceneIds["2.1"];
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=2.1`);
+      const editor = page.getByTestId(`write-scene-${scene}`).getByTestId("prose-editor");
+      await editor.waitFor();
+      await editor.locator("p").first().click();
+      await page.keyboard.press("Home");
+      const split = page.waitForResponse(
+        (response) => response.request().method() === "POST" && response.url().includes(`/api/scenes/${scene}/split`),
+      );
+      await page.keyboard.type("/split");
+      await page.getByTestId("prose-slash-item-new-scene-from-here").click();
+      await split;
+      await page.goto(planRoute(ctx));
+      await page.getByTestId(`plan-chapter-${ctx.chapterIds["2"]}`).waitFor();
+      await chapterOf(page, ctx.chapterIds["2"]).locator("[data-testid^='plan-scene-title-']").nth(2).waitFor();
+    },
+  },
+  {
+    name: "ui-plan-archived-not-cited",
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/references`,
+    steps: async (page, ctx) => {
+      await openBoard(page, ctx);
+      await openSceneMenu(page, ctx, "2.1");
+      await page.getByTestId(`plan-scene-archive-${ctx.sceneIds["2.1"]}`).click();
+      await page.getByText("Archived (1)").waitFor();
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/references`);
+      await page.getByText("Signals at Sea").first().waitFor();
+      await page.getByText("Not cited").first().waitFor();
+    },
+  },
+  {
+    name: "ui-plan-archived-chapter-link",
+    route: planRoute,
+    steps: async (page, ctx) => {
+      await insertChapterLink(page, ctx);
+      await page.goto(planRoute(ctx));
+      await page.getByTestId(`plan-chapter-${ctx.chapterIds["2"]}`).waitFor();
+      await deleteChapter(page, ctx.chapterIds["2"]);
+      await page.goto(writeRoute(ctx));
+      const link = page
+        .getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`)
+        .getByTestId("write-chapter-ref")
+        .filter({ hasText: "Oil and Brass" });
+      await link.first().waitFor();
+      await link.first().click();
+      await page.getByTestId("plan-archived-list").waitFor();
     },
   },
 ];
