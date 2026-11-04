@@ -108,6 +108,8 @@ async function openSource(page: Page, ctx: SeedResult, title: string): Promise<v
 async function openWithExtrasSource(page: Page, ctx: SeedResult, title: string): Promise<void> {
   await addExtras(page, ctx);
   await openSource(page, ctx, title);
+  await page.reload();
+  await page.getByTestId("refs-verdict-status").waitFor();
 }
 
 async function openAdd(page: Page, ctx: SeedResult): Promise<void> {
@@ -125,7 +127,7 @@ async function openFlags(page: Page, ctx: SeedResult): Promise<void> {
 const csl = JSON.stringify([
   { type: "book", title: "Lamps and Lenses", author: [{ family: "Venn", given: "T." }], issued: { "date-parts": [[1962]] }, publisher: "Harbour Press" },
   { type: "book", title: "The Fog Log", author: [{ family: "Marrow", given: "E." }], issued: { "date-parts": [[1971]] }, ISBN: "9780000000002" },
-  { type: "book", title: ledger, author: [{ family: "Penhallow", given: "A." }], issued: { "date-parts": [[1931]] } },
+  { type: "book", title: ledger, author: [{ family: "Penhallow", given: "A." }], issued: { "date-parts": [[1931]] }, ISBN: "9780000000019" },
   { type: "book", author: [{ family: "Nobody", given: "N." }], issued: { "date-parts": [[1980]] } },
 ]);
 
@@ -134,6 +136,16 @@ async function pickImportFile(page: Page): Promise<void> {
   await page.getByTestId("refs-add-import-dialog").waitFor();
   await page.getByTestId("refs-add-import-file").setInputFiles({ name: "library.json", mimeType: "application/json", buffer: Buffer.from(csl) });
   await page.getByTestId("refs-add-import-summary").waitFor();
+  await page.getByTestId("refs-add-import-summary").filter({ hasText: "2 new · 1 already in References · 1 skipped (no title)" }).waitFor();
+}
+
+/** Gives the Ledger an ISBN, so the import file's Ledger item matches it. */
+async function setLedgerIsbn(page: Page, ctx: SeedResult): Promise<void> {
+  await openSource(page, ctx, ledger);
+  const saved = page.waitForResponse((r) => r.request().method() === "PATCH" && r.url().includes("/api/references/"));
+  await page.getByTestId("refs-field-isbn").fill("9780000000019");
+  await page.getByTestId("refs-field-isbn").blur();
+  await saved;
 }
 
 async function markSent(page: Page, ctx: SeedResult): Promise<void> {
@@ -207,6 +219,111 @@ async function openCitePicker(page: Page, ctx: SeedResult): Promise<void> {
   await page.getByTestId("write-cite-picker").waitFor();
 }
 
+/** Adds a copy of the Ledger, opens it and starts the merge. Returns the copy's id. */
+async function mergeSteps(page: Page, ctx: SeedResult): Promise<string> {
+  await addExtras(page, ctx);
+  const copyId = await addSource(page, ctx, "Keepers Ledger (copy)", "public_domain", null);
+  await page.goto(`${referencesRoute(ctx)}#${copyId}`);
+  await page.reload();
+  await page.getByTestId("refs-panel-title").filter({ hasText: "(copy)" }).waitFor();
+  await page.getByTestId("refs-panel-menu").click();
+  await page.getByTestId("refs-panel-menu-merge").click();
+  await page.getByTestId("refs-merge-target").selectOption({ label: "The Keeper's Ledger (1931)" });
+  await page.getByTestId("refs-merge-summary").waitFor();
+  return copyId;
+}
+
+/** Withdraws the seeded draft on Signals at Sea so the source has no request. */
+async function withdrawDraft(page: Page, ctx: SeedResult): Promise<void> {
+  await openSource(page, ctx, signals);
+  await page.getByTestId("refs-perm-withdraw").click();
+  await page.getByTestId("refs-verdict-ask").waitFor();
+}
+
+/** Selects the text from the start of `first` to the end of `last` in an open editor. */
+async function selectInEditor(editor: Locator, first: string, last: string): Promise<void> {
+  await editor.evaluate(
+    (element, [startText, endText]) => {
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+      const nodes: { node: Node; start: number }[] = [];
+      let text = "";
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        nodes.push({ node, start: text.length });
+        text += node.textContent ?? "";
+      }
+      const at = text.indexOf(startText);
+      const lastAt = text.indexOf(endText, Math.max(at, 0));
+      if (at < 0 || lastAt < 0) throw new Error("The text is not in the scene.");
+      const end = lastAt + endText.length;
+      const from = nodes.filter((n) => n.start <= at).pop()!;
+      const to = nodes.find((n) => end <= n.start + (n.node.textContent ?? "").length)!;
+      window.getSelection()!.setBaseAndExtent(from.node, at - from.start, to.node, end - to.start);
+      document.dispatchEvent(new Event("selectionchange"));
+      from.node.parentElement?.scrollIntoView({ block: "center" });
+    },
+    [first, last],
+  );
+}
+
+const quoteStart = "A signal station is judged by what it does";
+const quoteEnd = "in the survey's phrase, no memory.";
+
+/** Withdraws the draft, asks for the paraphrase from the quote's use and generates the draft. Returns the beat id. */
+async function paraphraseDraft(page: Page, ctx: SeedResult): Promise<string> {
+  await withdrawDraft(page, ctx);
+  await page.getByTestId(`refs-use-paraphrase-${ctx.useIds["signalsQuote"]}`).click();
+  const beat = page.locator("[data-testid^='write-beat-body-']").filter({ hasText: "Paraphrase the passage quoted from Signals at Sea" });
+  await beat.waitFor();
+  const beatId = (await beat.first().getAttribute("data-testid"))!.replace("write-beat-body-", "");
+  await page.getByTestId(`write-beat-generate-${beatId}`).click();
+  await page.getByTestId(`write-draft-apply-${beatId}`).waitFor();
+  return beatId;
+}
+
+/** Applies the draft, swaps the quote for a cited paraphrase and waits for Ready to sign off on the source. */
+async function paraphrased(page: Page, ctx: SeedResult): Promise<void> {
+  const beatId = await paraphraseDraft(page, ctx);
+  const draft = await page.getByTestId(`write-draft-text-${beatId}`).innerText();
+  const newText = draft.split(/\n+/).map((line) => line.trim()).filter(Boolean)[0]!;
+  await page.getByTestId(`write-draft-apply-${beatId}`).click();
+  await page.getByTestId(`write-draft-apply-${beatId}`).waitFor({ state: "detached" });
+  await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
+  await page.getByTestId(`write-marker-${ctx.useIds["signalsQuote"]}`).click();
+  await page.getByTestId("write-cite-remove").click();
+  await page.getByTestId(`write-marker-${ctx.useIds["signalsQuote"]}`).waitFor({ state: "detached" });
+  const editor = page.getByTestId(`write-scene-${ctx.sceneIds["2.1"]}`).getByTestId("prose-editor");
+  await editor.click({ position: { x: 12, y: 8 } });
+  await selectInEditor(editor, quoteStart, quoteEnd);
+  await page.keyboard.press("Backspace");
+  await selectInEditor(editor, newText, newText);
+  await page.keyboard.type("/source");
+  await page.getByTestId("prose-slash-item-source-reference").click();
+  const cited = page.waitForResponse((r) => r.request().method() === "POST" && /\/api\/.*cit/.test(new URL(r.url()).pathname));
+  await page.getByTestId(`write-cite-option-${ctx.sourceIds[signals]}`).click();
+  const response = await cited;
+  if (!response.ok()) throw new Error(`The citation answered ${response.status()}.`);
+  await page.locator("[data-testid^='write-marker-']").first().waitFor();
+  await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
+  await page.goto(sourceRoute(ctx, signals));
+  await page.getByTestId("refs-verdict-reason").filter({ hasText: "Ready to sign off" }).waitFor();
+}
+
+/** Gives the Ledger our own address over http and re-checks it. The address redirects to https. */
+async function recheck(page: Page, ctx: SeedResult): Promise<void> {
+  await openSource(page, ctx, ledger);
+  await page.getByTestId("refs-field-url").fill("http://codexsuite.app/");
+  await page.getByTestId("refs-field-url").blur();
+  await page.getByTestId("refs-recheck").click();
+  await page.locator("[data-testid='refs-verify-url'][data-status='redirect']").waitFor();
+}
+
+/** Opens the New source detour from the cite picker. */
+async function openNewSource(page: Page, ctx: SeedResult): Promise<void> {
+  await openCitePicker(page, ctx);
+  await page.getByTestId("write-cite-new-source").click();
+  await page.getByTestId("refs-add-return-note").waitFor();
+}
+
 export const shots: ShotSpec[] = [
   {
     name: "ui-references-overview",
@@ -260,11 +377,42 @@ export const shots: ShotSpec[] = [
     },
   },
   {
+    name: "ui-references-new-source",
+    route: referencesRoute,
+    steps: async (page, ctx) => {
+      await openNewSource(page, ctx);
+      await page.getByTestId("refs-add-manual").click();
+      await page.getByTestId("refs-add-field-title").fill("Fog Signals of the Northern Coast");
+    },
+  },
+  {
+    name: "ui-references-new-source-cited",
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.2`,
+    steps: async (page, ctx) => {
+      await openNewSource(page, ctx);
+      await page.getByTestId("refs-add-manual").click();
+      await page.getByTestId("refs-add-field-title").fill("Fog Signals of the Northern Coast");
+      await page.getByTestId("refs-add-save").click();
+      await page.getByTestId("editing-toast").filter({ hasText: "Cited Fog Signals" }).waitFor();
+    },
+  },
+  {
+    name: "ui-references-use-existing",
+    route: referencesRoute,
+    steps: async (page, ctx) => {
+      await setLedgerIsbn(page, ctx);
+      await openNewSource(page, ctx);
+      await page.getByTestId("refs-add-input").fill("9780000000019");
+      await page.getByTestId("refs-add-lookup").click();
+      await page.getByTestId("refs-add-use-existing").waitFor();
+    },
+  },
+  {
     name: "ui-references-add-lookup",
     route: referencesRoute,
     steps: async (page, ctx) => {
       await openAdd(page, ctx);
-      await page.getByTestId("refs-add-input").fill("10.1038/nature14539");
+      await page.getByTestId("refs-add-input").fill("10.5555/12345678");
     },
   },
   {
@@ -272,10 +420,11 @@ export const shots: ShotSpec[] = [
     route: referencesRoute,
     steps: async (page, ctx) => {
       await openAdd(page, ctx);
-      await page.getByTestId("refs-add-input").fill("10.1038/nature14539");
+      await page.getByTestId("refs-add-input").fill("10.5555/12345678");
       await page.getByTestId("refs-add-lookup").click();
       await page.getByTestId("refs-panel-title").waitFor();
       await page.getByTestId("refs-field-doi").waitFor();
+      await page.getByTestId("refs-field-doi").scrollIntoViewIfNeeded();
     },
   },
   {
@@ -306,6 +455,7 @@ export const shots: ShotSpec[] = [
     name: "ui-references-import-preview",
     route: referencesRoute,
     steps: async (page, ctx) => {
+      await setLedgerIsbn(page, ctx);
       await page.goto(referencesRoute(ctx));
       await pickImportFile(page);
       await page.getByTestId("refs-add-import-skipped").waitFor();
@@ -315,6 +465,7 @@ export const shots: ShotSpec[] = [
     name: "ui-references-imported",
     route: referencesRoute,
     steps: async (page, ctx) => {
+      await setLedgerIsbn(page, ctx);
       await page.goto(referencesRoute(ctx));
       await pickImportFile(page);
       await page.getByTestId("refs-add-import-submit").click();
@@ -338,14 +489,17 @@ export const shots: ShotSpec[] = [
     name: "ui-references-merge",
     route: referencesRoute,
     steps: async (page, ctx) => {
-      await addExtras(page, ctx);
-      const copyId = await addSource(page, ctx, "Keepers Ledger (copy)", "public_domain", null);
-      await page.goto(`${referencesRoute(ctx)}#${copyId}`);
-      await page.getByTestId("refs-panel-title").filter({ hasText: "(copy)" }).waitFor();
-      await page.getByTestId("refs-panel-menu").click();
-      await page.getByTestId("refs-panel-menu-merge").click();
-      await page.getByTestId("refs-merge-target").selectOption({ label: "The Keeper's Ledger (1931)" });
-      await page.getByTestId("refs-merge-summary").waitFor();
+      await mergeSteps(page, ctx);
+    },
+  },
+  {
+    name: "ui-references-merged",
+    route: referencesRoute,
+    steps: async (page, ctx) => {
+      const copyId = await mergeSteps(page, ctx);
+      await page.getByTestId("refs-merge-confirm").click();
+      await page.getByTestId(`refs-row-${copyId}`).waitFor({ state: "detached" });
+      await page.getByTestId("editing-toast").filter({ hasText: "Merged" }).waitFor();
     },
   },
   {
@@ -356,6 +510,37 @@ export const shots: ShotSpec[] = [
       await openSource(page, ctx, ledger);
       await page.getByTestId(`refs-use-kind-${ctx.useIds["ledgerParaphrase"]}`).selectOption("quote");
       await page.locator("[data-testid='refs-verdict-status']").filter({ hasText: "Needs check" }).waitFor();
+      await page.getByTestId(`refs-use-${ctx.useIds["ledgerParaphrase"]}`).scrollIntoViewIfNeeded();
+    },
+  },
+  {
+    name: "ui-references-cleared-again",
+    route: (ctx) => sourceRoute(ctx, ledger),
+    mask: sentMask,
+    steps: async (page, ctx) => {
+      await addExtras(page, ctx);
+      await openSource(page, ctx, ledger);
+      await page.getByTestId(`refs-use-kind-${ctx.useIds["ledgerParaphrase"]}`).selectOption("quote");
+      await page.locator("[data-testid='refs-verdict-status']").filter({ hasText: "Needs check" }).waitFor();
+      await page.getByTestId(`refs-use-${ctx.useIds["ledgerParaphrase"]}`).scrollIntoViewIfNeeded();
+      await page.getByTestId("refs-verdict-action").click();
+      await page.locator("[data-testid='refs-verdict-status']").filter({ hasText: "Cleared" }).waitFor();
+    },
+  },
+  {
+    name: "ui-references-recheck",
+    route: (ctx) => sourceRoute(ctx, ledger),
+    steps: async (page, ctx) => {
+      await recheck(page, ctx);
+    },
+  },
+  {
+    name: "ui-references-recheck-updated",
+    route: (ctx) => sourceRoute(ctx, ledger),
+    steps: async (page, ctx) => {
+      await recheck(page, ctx);
+      await page.getByTestId("refs-update-address-url").click();
+      await page.locator("[data-testid='refs-verify-url'][data-status='ok']").waitFor();
     },
   },
   {
@@ -454,10 +639,35 @@ export const shots: ShotSpec[] = [
     name: "ui-references-over-limit",
     route: (ctx) => sourceRoute(ctx, signals),
     steps: async (page, ctx) => {
-      await openSource(page, ctx, signals);
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=2.1`);
+      await page.getByTestId(`write-marker-${ctx.useIds["signalsQuote"]}`).click();
+      await page.getByTestId("write-marker-card-open").click();
+      await page.getByTestId("refs-panel-title").waitFor();
       await page.getByTestId("refs-perm-withdraw").click();
       await page.getByTestId("refs-verdict-ask").waitFor();
       await page.getByTestId("refs-verdict-reason").filter({ hasText: "Quoted prose" }).waitFor();
+    },
+  },
+  {
+    name: "ui-references-paraphrase-beat",
+    route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=2.1`,
+    steps: async (page, ctx) => {
+      await paraphraseDraft(page, ctx);
+    },
+  },
+  {
+    name: "ui-references-paraphrased",
+    route: (ctx) => sourceRoute(ctx, signals),
+    steps: paraphrased,
+  },
+  {
+    name: "ui-references-paraphrase-cleared",
+    route: (ctx) => sourceRoute(ctx, signals),
+    mask: ["[data-testid='refs-signed-off']", "[data-testid='refs-history']"],
+    steps: async (page, ctx) => {
+      await paraphrased(page, ctx);
+      await page.getByTestId("refs-verdict-action").click();
+      await page.getByTestId("refs-verdict-status").filter({ hasText: "Cleared" }).waitFor();
     },
   },
   {
@@ -471,6 +681,22 @@ export const shots: ShotSpec[] = [
     },
   },
   // J25: permission follow-up.
+  {
+    name: "ui-references-letter",
+    route: (ctx) => sourceRoute(ctx, signals),
+    steps: async (page, ctx) => {
+      await openSource(page, ctx, signals);
+      await page.getByTestId("refs-perm-withdraw").click();
+      await page.getByTestId("refs-perm-draft").click();
+      await page.getByTestId("refs-perm-letter").waitFor();
+    },
+  },
+  {
+    name: "ui-references-sent",
+    route: (ctx) => sourceRoute(ctx, signals),
+    mask: sentMask,
+    steps: markSent,
+  },
   {
     name: "ui-references-overdue",
     route: referencesRoute,
@@ -536,8 +762,19 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await recordGrant(page, ctx);
       await page.getByTestId("refs-perm-attachment-remove").click();
+      await page.getByTestId("refs-perm-attachment-confirm").waitFor();
+    },
+  },
+  {
+    name: "ui-references-replace-letter-new",
+    route: (ctx) => sourceRoute(ctx, signals),
+    mask: sentMask,
+    steps: async (page, ctx) => {
+      await recordGrant(page, ctx);
+      await page.getByTestId("refs-perm-attachment-remove").click();
       await page.getByTestId("refs-perm-attachment-confirm").click();
-      await page.getByTestId("refs-perm-attach-input").waitFor({ state: "attached" });
+      await page.getByTestId("refs-perm-attach-input").setInputFiles({ ...letter, name: "okafor-letter-v2.pdf" });
+      await page.getByTestId("refs-perm-attachment").filter({ hasText: "okafor-letter-v2.pdf" }).waitFor();
     },
   },
   {
