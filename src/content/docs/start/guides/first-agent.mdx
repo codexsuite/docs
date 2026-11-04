@@ -5,4 +5,75 @@ sidebar:
   order: 6
 ---
 
-{/* STUB */}
+import Shot from "../../../../components/Shot.astro";
+
+This guide connects Claude Code to your Codex and ends with the agent reading the outline of Salt and Signal. You need a signed-in Codex, and [Claude Code](https://code.claude.com/docs/en/overview) installed on the machine where you work. For other clients and the full list of options, see [Connect an agent](/agents/connect/).
+
+Address: `https://<your-codex>/account`, in the Agent access section. The MCP server is at `https://<your-codex>/mcp`. On the quick start, that is `http://localhost:8080/mcp`.
+
+## Create a token
+
+The agent signs in with a personal access token. Codex shows the token once.
+
+1. Open your account and find Agent access.
+2. In Name, enter `Claude Code on my laptop`. The name shows in the list and in History.
+3. Leave Read ticked. Reading the outline needs nothing else. Tick Edit outlines, prose and the Knowledge base only when you want the agent to change the book.
+4. Leave the expiry at 90 days, or choose another.
+5. Select Create token.
+
+<Shot name="start-guides-first-agent-form" alt="The Agent access form with the name Claude Code on my laptop, only Read ticked and 90 days chosen." />
+
+Codex then shows the token, which starts with `cdx_pat_`, with a Copy button and a ready `claude mcp add` command that has your address and token filled in. Copy the command, then select Done. Codex keeps only a hash, so nobody can show the token again. If you lose it, revoke it and create another.
+
+<Shot name="start-guides-first-agent-secret" alt="The box that shows the new token once, with the Copy button, the Done button and the claude mcp add command." />
+
+## Add the server
+
+Paste the command into a terminal in the folder where you run Claude Code. It looks like this, with your own address and token.
+
+```sh
+claude mcp add --transport http codex https://<your-codex>/mcp \
+  --header "Authorization: Bearer cdx_pat_<your token>"
+```
+
+The command stores the server for the current project only, which is Claude Code's default scope. Add `--scope user` to use Codex from every project. Do not use `--scope project` with a real token, because it writes the token into `.mcp.json`, which you may commit.
+
+Claude Code saves the configuration without checking the token. To check it, run:
+
+```sh
+claude mcp list
+```
+
+The `codex` server shows `✔ Connected`. Inside a Claude Code session, `/mcp` shows the same status.
+
+## Ask for the outline
+
+Start Claude Code and ask:
+
+```text
+Show me the outline of Salt and Signal.
+```
+
+The agent first calls `list_books` to find the book. It then calls `get_outline`, which returns the acts, chapters and scenes in book order, with display numbers, titles, labels, status and word counts. In the running example, it answers with the three acts The Light, The Keepers and The Last Watch, and the chapters and scenes under them.
+
+Compare the answer with the book. The Library is the list `list_books` reads, and the Plan is the outline `get_outline` reads.
+
+<Shot name="start-guides-first-agent-library" alt="The Library showing the series Working Coasts with the books Salt and Signal and Tide Tables." />
+
+The token has the same access as you, through the same rules. It reaches your books and the books shared with you, at your role on each one. The [tool reference](/agents/tools/) lists every tool, and [Example prompts](/agents/prompts/) has more to ask.
+
+## If the connection fails
+
+If the token is unknown, revoked, expired or missing, or its user is disabled, Codex answers HTTP 401 with this message:
+
+```text
+Send a Codex personal access token: Authorization: Bearer cdx_pat_…. Create one under Account → Agent access.
+```
+
+Because you set the `Authorization` header yourself, Claude Code reports the connection as failed in `claude mcp list` and `/mcp`, with the HTTP status in the detail, instead of offering to sign in. Check these in order.
+
+1. The token is the one Codex showed, with all of its characters, and the header reads `Authorization: Bearer cdx_pat_...`.
+2. The token is still in the list under Agent access and has not expired. If not, create a new one.
+3. The address ends in `/mcp` and points at your Codex.
+
+To replace the token, run `claude mcp remove codex`, then add the server again with the new one. A tool call that fails with `forbidden` is a different problem. The token lacks a scope, or your role on the book is too low. [Tokens and scopes](/agents/tokens/) covers both.
