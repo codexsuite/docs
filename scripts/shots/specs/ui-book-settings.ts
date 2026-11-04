@@ -57,7 +57,15 @@ export const shots: ShotSpec[] = [
       await waitFor(page, "settings-quote-limit-reset");
     },
   },
-  { name: "ui-book-settings-letters", route: at("letters"), steps: (page) => card(page, "letters") },
+  {
+    name: "ui-book-settings-letters",
+    route: at("letters"),
+    steps: async (page) => {
+      // Letters has no card of its own: it sits inside Citations & permissions.
+      await waitFor(page, "settings-publisher");
+      await page.getByTestId("settings-letter").scrollIntoViewIfNeeded();
+    },
+  },
   { name: "ui-book-settings-layout", route: at("layout"), steps: (page) => card(page, "layout") },
   {
     name: "ui-book-settings-publish",
