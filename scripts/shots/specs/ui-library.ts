@@ -1,4 +1,15 @@
+import type { Page } from "playwright";
 import type { ShotSpec } from "../types.ts";
+
+/** Adds a standalone book through the API and reloads the Library. The seed has none, and the runner restores the snapshot after the shot. */
+async function addStandaloneBook(page: Page, title: string): Promise<string> {
+  const response = await page.request.post("/api/books", { data: { title } });
+  if (!response.ok()) throw new Error(`POST /api/books answered ${response.status()}.`);
+  const body = (await response.json()) as { id: string };
+  await page.reload();
+  await page.getByTestId("library-new-book").waitFor();
+  return body.id;
+}
 
 /** Library screen: the shelf, search, filters, list view, New book, New series and Import. */
 export const shots: ShotSpec[] = [
@@ -23,8 +34,23 @@ export const shots: ShotSpec[] = [
   {
     name: "ui-library-list",
     route: "/?view=list",
-    steps: async (page) => {
+    steps: async (page, ctx) => {
       await page.getByTestId("library-group-row").first().waitFor();
+      // Open a book from its row, then come back with Back to show the list again.
+      await page.getByTestId(`shell-list-row-${ctx.bookIds.tideTables}`).click();
+      await page.waitForURL(/\/books\/[^/]+\/(plan|write|references|layout|settings)$/);
+      await page.goBack();
+      await page.getByTestId("library-group-row").first().waitFor();
+    },
+  },
+  {
+    name: "ui-library-palette",
+    route: "/",
+    steps: async (page) => {
+      await page.getByTestId("library-new-book").waitFor();
+      await page.keyboard.press("Control+k");
+      await page.getByTestId("library-palette-input").fill("tide");
+      await page.getByTestId("library-palette-list").waitFor();
     },
   },
   {
@@ -45,15 +71,19 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("library-new-book-title").fill("Lamp Room Notes");
       await page.getByTestId("library-new-book-series").selectOption(ctx.seriesId);
       await page.getByTestId("library-new-book-number").waitFor();
+      await page.waitForFunction(() => (document.querySelector('[data-testid="library-new-book-number"]') as HTMLInputElement | null)?.value !== "");
     },
   },
   {
     name: "ui-library-new-series",
     route: "/",
     steps: async (page) => {
+      const bookId = await addStandaloneBook(page, "Lamp Room Notes");
       await page.getByTestId("library-new-series").click();
       await page.getByTestId("library-new-series-dialog").waitFor();
       await page.getByTestId("library-series-name-field").fill("Harbour Lights");
+      await page.getByTestId(`library-new-series-book-${bookId}`).check();
+      await page.getByTestId("library-new-series-picked").waitFor();
     },
   },
   {
@@ -63,6 +93,22 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("library-import").click();
       await page.getByTestId("library-import-dialog").waitFor();
       await page.getByTestId("library-import-picker").waitFor();
+    },
+  },
+  {
+    name: "ui-library-import-preview",
+    route: "/",
+    steps: async (page) => {
+      await page.getByTestId("library-import").click();
+      await page.getByTestId("library-import-dialog").waitFor();
+      await page.getByTestId("library-import-source-pandoc").click();
+      await page.getByTestId("library-import-file").setInputFiles([
+        { name: "Chapter 1.md", mimeType: "text/markdown", buffer: Buffer.from("# The Lamp Room\n\nOrla climbed the stair with the oil can and counted the steps.\n") },
+        { name: "Chapter 2.md", mimeType: "text/markdown", buffer: Buffer.from("# Low Water\n\nThe tide went out past the last marker, and Orla wrote it in the log.\n") },
+      ]);
+      await page.getByTestId("library-import-file-name").waitFor();
+      await page.getByTestId("library-import-next").click();
+      await page.getByTestId("import-preview").waitFor();
     },
   },
 ];
