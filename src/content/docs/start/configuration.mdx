@@ -7,7 +7,7 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-Codex reads its settings from environment variables that start with `CODEX_`. This page lists every one that an operator sets. The product README holds the same table, and a nightly check fails when the two list different variables or groups.
+Codex reads its settings from environment variables that start with `CODEX_`. This page lists every one that an operator sets. The product README has a table of the same variables, and a nightly check fails when the two list different variables or groups.
 
 In Compose, set a variable under `environment` for the service that needs it. The [quick start](/start/quickstart/) file already sets the ones you need to begin. The examples below use the same `- NAME=value` form.
 
@@ -123,13 +123,13 @@ Default: `true`. The worker image does not change it.
 - CODEX_EVENTS_LISTEN=false
 ```
 
-Set it to `false` on the worker. The worker starts neither the quote-flag scanner nor the book events relay, so listening only holds one database connection for nothing.
+Set it to `false` on the worker. The worker starts neither the quote-flag scanner nor the book events relay, so listening only holds one database connection.
 
 ## AI
 
 ### `CODEX_AI_ALLOW_LOCAL_ENDPOINTS`
 
-Lets users point an AI integration at `http://` and private-network addresses, such as Ollama or LM Studio. Only the value `true` turns it on. Codex reads it on every call, so a change needs no restart. Codex refuses link-local addresses either way.
+Lets users point an AI integration at `http://` and private-network addresses, such as Ollama or LM Studio. Only the value `true` turns it on. Recreate the container to apply a new value. Codex refuses link-local addresses either way.
 
 Default: off.
 
@@ -217,7 +217,7 @@ The worker container runs little else, so you set this only when the worker shar
 
 ### `CODEX_TECTONIC`
 
-The path to Tectonic, or a name Codex looks up on `PATH`. Codex looks it up when a run starts, so Codex still starts on a host without Tectonic. Each render then fails with the message "Print rendering needs tectonic, which is not installed on this server (set CODEX_TECTONIC)."
+The path to Tectonic, or a name Codex looks up on `PATH`. Codex looks it up when a run starts, so Codex still starts on a host without Tectonic. Each PDF run then fails with the message "Print rendering needs tectonic, which is not installed on this server (set CODEX_TECTONIC)."
 
 Default: `tectonic`.
 
