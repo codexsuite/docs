@@ -7,27 +7,29 @@ sidebar:
 
 import Shot from "../../../../components/Shot.astro";
 
-A long quote from a book in copyright needs the rights holder's permission before you print it. Codex counts the quoted words, drafts the request letter and keeps the answer with the source. This guide clears the one risk in Salt and Signal, the quote from *Signals at Sea* by R. Okafor in chapter 2. You need a signed-in Codex with the Salt and Signal book from [Clearing quotes and citing](/work/clearing/).
+A long quote from a book in copyright needs the rights holder's permission before you print it. Codex counts the quoted words, drafts the request letter and keeps the answer with the source. This guide clears the one risk in Salt and Signal, the quote from *Signals at Sea* by R. Okafor in chapter 2. You need a signed-in Codex, edit access to the book and a source quoted over the limit. The steps use Salt and Signal, the example book in [Clearing quotes and citing](/work/clearing/), so your titles and counts will differ.
 
 Codex does not send mail. It drafts the letter and records what you did. You send the letter from your own mail.
 
-<Shot name="start-guides-clear-a-quote-overview" alt="The References screen of Salt and Signal. Signals at Sea is listed under Copyright risk, and the header says 1 risk blocks print export." />
+<Shot name="start-guides-clear-a-quote-overview" alt="The References screen of Salt and Signal. Signals at Sea is listed under Copyright risk, and the summary strip says 1 risk blocks print export." />
 
 ## Find the quote
 
 1. Open Salt and Signal and select References.
-2. Read the line above the list. It says `1 risk blocks print export`.
+2. Read the summary strip above the list. It says `1 risk blocks print export`.
 3. Select Signals at Sea. The panel on the right shows the clearance.
 
 To see the quote in the manuscript, open Write and select the highlighted passage in chapter 2, scene 1. The marker card shows the source, the status and the quoted word count. Select Open in References to come back.
+
+Salt and Signal already holds a draft request, so the list and the marker card read `Permission drafted`. A source with no request shows its word count instead, as the next section does. To start again from no request, select Withdraw in the panel.
 
 <Shot name="start-guides-clear-a-quote-marker" alt="The Write screen at chapter 2, scene 1, with the quoted passage highlighted and its marker card open. The card reads Copyright risk, 348 of 300 quoted words." />
 
 ## Read the word count
 
-The panel checks the source against the publisher rules, which allow prose quotes up to 300 words. Here the line `Prose quoted against the limit` reads `348 of 300 words quoted. Permission is needed above the limit.` The status reads `Copyright risk · Quoted prose: 348 of 300 words`.
+The panel checks the source against the publisher rules, which allow prose quotes up to 300 words. To change the limit, open Publisher rules under Citations & permissions in Book settings. Here the line `Prose quoted against the limit` reads `348 of 300 words quoted. Permission is needed above the limit.` The status reads `Copyright risk · Quoted prose: 348 of 300 words`.
 
-Under the status, Codex offers two ways out. Paraphrase instead opens Write with a Scene beat that rewrites the quote. Ask for permission starts a request. The rest of this guide asks for permission.
+Under the status are two buttons. Paraphrase instead opens Write with a Scene beat that rewrites the quote. Ask for permission starts a request. The rest of this guide asks for permission.
 
 <Shot name="start-guides-clear-a-quote-count" alt="The Signals at Sea panel with the status Copyright risk, Quoted prose: 348 of 300 words, and the buttons Ask for permission and Paraphrase instead." />
 
@@ -45,9 +47,9 @@ Under the status, Codex offers two ways out. Paraphrase instead opens Write with
 2. Select Copy letter and paste it into a message in your own mail. Send it.
 3. Select Mark sent.
 
-The status line moves to Sent and shows the date and `no reply`. Codex sets a reminder for 14 days later. To change it, select 3 days or 7 days next to Remind me again in, or pick a date under Remind me on. When the reminder is due, Copy follow-up gives you a second letter, and Mark followed up records that you sent it. Withdraw cancels the request.
+The tracker moves to Sent. The request reads `Permission asked`, with the date and `no reply`. The source stays a Copyright risk until you record a grant. Codex sets a reminder for 14 days later. To change it, select 3 days or 7 days next to Remind me again in, or pick a date under Remind me on. Copy follow-up and Mark followed up appear as soon as you mark the letter sent. When the reminder is due, Copy follow-up gives you a second letter, and Mark followed up records that you sent it. Withdraw cancels the request.
 
-<Shot name="start-guides-clear-a-quote-sent" alt="The Signals at Sea panel after Mark sent. The request reads Permission requested, with the buttons Granted, Refused and Withdraw." />
+<Shot name="start-guides-clear-a-quote-sent" alt="The Signals at Sea panel after Mark sent. The request reads Permission asked, with the buttons Granted, Refused and Withdraw." />
 
 ## Record the answer
 
@@ -67,18 +69,18 @@ If they grant permission:
 
 ## Check the result
 
-The request now reads `Permission granted`, with the dates, the credit line and a link to the letter. The risk no longer blocks print export. The source moves from Copyright risk to Needs check, and the header reads `Ready for print export`.
+The request now reads `Permission granted`, with the dates, the credit line and a link to the letter. The risk no longer blocks print export. The source moves from Copyright risk to Needs check, and the summary strip reads `Ready for print export`.
 
-The word count line stays red, because the quote is still over the limit. Permission is what clears it. Select Mark as cleared to record that you have checked the source. This is a separate step from the export. Changing the quote later reopens it.
+The word count line stays red, because the quote is still over the limit. The recorded grant removes the risk, so this line does not block the export. Select Mark as cleared to record who signed the source off. The export does not need this step. Changing the quote later reopens it.
 
-<Shot name="start-guides-clear-a-quote-granted" alt="The Signals at Sea panel with Permission granted, the credit line and the attached letter okafor-letter.pdf. The header reads Ready for print export." />
+<Shot name="start-guides-clear-a-quote-granted" alt="The Signals at Sea panel with Permission granted, the credit line and the attached letter okafor-letter.pdf. The summary strip reads Ready for print export." />
 
 To print the book, follow [Export a print-ready PDF](/start/guides/export-pdf/). The Layout screen checks the same sources again before it exports.
 
 ## Options
 
-- Every use of the source in the book counts toward its word count.
-- A reader with the view role sees the verdict but not the buttons. Asking for permission needs edit access.
-- An agent can do the same steps. See the [tool reference](/agents/tools/) for the permission tool.
+- Every quote from the source in the book counts toward its word count. A use you mark as a paraphrase does not.
+- Someone with the View role sees the verdict but not the buttons. Asking for permission needs the Edit role or higher.
+- An agent can draft the letter with `draft_permission_letter`, and mark it sent, set a reminder, record a refusal or withdraw with `manage_permission`. It cannot record a grant, because the signed letter is a file you attach in References. See the [tool reference](/agents/tools/).
 
 See [References](/ui/references/) for every status and check.
