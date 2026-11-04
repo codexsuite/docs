@@ -196,7 +196,7 @@ async function labelEmptyScene(page: Page, id: string): Promise<void> {
   const saved = page.waitForResponse(isOk("PUT", new RegExp(`/api/scenes/${id}/labels$`)));
   await page.locator("[data-testid^='editing-label-option-']").filter({ hasText: "Needs research" }).click();
   await saved;
-  await page.getByTestId(`plan-scene-labels-${id}`).getByText("Needs research").waitFor();
+  await page.locator(`[data-testid^='plan-label-${id}-']`).filter({ hasText: "Needs research" }).waitFor();
   await page.keyboard.press("Escape");
 }
 
@@ -346,7 +346,7 @@ export const shots: ShotSpec[] = [
     route: writeRoute("1.2"),
     as: "viewer",
     steps: async (page, ctx) => {
-      await open(page, ctx, "1.2");
+      await page.goto(`/books/${ctx.bookIds.saltAndSignal}/write#scene=1.2`);
       await sceneBox(page, ctx, "1.2").locator("[data-testid^='write-beat-body-']").waitFor();
     },
   },
