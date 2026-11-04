@@ -5,4 +5,52 @@ sidebar:
   order: 5
 ---
 
-{/* STUB */}
+import Shot from "../../../components/Shot.astro";
+
+The Series screen groups books that belong together, such as Salt and Signal and Tide Tables in the Working Coasts series. Use it to see the totals, set the book order and share Knowledge base categories across the books. The screen is at `/#series=<id>`. To open it, select a series stack in the [Library](/ui/library/).
+
+<Shot name="ui-series-overview" alt="The Working Coasts series screen with its totals and its two books." />
+
+The breadcrumb reads Library, then the series name. Select Library to go back. The header shows four totals for books that are not archived.
+
+- Books is the number of books.
+- Words is the word count of all books.
+- Published is the number of published books.
+- Last edit is when any book last changed.
+
+Below the header are the books in order. The same Grid and List switch as the Library applies. Select `+ Add book` to open the New book dialog with this series already chosen and the next number filled in.
+
+## Change the name, description or book order
+
+1. Select Series settings.
+2. Edit the Name or the Description.
+3. Under Book order, drag a book by its grip, or focus the grip and press Alt+Up or Alt+Down. The arrow buttons on each row do the same. Book numbers follow this order.
+4. Select Save.
+
+<Shot name="ui-series-settings" alt="The Series settings dialog with the name, description and the book order list." />
+
+A series needs a name. If you clear it, the dialog says `A series needs a name.` and saves nothing.
+
+The dialog also tells you that Knowledge base categories on the series, like Characters and Places, are shared by every book in the series, and that each book can add its own.
+
+## Archive a series
+
+Select Series settings, then Archive series. The series leaves the Library at once, with no confirmation. A message says `Working Coasts archived. Restore it from the Archived list.` To bring it back, choose Archived in the Library's Status control and select Restore series.
+
+## Delete a series
+
+Deleting a series keeps its books. They become standalone.
+
+1. Select Series settings, then `Delete series…`.
+2. Read the dialog. It states how many books become standalone, and which Knowledge base categories, entries and labels of the series are copied onto each book first.
+3. Select Delete series.
+
+<Shot name="ui-series-delete" alt="The delete series dialog stating that two books become standalone." />
+
+A message says `Working Coasts deleted. Its books are standalone.` The series row is archived, not erased. Deleting a series also removes the sharing grants on the series. People who saw its books only through the series lose access, unless they have a grant on the book itself.
+
+If the delete fails, the dialog shows the server's message, or `The series could not be deleted.` Only the owner can delete a series.
+
+## Series shared with you
+
+A series that someone shared with you shows who shared it and your role. It has no Series settings and no `+ Add book`. If the owner shared only some of the books, a note says only those books appear.

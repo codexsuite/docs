@@ -5,4 +5,74 @@ sidebar:
   order: 4
 ---
 
-{/* STUB */}
+import Shot from "../../../components/Shot.astro";
+
+The Library lists every book you own or that someone shared with you. Use it to find a book, start a new one, gather books into a series or bring in a manuscript. The Library is at `/`.
+
+<Shot name="ui-library-overview" alt="The Library with the Working Coasts series stack, the New book tile and the toolbar above them." />
+
+A series appears as a stack of up to three covers with a badge that counts its books. Click the stack to open the [series](/ui/series/). Standalone books sit below the stacks. Click a book to open it on its Plan.
+
+## Find a book
+
+Type in the search box to filter by book name or series name. The list updates when you pause typing. If nothing matches, the Library says `No books match "tide".` and offers to clear the search.
+
+<Shot name="ui-library-search" alt="The Library after searching for tide, showing only the matching series." />
+
+The toolbar has four more controls.
+
+- **All, Mine and Shared with me** narrow the list by owner.
+- **Sort** orders by Last edited, Title, Series or Progress.
+- **Group** groups by Series, Status or None.
+- **Status** shows only books with one status: Planning, Draft, Writing, Revising, Published or Archived.
+
+The last control switches between Grid and List. The list has the columns Title, Owner, Series, Words, Progress, Status and Edited. The address keeps your choices, so you can bookmark a view or use Back to return to it.
+
+<Shot name="ui-library-list" alt="The Library in list view, with a row for each book." />
+
+## Create a book
+
+1. Select Create Novel.
+2. Type a title.
+3. Choose a series, or leave it on None (standalone). In a series, the Number field fills in the next free number. Change it if you want a different place in the order.
+4. Leave Target words at 80,000 or enter your own whole number above 0. You can change it later.
+5. Select Create book.
+
+<Shot name="ui-library-new-book" alt="The New book dialog with the title Lamp Room Notes typed in." />
+
+<Shot name="ui-library-new-book-series" alt="The New book dialog with the Working Coasts series chosen and the next number filled in." />
+
+The new book opens on its [Plan](/ui/plan/) with one empty act. If the title is empty, the dialog says `Give the book a title.` and creates nothing. You can only add a book to a series you own.
+
+## Create a series
+
+1. Select New series.
+2. Type a name.
+3. Tick the standalone books to gather. The order you tick them in sets their numbers, Book 001, Book 002 and so on. You can tick none and add books later.
+4. Select Create series.
+
+<Shot name="ui-library-new-series" alt="The New series dialog with the name Harbour Lights typed in and no standalone books to pick." />
+
+A name that another series already uses only shows a notice. You can still create the series. An empty name shows `A series needs a name.`
+
+## Import a book
+
+Select Import to create a book from files you already have. The dialog has two steps. First choose a source and a file or folder. Then check the preview, which lists what the import creates and what it skips. Nothing is written until you select Import book. Your files are not changed, and the new book opens on its Plan.
+
+<Shot name="ui-library-import" alt="The Import dialog listing the five sources." />
+
+The sources are:
+
+- Markdown folder, with acts, chapters and scenes as folders and files.
+- Pandoc book folder, with Markdown and LaTeX chapter files in the order of a pandoc `.yaml` file.
+- Novelcrafter export, the `.zip` that Novelcrafter produces.
+- Word document (`.docx`), where Heading 1 starts a chapter and Heading 2 starts a scene.
+- Codex backup (`.zip`), made by Export source in [Book settings](/ui/book-settings/). It restores the whole book with its Knowledge base, References and labels.
+
+## Archived books
+
+Choose Archived in the Status control to see archived books. Each one has a Restore button and a menu with Delete permanently. The delete dialog counts the chapters, scenes, words and sources that go with the book, offers Export source first, and enables the delete button only after you type the book's title. An archived series appears as one row with Restore series, which brings its books back too.
+
+## Books shared with you
+
+A book someone shared with you shows who shared it and your role: View only, Comment or Edit. View only means you can read the book but not change it. Edit means you can change content, but sharing, moving and archiving stay with the owner. Shared with me is empty until someone shares a book. See [Sharing a book](/ui/sharing/).
