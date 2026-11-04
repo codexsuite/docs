@@ -17,7 +17,7 @@
     "shots:ci": "tsx scripts/shots/ci.ts",
     "tools:gen": "tsx scripts/tools/gen.ts",
     "tools:check": "tsx scripts/tools/gen.ts --check",
-    "test": "tsx --test scripts/checks/site.test.ts"
+    "test": "tsx --test --test-concurrency=1 \"scripts/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.8",
