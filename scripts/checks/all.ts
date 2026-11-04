@@ -1,10 +1,12 @@
 import { fileURLToPath } from "node:url";
 import { pages } from "../../src/pagemap.ts";
-import { checkPage, formatProblem } from "./page.ts";
+import { checkPage, defaultRoot, formatProblem } from "./page.ts";
+import { checkRepoDocs } from "./slop.ts";
 
-// Runs every page check that stubs can pass. Stub markers fail in `check:final` and `check:page`.
+// Runs every page check that stubs can pass, then the repo documents.
+// Stub markers fail in `check:final` and `check:page`.
 export function checkAll() {
-  return pages.flatMap((p) => checkPage(p.slug, {}, (c) => !c.final));
+  return [...pages.flatMap((p) => checkPage(p.slug, {}, (c) => !c.final)), ...checkRepoDocs(defaultRoot)];
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
