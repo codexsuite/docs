@@ -20,9 +20,11 @@ async function open(page: Page, ctx: SeedResult, scene: string): Promise<void> {
 const isOk = (method: string, path: RegExp) => (r: { url(): string; request(): { method(): string }; ok(): boolean }) =>
   r.request().method() === method && path.test(new URL(r.url()).pathname) && r.ok();
 
-/** Clicks in the scene, presses Ctrl+End and Enter. The beat lands where the caret ends up, at the top of scene 1.1 in the captures. */
+/** Clicks in the scene, moves the caret to the end and starts a new line. */
 async function caretOnNewLine(page: Page, ctx: SeedResult, scene: string): Promise<void> {
   await editorOf(page, ctx, scene).click();
+  // ProseMirror can undo a key pressed straight after a click, so let its zero-delay timer run first.
+  await page.evaluate(() => new Promise((resolve) => setTimeout(resolve)));
   await page.keyboard.press("Control+End");
   await page.keyboard.press("Enter");
 }
@@ -134,6 +136,7 @@ async function editByHand(page: Page, ctx: SeedResult): Promise<string> {
   const box = await editor.boundingBox();
   if (box === null) throw new Error("The editor of scene 1.1 is not on screen.");
   await editor.click({ position: { x: 12, y: box.height - 8 } });
+  await page.evaluate(() => new Promise((resolve) => setTimeout(resolve)));
   await page.keyboard.press("Control+End");
   await page.keyboard.type(" Tobias had counted them twice.");
   await page.locator("[data-testid='editing-save-status']:not([data-state='saved'])").waitFor();
@@ -281,7 +284,7 @@ export const shots: ShotSpec[] = [
       await pendingDraft(box).waitFor();
     },
   },
-  // J5 steps 1 to 7 on a new beat in scene 1.1.
+  // J5 steps 2 to 7 on a new beat in scene 1.1.
   {
     name: "ui-ai-drafts-new-beat",
     route: writeRoute("1.1"),
@@ -372,6 +375,7 @@ export const shots: ShotSpec[] = [
       await page.keyboard.type("/cont");
       await page.getByTestId("prose-slash-item-continue-writing").click();
       await page.getByTestId("editing-toast").filter({ hasText: "Connect an AI provider in Settings to draft prose." }).waitFor();
+      await savedStatus(page).waitFor();
     },
   },
   // A reader with the view role sees the beat and no draft controls.
