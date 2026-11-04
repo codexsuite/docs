@@ -20,7 +20,7 @@ async function open(page: Page, ctx: SeedResult, scene: string): Promise<void> {
 const isOk = (method: string, path: RegExp) => (r: { url(): string; request(): { method(): string }; ok(): boolean }) =>
   r.request().method() === method && path.test(new URL(r.url()).pathname) && r.ok();
 
-/** Puts the caret on a new empty line at the end of the scene's text. */
+/** Clicks in the scene, presses Ctrl+End and Enter. The beat lands where the caret ends up, at the top of scene 1.1 in the captures. */
 async function caretOnNewLine(page: Page, ctx: SeedResult, scene: string): Promise<void> {
   await editorOf(page, ctx, scene).click();
   await page.keyboard.press("Control+End");
