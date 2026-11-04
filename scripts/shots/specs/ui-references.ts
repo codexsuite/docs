@@ -388,6 +388,7 @@ export const shots: ShotSpec[] = [
   {
     name: "ui-references-new-source-cited",
     route: (ctx) => `/books/${ctx.bookIds.saltAndSignal}/write#scene=1.2`,
+    mask: ["[data-testid='editing-toast']", "[data-testid='editing-save-status']"],
     steps: async (page, ctx) => {
       await openNewSource(page, ctx);
       await page.getByTestId("refs-add-manual").click();
