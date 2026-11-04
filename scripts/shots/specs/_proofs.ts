@@ -30,14 +30,10 @@ export const shots: ShotSpec[] = [
     mask: [".proof-secret"],
     steps: async (page) => {
       await page.getByTestId("library-new-book").waitFor();
-      await page.evaluate(() => {
-        const random = () => Math.random().toString(36).slice(2, 12);
-        const add = (html: string) => document.body.insertAdjacentHTML("beforeend", html);
-        add(`<p class="proof-secret">custom ${random()}</p>`);
-        add(`<p data-testid="auth-token-secret">cdx_${random()}</p>`);
-        add(`<p data-testid="auth-one-time-password">${random()}</p>`);
-        add(`<time>${random()}</time>`);
-      });
+      // A function declared inside page.evaluate breaks under tsx (__name is not defined), so build the HTML outside.
+      const random = () => Math.random().toString(36).slice(2, 12);
+      const html = `<p class="proof-secret">custom ${random()}</p><p data-testid="auth-token-secret">cdx_${random()}</p><p data-testid="auth-one-time-password">${random()}</p><time>${random()}</time>`;
+      await page.evaluate((markup) => document.body.insertAdjacentHTML("beforeend", markup), html);
     },
   },
 ];

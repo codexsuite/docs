@@ -82,6 +82,7 @@ export interface ShotSpec {
   /**
    * Gets the screen into the state to capture. Safe to repeat. Wait on locators, never on fixed sleeps.
    * The context has a baseURL, so `page.goto("/x")` and `page.request.post("/api/x", { data })` work with relative paths.
+   * Do not declare a named function inside `page.evaluate`: tsx rewrites it and the browser throws "__name is not defined". Pass data in as an argument.
    * A write with a JSON `data` body passes the cross-site guard. A write with no body needs the header `x-codex-client: docs`.
    */
   steps?: (page: Page, ctx: SeedResult) => Promise<void>;
