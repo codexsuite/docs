@@ -17,9 +17,9 @@ Set both of these on the `codex` service before the first start.
 | Variable | What it does |
 |---|---|
 | `CODEX_ADMIN_EMAIL` | The admin's email. Codex creates the user if no user has that email. |
-| `CODEX_ADMIN_PASSWORD` | The admin's password. It needs at least 10 characters. |
+| `CODEX_ADMIN_PASSWORD` | The admin's password. It needs at least 10 characters. A shorter password stops the app from starting. Read the error in `docker compose logs codex`. |
 
-On startup, if that user has no password yet, Codex sets this one and makes the user an admin. A user who already has a password is left alone, so keeping the two settings does nothing after the first start. Remove them anyway. The [quick start](/start/quickstart/) shows how.
+On startup, if that user has no password yet, Codex sets this one and makes the user an admin. Codex does not change a user who already has a password, so keeping the two settings does nothing after the first start. Remove them anyway. The [quick start](/start/quickstart/) shows how.
 
 ## Sign in
 
