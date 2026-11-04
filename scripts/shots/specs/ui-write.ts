@@ -223,7 +223,7 @@ export const shots: ShotSpec[] = [
     route: writeRoute,
     steps: async (page, ctx) => {
       await open(page, ctx);
-      await page.getByTestId("write-find").fill("lens");
+      await page.getByTestId("write-find").fill("Tobias");
       await page.locator("[data-testid='write-find-count']").waitFor();
       await page.getByTestId("write-find").press("Enter");
       await page.locator("[data-testid='write-find-count']:has-text(' of ')").waitFor();
