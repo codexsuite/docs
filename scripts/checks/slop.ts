@@ -27,7 +27,7 @@ export const properNouns = new Set(
     "Marrow", "Tobias", "Venn", "Harrowmouth", "Fresnel", "Harbour", "Press", "Tidewater", "Review", "English",
     "Needs", "Penhallow", "Okafor", "Keeper's", "Ledger", "Signals", "Sea", "Light", "Keepers", "Last", "Watch",
     "Ghcr", "Cursor", "Gemini", "Copilot", "VS", "Node", "Ollama", "Anthropic's", "OpenAI's",
-    "Knowledge",
+    "Knowledge", "Plan",
   ].map((w) => w.toLowerCase()),
 );
 
