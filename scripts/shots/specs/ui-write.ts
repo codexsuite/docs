@@ -243,6 +243,7 @@ export const shots: ShotSpec[] = [
     name: "ui-write-replace-spans-link",
     route: writeRoute,
     steps: async (page, ctx) => {
+      await page.goto("/");
       const sceneId = ctx.sceneIds["1.1"];
       const response = await page.request.get(`/api/scenes/${sceneId}/prose`);
       if (!response.ok()) throw new Error(`Read prose returned ${response.status()}`);
