@@ -176,8 +176,8 @@ test("GeneratedPageListsEveryTool: a tool that /mcp does not offer says so", () 
   const model = readProduct(writeProduct());
   assert.equal(model.tools.find((t) => t.name === "list_things")!.notAtMcp, "other_thing");
   const page = renderPage(model);
-  assert.match(page, /The tool `list_things` is not offered at `\/mcp`, so an agent sees 1 tools\./);
-  assert.match(page, /Not offered at `\/mcp`\. Use `other_thing`\./);
+  assert.match(page, /Codex leaves `list_things` out at `\/mcp`, so an agent sees 1 tools\./);
+  assert.match(page, /Codex does not offer this tool at `\/mcp`\. Use `other_thing`\./);
 });
 
 test("GeneratedPageListsEveryTool: a tool added to the product is found", () => {

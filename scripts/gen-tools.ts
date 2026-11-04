@@ -334,7 +334,7 @@ const errorRows: ErrorRow[] = [
   },
   {
     codes: ["ambiguous"],
-    when: "A ref matches more than one thing, such as a book you own and a book shared with you that have the same title, or a name two entries share.",
+    when: "A ref matches more than one thing, such as a book the token's user owns and a book shared with them that have the same title, or a name two entries share.",
     extra: "`candidates`. A book or series candidate names its `owner`, with `id` and `display_name`.",
   },
   {
@@ -354,22 +354,22 @@ const errorRows: ErrorRow[] = [
   },
   {
     codes: ["conflict"],
-    when: "The `expected_version` is out of date, or an undo comes after the prose has changed again.",
-    extra: "`candidates`: the scene",
+    when: "The call clashes with the current state. Examples: the `expected_version` is out of date, an undo comes after the prose has changed again, a draft is no longer pending, a category name is taken, a category still has live entries, a permission letter has no request to act on, or an export of the book is already running.",
+    extra: "`candidates` holds the scene only when `expected_version` is out of date. Other conflicts have none, and a draft conflict names the draft.",
   },
   {
     codes: ["blocked"],
-    when: "An undo that cannot run because it is already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`). Also a change only the author can make in the app (`author_decision`).",
-    extra: "`rule`. `open_url` when the author has to act in the app.",
+    when: "The call is refused. Reasons: an undo that is already done (`already_undone`), expired (`undo_expired`) or not supported yet (`undo_unsupported`), a copyright decision only the author can make in the app (`author_decision`), signing off a source that is still a copyright risk (`copyright_risk`), recording a permission grant, which needs a signed letter as a file (`signed_letter_is_a_file`), and a print export with open blocks in queue mode.",
+    extra: "`rule` is there when the tool sets one. The export refusal has none. `open_url` is there when the author has to act in the app.",
   },
   {
     codes: ["needs_confirmation"],
-    when: "Moving a book into or between series copies the Knowledge base of the series it leaves, and an undo cannot reverse that. Nothing is written until the call is repeated with `confirm` set to true.",
+    when: "Moving a book into, between or out of series copies the Knowledge base of the series it leaves, and an undo cannot reverse that. Codex writes nothing until you repeat the call with `confirm` set to true.",
     extra: "None",
   },
   {
     codes: ["not_configured"],
-    when: "The server lacks a setting the tool needs. The message names it, for example `CODEX_BLOB_ROOT` for images and permission letters.",
+    when: "The server or your account lacks something the tool needs, and the message says what. Examples: the server setting `CODEX_BLOB_ROOT` for images and permission letters, no AI provider connected for `draft_prose`, or a provider that rejects the key or has no credit.",
     extra: "None",
   },
   {
@@ -389,7 +389,7 @@ const errorRows: ErrorRow[] = [
   },
   {
     codes: ["internal_error"],
-    when: "A server fault. The message is fixed, and the details go to the server log.",
+    when: "A fault in the server, or a model provider that is busy, unreachable or refuses the request before the first chunk of a draft. For a server fault the message is fixed and the details go to the server log. For a provider the message is its own, such as \"X is busy right now. Try again in a moment.\", so retry later.",
     extra: "None",
   },
 ];
@@ -567,9 +567,9 @@ sidebar:
 export function renderPage(m: ProductModel): string {
   const out: string[] = [frontmatter, ""];
   out.push(
-    `Codex serves its tools, prompts and resources at \`/mcp\`. This page lists all of them. It is generated from the server's own definitions, so the names and descriptions are the ones your agent sees.`,
+    `Codex serves its tools, prompts and resources at \`/mcp\`. This page lists all of them. Its tool, prompt and resource tables come from the server's own definitions, so the names and descriptions are the ones your agent sees.`,
     "",
-    `The server defines ${m.tools.length} tools, ${m.prompts.length} prompts and ${m.resources.length} resources.${m.tools.filter((t) => t.notAtMcp).map((t) => ` The tool \`${t.name}\` is not offered at \`/mcp\`, so an agent sees ${m.tools.length - m.tools.filter((x) => x.notAtMcp).length} tools.`).join("")} To connect an agent, see [Connect an agent](/agents/connect/). To create a token with the scopes you need, see [Tokens and scopes](/agents/tokens/).`,
+    `The server defines ${m.tools.length} tools, ${m.prompts.length} prompts and ${m.resources.length} resources.${m.tools.filter((t) => t.notAtMcp).map((t) => ` Codex leaves \`${t.name}\` out at \`/mcp\`, so an agent sees ${m.tools.length - m.tools.filter((x) => x.notAtMcp).length} tools.`).join("")} To connect an agent, see [Connect an agent](/agents/connect/). To create a token with the scopes you need, see [Tokens and scopes](/agents/tokens/).`,
     "",
     "## Scopes",
     "",
@@ -597,7 +597,7 @@ export function renderPage(m: ProductModel): string {
         tools.map((t) => [
           `\`${t.name}\`${t.title ? `<br />${cell(t.title)}` : ""}${t.readOnly ? "<br />Read only" : ""}`,
           [t.scope, ...t.extraScopes].map((s, i) => (i ? `also \`${s}\` for some calls` : `\`${s}\``)).join(", "),
-          cell(t.description) + (t.notAtMcp ? `<br />Not offered at \`/mcp\`. Use \`${t.notAtMcp}\`.` : ""),
+          cell(t.description) + (t.notAtMcp ? `<br />Codex does not offer this tool at \`/mcp\`. Use \`${t.notAtMcp}\`.` : ""),
           paramCell(t.params),
         ]),
       ),
@@ -632,7 +632,7 @@ export function renderPage(m: ProductModel): string {
     "",
     "## Errors",
     "",
-    'A failed call returns a tool error. Its text is JSON with `ok` set to false and an `error` object that holds `code`, `message` and, for some errors, the extra fields below. A resource or prompt that fails is a protocol error whose message is "code: message". The rows are written for this page and checked against the list of codes in the server.',
+    'A failed call returns a tool error. Its text is JSON with `ok` set to false and an `error` object that holds `code`, `message` and, for some errors, the extra fields below. A resource or prompt that fails is a protocol error whose message is "code: message".',
     "",
     table(
       ["Code", "When", "Extra fields"],
