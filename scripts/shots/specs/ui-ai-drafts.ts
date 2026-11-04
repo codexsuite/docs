@@ -357,6 +357,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("prose-slash-item-continue-writing").click();
       await generated;
       await page.getByTestId(`write-draft-text-scene:${ctx.sceneIds["2.1"]}`).filter({ hasText: replyStart }).waitFor();
+      await savedStatus(page).waitFor();
     },
   },
   // error:ai-not-configured, with the integration removed.
