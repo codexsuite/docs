@@ -328,8 +328,11 @@ export const shots: ShotSpec[] = [
     route: entryRoute("Edith Marrow"),
     steps: async (page, ctx) => {
       await openEntry(page, ctx, "Edith Marrow");
-      await page.getByTestId("kb-always-in-context").check();
-      await page.getByTestId("kb-always-in-context").waitFor();
+      const box = page.getByTestId("kb-always-in-context");
+      if (!(await box.isChecked())) await box.click();
+      await page.waitForFunction(
+        () => (document.querySelector("[data-testid='kb-always-in-context']") as HTMLInputElement | null)?.checked === true,
+      );
     },
   },
   {

@@ -7,13 +7,13 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-The Knowledge base is where a book keeps what it knows about its people, places and ideas. Each entry has a name, other names it answers to, a summary, longer notes and a timeline of facts that change as the book goes on. Codex uses entries to underline names in your text, to link scenes, and to give an AI draft the background it needs.
+The Knowledge base is where a book keeps its people, places and ideas. Each entry has a name, aliases, a summary, longer notes and a timeline of facts that change as the book goes on. Codex uses entries to underline names in your text, to link scenes, and to send an AI draft the entry's name and summary.
 
-**Address:** the Knowledge base has no page of its own. Its sidebar sits on the left of the Plan (`/books/<id>/plan`) and Write (`/books/<id>/write`). Select an entry in the sidebar and its window opens over the screen, and the address gains `#entry=<entry id>`. Open that address to land on the same entry. The Layout screen starts with the sidebar hidden. Use the sidebar button in the book bar to show or hide it.
+**Address:** the Knowledge base has no page of its own. Its sidebar sits on the left of the Plan (`/books/<id>/plan`) and Write (`/books/<id>/write`). Select an entry in the sidebar and its window opens over the screen, and the address gains `#entry=<entry id>`. Open that address to see the same entry. The address also gains `#kb=<entry id>` while an entry is highlighted, and selecting the open entry again closes its window. The Layout screen starts with the sidebar hidden. Use the sidebar button in the book bar to show or hide it.
 
 <Shot name="ui-knowledge-base-overview" alt="The entry window for Edith Marrow open over the Plan of Salt and Signal, with the sidebar on the left listing People, Places and Ideas." />
 
-The sidebar groups entries by category and shows, beside each name, how many scenes use the entry. The window has three tabs: Entry, Used in and Timeline. The panel on the right holds Details, Always in context, Source, Related and the dates.
+The sidebar groups entries by category and shows, beside each name, how many scenes use the entry. The window has three tabs: Entry, Used in and Timeline. The panel on the right has Details, Always in context, Source, Related and the dates.
 
 ## Find an entry
 
@@ -53,7 +53,7 @@ The check ignores capital letters, so `harrowmouth` is also taken.
 
 The Entry tab has a Summary of one or two lines and the Content below it. The summary appears on cards and goes to the AI as short context. The content is free text with a small formatting bar for a heading, a quote, a list and an `@` mention of another entry. Under the content you see a word count and when the entry was last edited.
 
-Codex saves the text a few seconds after you stop typing, when you leave a field and when you close the window. Aliases, the category and Always in context save at once.
+Codex saves the text 3 seconds after you stop typing, when you leave a field and when you close the window. Aliases, the category and Always in context save at once.
 
 The Details part of the panel lists the fields the entry's category has. Select Field to add one of your own, with a label and a value.
 
@@ -61,7 +61,9 @@ The Details part of the panel lists the fields the entry's category has. Select 
 
 Under the name, the line Also matches lists the aliases. Select Alias, type another name and press Enter. Press Escape to drop what you typed. To remove an alias, select the cross beside it.
 
-Write underlines every alias, and the name, wherever it appears in your scenes.
+Write underlines every alias, and the name, wherever it appears in your scenes. To see it, type `Mrs Marrow` in a scene.
+
+<Shot name="ui-knowledge-base-alias-underline" alt="Scene 1.1 in Write with the words Mrs Marrow underlined with dots as an alias of Edith Marrow." />
 
 <Shot name="ui-knowledge-base-alias-added" alt="The entry Edith Marrow with a third alias, Edie, added under the name." />
 
@@ -71,11 +73,15 @@ If a name or an alias belongs to another entry, Codex refuses the alias and says
 
 Codex saves a short or common alias but warns you. An alias of three letters or fewer, or one that matches 25 or more words in the book, gets a message such as `Matches 31 other words in the book. Underlines every "the".`
 
+<Shot name="ui-knowledge-base-alias-warning" alt="The alias the typed on Edith Marrow, with the warning that it matches other words in the book and underlines every the." />
+
 ## Rename an entry
 
-To rename an entry, change its name at the top of the window and press Enter or click away. A box appears with `Keep "<old name>" as an alias`. It is ticked, so text that used the old name still counts as this entry. Clear the box to drop the old name.
+To rename an entry, change its name at the top of the window. As you type, a box appears with `Keep "<old name>" as an alias`. It is ticked, so text that used the old name still counts as this entry. To drop the old name, clear the box first, then press Enter or click away. Once you press Enter or click away, Codex saves the rename and the box goes.
 
 <Shot name="ui-knowledge-base-rename" alt="The name Fresnel lens changed to Fresnel optic, with the box Keep Fresnel lens as an alias ticked." />
+
+<Shot name="ui-knowledge-base-rename-done" alt="The entry Fresnel optic after the rename was saved with the alias box cleared, so Fresnel lens is not an alias." />
 
 The reference id on the right of the tabs, such as `e:fresnel-lens`, stays the same when you rename the entry. Select the copy button beside it to copy the id.
 
@@ -83,7 +89,7 @@ If you clear the name, the entry keeps its old name and the window says `An entr
 
 ## See where an entry is used
 
-The Used in tab lists every scene that touches the entry, grouped by chapter in book order. The count at the top gives the number of scenes and how many fall under each kind: Mention, Summary, Linked, Beat, Beat context, Timeline, Printed and Name in text.
+The Used in tab lists every scene that uses the entry, grouped by chapter in book order. The count at the top gives the number of scenes and how many fall under each kind: Mention, Summary, Linked, Beat, Beat context, Timeline, Printed and Name in text.
 
 <Shot name="ui-knowledge-base-used-in" alt="The Used in tab for Edith Marrow, listing the scenes that use her, with the kind of use beside each scene." />
 
@@ -92,15 +98,49 @@ Each row has an Open in Write link. Two buttons change how a scene uses the entr
 - Make mention turns the first plain use of the name in the scene into a mention. It shows for scenes whose kind is Name in text.
 - Unlink removes a link between the scene and the entry. It shows for scenes whose kind is Linked. A toast offers Undo.
 
-Highlight in Write opens Write with the entry highlighted in every scene that uses it. The scenes you linked on the Plan by dragging an entry onto a scene card show as Linked here.
+The scenes you linked on the Plan by dragging an entry onto a scene card show as Linked here.
+
+<Shot name="ui-knowledge-base-make-mention" alt="The Used in tab for Edith Marrow after Make mention turned a plain use of her name into a mention." />
+
+<Shot name="ui-knowledge-base-unlink" alt="The Used in tab for Harrowmouth after Unlink, with the toast that offers Undo." />
 
 If no scene uses the entry, the tab says `No scene uses this entry yet.`
+
+## Link an entry to a scene
+
+To link an entry to a scene, open the Plan and drag the entry from the sidebar onto the scene's card. The card shows the entry as a chip, and the scene appears in the entry's Used in tab as Linked. To link many scenes, repeat the drag.
+
+<Shot name="ui-knowledge-base-drag-linked" alt="The Plan with Harrowmouth dragged onto the card for scene 1.2, which now shows a Harrowmouth chip." />
+
+In Write, drag an entry from the sidebar onto an underlined name to turn it into a mention chip.
+
+<Shot name="ui-knowledge-base-drag-mention" alt="Scene 1.1 in Write after Edith Marrow was dragged onto the underlined words, which are now a mention chip." />
+
+## Highlight an entry
+
+Select an entry in the sidebar of the Plan. Codex highlights every scene that uses it and dims the others.
+
+<Shot name="ui-knowledge-base-highlight-plan" alt="The Plan with Edith Marrow selected: the scenes that use her are highlighted and the others are dimmed." />
+
+Open Write, or select Highlight in Write on the Used in tab, to carry the highlight over. A chip in the toolbar shows the entry's name and a position such as `1 of 4`. The arrows on the chip move to the previous and next use. The minimap marks the scenes that use the entry.
+
+<Shot name="ui-knowledge-base-highlight-write" alt="Write with a chip for Edith Marrow in the toolbar, showing the position and the previous and next arrows." />
+
+Ctrl+click a mention in the text to open that entry's window.
+
+<Shot name="ui-knowledge-base-ctrl-click-mention" alt="Write with the entry window open after a Ctrl+click on a mention." />
+
+To clear the highlight, select the cross on the chip.
+
+<Shot name="ui-knowledge-base-highlight-cleared" alt="Write after the highlight chip was cleared, with no chip in the toolbar." />
 
 ## Keep a timeline
 
 The Timeline tab holds facts that are true from a point in the book onward. It starts with `Start of book`, and each note follows in book order under `From scene <number>`.
 
-To add a note, select Add a note at…, choose the scene, type the note and select Add note. Codex puts the note at the start of that scene as a Codex addition, so you can also see and edit it in [Write](/ui/write/). Select Edit on a note to change its text, and Save to keep the change. A toast offers Undo after an edit.
+To add a note, select Add a note at…, choose the scene, type the note and select Add note. Codex puts the note at the start of that scene as a Codex addition, so you can also see and edit it in [Write](/ui/write/). To add one from Write, type `/codex` in the scene, choose Codex addition and pick the entry.
+
+<Shot name="ui-knowledge-base-write-addition" alt="Scene 1.1 in Write with a Codex addition card for Edith Marrow at the start of the text." /> Select Edit on a note to change its text, and Save to keep the change. A toast offers Undo after an edit.
 
 <Shot name="ui-knowledge-base-timeline-add" alt="The Timeline tab for Edith Marrow with the add form open: the scene list and the note text From here Edith is head keeper and signs the logbook." />
 
@@ -112,19 +152,47 @@ A note must have text. An empty note is refused with `Write the note first.` A n
 
 Related, in the panel, lists the entries linked to this one. Select Link entry to pick another entry, and select the cross on a chip to unlink it. The link shows on both entries.
 
+<Shot name="ui-knowledge-base-related-linked" alt="Edith Marrow with Tobias Venn shown as a chip under Related." />
+
 <Shot name="ui-knowledge-base-related" alt="The Link entry picker open on Edith Marrow, listing the other entries in Salt and Signal." />
 
 Source shows the source from [References](/ui/references/) that the entry points to, with its status. Select Open in References to see it. An entry with no source says `No source linked.`
 
 ## Always in context
 
-Tick Always in context and Codex sends the entry's name and summary with every AI draft in the book, even when the beat does not mention it. Entries you add to a beat go with that draft whether or not this box is ticked. See [Beats and AI drafts](/ui/ai-drafts/).
+Tick Always in context and Codex sends the entry's name and summary with every AI draft in the book, even when the beat does not mention it. Codex sends entries you add to a beat with that draft whether or not this box is ticked. 
+
+<Shot name="ui-knowledge-base-always-in-context" alt="Edith Marrow with Always in context ticked." />
+
+To add an entry to one beat only, select Context on the beat in Write and pick the entry.
+
+<Shot name="ui-knowledge-base-beat-context" alt="The beat in scene 1.2 with Harrowmouth added as context." />
+
+See [Beats and AI drafts](/ui/ai-drafts/).
 
 ## Change an entry's category
 
-Select the category name at the top left of the window to open the list. Pick a category to move the entry there. Select New category to make one, give it a name and pick one of five colours, then select Create. Codex refuses a name the Knowledge base already has with `The Knowledge base already has a category named Laws.`
+Select the category name at the top left of the window to open the list.
 
-To rename or recolour a category, or to delete it, point at its heading in the sidebar and select the three dots. Type a new name and select Rename, or pick a colour. Delete category works only on an empty category. A category with entries says `Move or delete its 3 entries first.` The category list for a series appears under `From <series name>` and has no menu here.
+<Shot name="ui-knowledge-base-category-chip" alt="The category list open on Fresnel lens, with People, Places and Ideas and New category." />
+
+Pick a category to move the entry there.
+
+<Shot name="ui-knowledge-base-category-moved" alt="Fresnel lens after it moved to Places." />
+
+Select New category to make one, give it a name and pick one of five colours, then select Create.
+
+<Shot name="ui-knowledge-base-new-category" alt="The New category form with the name Tools and a colour chosen." />
+
+Codex refuses a name the Knowledge base already has, for example `The Knowledge base already has a category named People.`
+
+To rename or recolour a category, or to delete it, point at its heading in the sidebar and select the three dots. Type a new name and select Rename, or pick a colour. Delete category works only on an empty category. The People category has 2 entries, so Delete category says `Move or delete its 2 entries first.` The category list for a series appears under `From <series name>` and has no menu here.
+
+<Shot name="ui-knowledge-base-category-name-taken" alt="The New category form with the name People and the message that the Knowledge base already has that category." />
+
+<Shot name="ui-knowledge-base-category-renamed" alt="The sidebar after People was renamed to Characters." />
+
+<Shot name="ui-knowledge-base-category-delete-blocked" alt="The category menu with the message that the category has entries and cannot be deleted." />
 
 <Shot name="ui-knowledge-base-category-menu" alt="The category menu open on the People heading, with the name box, the Rename button, five colours and Delete category." />
 
@@ -134,29 +202,38 @@ If you have two entries for the same thing, open the one you want to remove, sel
 
 <Shot name="ui-knowledge-base-merge" alt="The Merge Harrow Mouth into dialog with Harrowmouth chosen and the line that says what moves." />
 
-Scenes and mentions that pointed to the merged entry now point to the one you kept, and the old name becomes an alias of it. The window closes and a toast says `Merged <name> into <target>`. The merged entry is archived.
+Scenes and mentions that pointed to the merged entry now point to the one you kept, and the old name becomes an alias of it. The window closes and a toast says `Merged <name> into <target>`. Codex archives the merged entry. A merge has no Undo in the app. The merged entry's text is added to the entry you kept, under `Merged from <name>`.
+
+<Shot name="ui-knowledge-base-merged" alt="The Plan after Harrow Mouth was merged into Harrowmouth, with the toast Merged Harrow Mouth into Harrowmouth." />
 
 ## Delete an entry
 
-To delete an entry, open its three dots menu and choose Delete entry. The dialog says how many scenes use it. For an entry in use it reads `It is used in 4 scenes. Mentions turn into plain text, links and beat context are removed.` Timeline notes are deleted as well. Select Delete to confirm.
+To delete an entry, open its three dots menu and choose Delete entry. The dialog says how many scenes use it. For an entry in use it reads `It is used in 4 scenes. Mentions turn into plain text, links and beat context are removed.` Codex deletes the timeline notes as well. Select Delete to confirm.
 
 <Shot name="ui-knowledge-base-delete" alt="The Delete Edith Marrow dialog, saying the entry is used in four scenes and what happens to them." />
 
-A toast says `Deleted <name>` with an Undo button. Undo brings back the entry, its mentions and its links. If a scene or its text changed in the meantime, Undo refuses with `Could not undo: a scene or text changed after the entry was deleted, so it stays deleted.` and the entry stays deleted.
+A toast says `Deleted <name>` with an Undo button.
+
+<Shot name="ui-knowledge-base-deleted" alt="The Plan after Edith Marrow was deleted, with the toast Deleted Edith Marrow and an Undo button." /> Undo brings back the entry, its mentions and its links. If a scene or its text changed in the meantime, Codex refuses the Undo with `Could not undo: a scene or text changed after the entry was deleted, so it stays deleted.` and the entry stays deleted.
 
 ## Move an entry to a series
 
 In a book that belongs to a series, the three dots menu has Move to series. It makes the entry visible to every book in the series, and mentions and links keep working. If the series already has an entry with that name, the dialog offers Merge into the series entry or Cancel. A series entry shows a Series label beside its category. Only someone with write access to the series can change it.
 
+<Shot name="ui-knowledge-base-move-to-series" alt="The Move to series dialog for Fresnel lens." />
+
+<Shot name="ui-knowledge-base-moved-to-series" alt="Fresnel lens after the move, with the Series label beside its category." />
+
 ## Books shared with you
 
-With the View or Comment role the sidebar and entry windows read only. New Entry, the category menus and the three dots menu do not appear, and you cannot drag entries onto scenes. With the Edit role you can change everything on this page. See [Sharing a book](/ui/sharing/).
+With the View only or Comment only role, the sidebar and entry windows are read only. New Entry, the category menus and the three dots menu do not appear, and you cannot drag entries onto scenes. With the Edit role you can change everything on this page. See [Sharing a book](/ui/sharing/).
 
 ## Keyboard
 
 | Keys | What happens |
 |---|---|
 | Escape | Closes the entry window. |
+| Ctrl+click on a mention in Write | Opens that entry's window. |
 | Enter in the name box | Saves the new name. |
 | Enter in the alias box | Adds the alias. |
 | Escape in the alias box | Drops what you typed. |
