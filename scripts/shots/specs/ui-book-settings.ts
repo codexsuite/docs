@@ -42,7 +42,7 @@ export const shots: ShotSpec[] = [
       await page.keyboard.type("Plain words. Past tense. British spelling. Name Edith Marrow in full on first mention.");
       await page.getByTestId("settings-style-guide-words").waitFor();
       await page.getByTestId("settings-title").focus();
-      await page.getByTestId("settings-save-status").waitFor();
+      await page.locator("[data-testid='editing-save-status'][data-state='saved']").waitFor();
     },
   },
   { name: "ui-book-settings-citations", route: at("citations"), steps: (page) => card(page, "citations") },
