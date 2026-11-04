@@ -390,6 +390,7 @@ export const shots: ShotSpec[] = [
   {
     name: "ui-knowledge-base-make-mention",
     route: entryRoute("Edith Marrow"),
+    mask: ["[data-testid='kb-used-in-tally']", "[data-testid^='kb-use-']"],
     steps: async (page, ctx) => {
       await openEntry(page, ctx, "Edith Marrow");
       await page.getByTestId("kb-tab-used-in").click();
