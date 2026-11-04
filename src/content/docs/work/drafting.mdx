@@ -1,0 +1,101 @@
+---
+title: "Drafting"
+description: "Write by hand and with beats, revise and restore."
+sidebar:
+  order: 4
+---
+
+import Shot from "../../../components/Shot.astro";
+
+This page follows scene 1.2 of Salt and Signal, "The lens arrives", from a summary to a draft you keep. Mara Quill has the summary, which says the Fresnel lens comes by cart from the railway and is lifted into the tower. She types part of the scene, asks a model to write the next part from a beat, and restores an earlier version when she changes her mind.
+
+You need a book with at least one scene. To use AI drafts you also need a connected provider. See [AI providers](/start/ai/).
+
+<Shot name="work-drafting-overview" alt="Scene 1.2 of Salt and Signal in Write. A beat card reads Edith counts the flashes, and below it a pending AI draft has the buttons Show what was sent, Apply, Retry and Discard." />
+
+## Write by hand
+
+Open the scene in Write. On the Plan, open the scene's menu (the three dots) and choose Open in Write. In Write, click in the scene's text and type.
+
+Codex saves as you type. The save indicator at the top of the book goes from Unsaved to Saved. Wait for Saved before you close the tab. [Write](/ui/write/) describes the full screen.
+
+## Add a beat
+
+A beat is an instruction to the model, written in plain words. It sits in the scene where the new text should go.
+
+1. Click where the beat should go in the scene.
+2. Type `/` and choose Scene beat.
+3. Type the instruction in the beat card. Mara writes `Edith counts the flashes until dawn while Tobias checks the lens.`
+4. Choose a length. The card offers 200, 400 and 600 words, and a pencil for a number of your own.
+
+<Shot name="work-drafting-new-beat" alt="A new Scene beat in scene 1.2 with its typed instruction and a pending AI draft under it." />
+
+Codex sends the beat with the style guide of the book or series, the prose before the beat and any Knowledge base entries set to always be in context. To send more, select Context on the card and pick Knowledge base entries. Mara adds Tobias Venn, so the model knows who he is. Remove an entry from the beat by selecting its chip.
+
+<Shot name="work-drafting-beat" alt="The beat card in scene 1.2 with a Context chip for Tobias Venn and the length buttons 200, 400 and 600 words." />
+
+## Generate a draft
+
+1. Write the beat first. Generate prose stays off while the beat is empty.
+2. To change the prompt template or the model, select the button next to Generate prose that shows their names.
+3. Select Generate prose, or press Ctrl+Enter in the beat. When the beat already has a pending draft, the button reads Regenerate.
+
+The draft streams in under the beat. Select Stop to keep what has arrived. A stopped draft stays pending, and its label says `Stopped`. If you have not connected a provider, the card shows `Connect an AI provider in Settings` instead of Generate prose.
+
+A draft does not change your prose until you apply it. A pending draft stays on the scene, through reloads, until you apply or discard it. On the Plan the scene's card says `Draft pending`.
+
+### See what was sent
+
+Select Show what was sent on a draft to read the template, the model, the Knowledge base entries and the exact prompt. Use it when a draft ignores something you expected it to use.
+
+<Shot name="work-drafting-sent" alt="The pending draft marked attempt 2, with its Show what was sent panel open, listing the template, the model and Tobias Venn under Context." />
+
+## Apply, retry or discard a draft
+
+- Select Apply to put the draft in the scene. It replaces the text under the beat. If the beat already has text, the draft says `Apply replaces the 120 words below. The current text is kept in history.` with the real number.
+- Select Retry for another attempt with the same settings. The new draft's label says `attempt 2`, and Codex discards the first.
+- Select Discard to drop the draft. A message offers Undo.
+
+<Shot name="work-drafting-applied" alt="Scene 1.2 after Apply. The draft text is now ordinary prose under the beat and the draft card has gone." />
+
+A message offers Undo after Apply. Undo puts the earlier text back and makes the draft pending again. An applied draft is ordinary text, so you can also edit it by hand like anything else you typed.
+
+To write on from the end of a scene without a beat, type `/` and choose Continue writing. The result is a draft you apply in the same way, and Apply adds it at the end.
+
+## Hide the beats
+
+To read the scene without the beat cards, select Format in the toolbar and set Scene beats to Hide. The cards disappear and the prose stays. Set Scene beats back to Show to bring them back.
+
+<Shot name="work-drafting-hide-beats" alt="The Format menu open with Scene beats set to Hide. Scene 1.2 shows only its prose, with no beat card." />
+
+## Restore an earlier version
+
+Codex keeps the versions of each scene. Codex adds a version when you apply a draft, when you restore, and when an agent edits the scene. Your own typing updates one version for ten minutes instead of adding a row for each keystroke.
+
+To go back to an earlier version of scene 1.2:
+
+1. Open the scene's menu in the gutter (the three dots next to the scene heading) and choose Version history.
+2. Read the list. The newest version is on top and is marked Current. Each row shows the time, what made it (`Edited`, `AI draft applied`, `Restored`, `Imported`, `Replaced by another session`, or `Edited by` and the name of an agent) and the word count. The list shows the newest 50 versions. An applied draft also names the model and the attempt.
+3. Select a row. Under the list, the panel compares it with the current text. It highlights words only in the current text and shows words only in this version in red. The counter shows what a restore would change, such as `−5 words`.
+4. Select Restore this version.
+5. A line says what will happen. It reads `Replaces the current text with the version from` that time, followed by `The current text stays in history.` Select Restore to confirm, or Cancel to leave things as they are.
+
+<Shot name="work-drafting-history" alt="The Version history panel for scene 1.2. The top row reads Edited and is marked Current, with an AI draft applied row and an older row under it." />
+
+<Shot name="work-drafting-restore" alt="An older version selected in Version history, with the comparison against the current text and the confirmation line before Restore." />
+
+After the restore, a message says `Restored the version from` that time and offers Undo. Select Undo to return to the text you had. The undo is a version too, so the history only grows.
+
+<Shot name="work-drafting-restored" alt="Version history after a restore, with the message Restored the version and its Undo button." />
+
+<Shot name="work-drafting-undone" alt="Version history after Undo. The text from before the restore is current again, and the restore stays in the list." />
+
+On the Current row, Restore this version is off and the panel says `This is the current version`. In a scene that is archived, the history is read-only.
+
+If you restore text that cited a source, the citations come back with it. If you signed off the source while the citation was gone, its status goes back to Needs check, and you select Clear again. See [Clearing quotes and citing](/work/clearing/).
+
+## Where to go next
+
+- [Clearing quotes and citing](/work/clearing/) takes a quote from the draft to a permission on file.
+- [Beats and AI drafts](/ui/ai-drafts/) lists every option on the beat card and the draft panel.
+- [Writing with an agent](/work/agents/) shows which of these steps an agent can do for you.

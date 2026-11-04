@@ -1,0 +1,101 @@
+---
+title: "Logs and monitoring"
+description: "Turn on Seq, traces and metrics."
+sidebar:
+  order: 9
+---
+
+By default, Codex writes logs to the console of each container and sends nothing anywhere else. This page covers reading those logs, sending them to Seq, and sending traces, metrics and logs to an OpenTelemetry collector.
+
+## Read the logs
+
+Both containers log to the console, so Docker keeps them.
+
+```sh
+docker compose logs -f codex worker
+```
+
+To check that the app is up, call the health endpoint. It needs no sign-in, and it reports the commit the image was built from.
+
+```sh
+curl http://localhost:8080/health
+```
+
+It answers `{"status":"ok","version":"1.0.0+<commit>"}`. The image runs the same call as its container health check every 60 seconds.
+
+## Send logs to Seq
+
+Seq is a log server you run yourself. Codex sends it every log record while `CODEX_SEQ_URL` is set. Leave the variable out and logs go to the console only.
+
+1. Run Seq on the same Docker network as Codex. Accept its licence terms and set an admin password, as in [Seq's Docker guide](https://datalust.co/docs/getting-started-with-docker):
+
+```sh
+docker run --name seq -d --restart unless-stopped \
+  --network <project>_default \
+  -e ACCEPT_EULA=Y -e SEQ_FIRSTRUN_ADMINPASSWORD=<password> \
+  -v seq-data:/data -p 127.0.0.1:5342:80 datalust/seq
+```
+
+2. In `.env`, set `CODEX_SEQ_URL=http://seq:5341`. Add `CODEX_SEQ_API_KEY` if you created an API key in Seq.
+3. Pass both variables to the `codex` and the `worker` service under `environment`:
+
+```yaml
+      - CODEX_SEQ_URL=${CODEX_SEQ_URL:-}
+      - CODEX_SEQ_API_KEY=${CODEX_SEQ_API_KEY:-}
+```
+
+4. Run `docker compose up -d`, then open `http://localhost:5342` for the Seq UI. If you added Caddy, run `docker compose -f docker-compose.yml -f caddy/docker-compose.yml up -d` instead, so Compose keeps port 8080 closed.
+
+Compose names the default network `<project>_default`, where the project is the name of your compose folder. The command above publishes the Seq UI on the loopback address only. Seq's own ingestion port 5341 stays inside the Docker network.
+
+## Send traces, metrics and logs to a collector
+
+Codex exports all three signals over OpenTelemetry when `OTEL_EXPORTER_OTLP_ENDPOINT` is set. Codex reads the variable when the process starts, so a change needs a restart. With it unset, Codex registers no exporter and sends nothing out of the process. Set the variables on both services.
+
+| Variable | What it does |
+|---|---|
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Where to send. Setting it turns on all three signals. |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `grpc` or `http/protobuf`. Logs use the `/v1/logs` path with `http/protobuf`. |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Comma-separated `key=value` pairs, such as a backend's credentials. |
+| `OTEL_EXPORTER_OTLP_TIMEOUT` | Milliseconds an export may take before Codex gives up. The default is 10000. |
+| `OTEL_SERVICE_NAME` | The name on every signal. The default is `codex`. Set `codex-worker` on the worker so you can tell the two apart. |
+
+Every signal carries `service.name`, `service.version` (the build, as `/health` reports it) and `service.instance.id`, which changes on every restart.
+
+Exporting runs in batches off the request path. If the collector is down, Codex drops the telemetry it could not send. Requests do not wait for the export.
+
+Do not set `CODEX_SEQ_URL` on a host whose collector forwards to Seq. Codex posts to Seq directly as well, so every record would arrive twice.
+
+### Traces
+
+- Each request to `/api` and `/mcp` gets one server span, named by route template such as `GET /api/books/{id:guid}`. Codex does not record the path or query string.
+- Each database command gets a child span with its SQL text and no parameter values.
+- Each outgoing call, such as one to your AI provider, gets a span with the scheme, host and path of the URL only.
+- MCP tool calls get `mcp.tool_call` spans, and export, proof and asset rendition jobs get `job.*` spans.
+- Codex does not trace health checks or the live-update connection at `/hubs/book`.
+
+### Metrics
+
+The `Codex` meter has four instruments:
+
+| Instrument | Kind | Tags |
+|---|---|---|
+| `codex.mcp.tool_calls` | counter | `tool`, `outcome` |
+| `codex.mcp.tool_duration` | histogram, seconds | `tool`, `outcome` |
+| `codex.jobs` | counter | `job` (`export`, `proof` or `asset_rendition`), `outcome` |
+| `codex.job_duration` | histogram, seconds | `job`, `outcome` |
+
+The built-in metrics for ASP.NET Core, Kestrel, SignalR, outgoing HTTP calls, the .NET runtime and Npgsql come with them.
+
+### Logs
+
+Logs go to the collector as well as to the console and Seq. A record written during a request carries the request's trace and span IDs, so a backend can link a log line to its trace.
+
+## What spans and metrics leave out
+
+Span attributes and metric tags hold no email addresses, names, user IDs, tokens, passwords, AI keys, query strings, SQL parameter values or manuscript text. Metric tags are a tool name, a job kind and an outcome. This rule does not cover log lines. For example, Codex logs the admin email at warning level at first boot, and the logs reach the console, Seq and the collector.
+
+## Next steps
+
+- To tell whether the worker is the problem, read [files and the worker](/start/worker/).
+- To fix a symptom, read [troubleshooting](/start/troubleshooting/).

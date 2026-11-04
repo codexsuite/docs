@@ -1,0 +1,177 @@
+---
+title: "Plan"
+description: "The board and outline: move, split, merge and archive chapters and scenes."
+sidebar:
+  order: 6
+---
+
+import Shot from "../../../components/Shot.astro";
+
+The Plan is where you set out a book's structure before and while you write it. It shows every act, chapter and scene as cards. Use it to add structure, rename chapters, move scenes, merge two scenes, and archive what you no longer need. Archiving a chapter or a scene keeps its text, and you can restore it from the Archived list.
+
+**Address:** `/books/<id>/plan`. A new book opens here.
+
+<Shot name="ui-plan-overview" alt="The Plan of Salt and Signal as a board, with the act The Light open and a column for each chapter." />
+
+Each act is a row. Each chapter is a column inside it, and each scene is a card in the column. A chapter header shows its number, the count of scenes and the words written. A card shows its scene number, title, summary, linked Knowledge base entries and labels, and the word count. A scene with nothing written says `Not written`. A scene that has an AI draft waiting shows `Draft pending`. The third act and later start collapsed. Select an act's arrow to open it, or use Collapse all and Expand all in the toolbar.
+
+The toolbar has New Act, the Board and Outline switch, Find in plan, a Label filter, Archived and Collapse all. The bar at the top of the book has a Scope list that limits the view to one act or chapter, and a word count for that scope.
+
+## Switch between board and outline
+
+Select Outline to see the same acts, chapters and scenes as a table with the columns #, Scene summary, Codex, Labels and Words. Select Board to go back. Codex remembers your choice for each book in your browser.
+
+<Shot name="ui-plan-outline" alt="The Plan as an outline table, with one row for each scene." />
+
+## Find a scene
+
+Type in Find in plan to dim every scene that does not match. Choose a label in the Label filter to dim the scenes that do not have it. Select Manage labels in the filter to rename a label, add one, or delete one. Deleting a label asks first and says how many scenes use it, then removes it from them.
+
+<Shot name="ui-plan-find" alt="The Plan after searching for lens, with the matching scene highlighted and the others dimmed." />
+
+<Shot name="ui-plan-labels" alt="The Label filter open, listing the labels in Salt and Signal and the Manage labels button." />
+
+## Add a chapter or a scene
+
+1. To add a chapter, select New Chapter in the act's header. Codex adds the chapter at the end of the act and numbers it to follow the chapter before it.
+2. To add a scene, select New scene at the bottom of a chapter. The new card takes focus in its summary, so you can type at once.
+3. To add an act, select New Act in the toolbar. Codex adds it with one chapter and one scene. Type its name and press Enter.
+
+<Shot name="ui-plan-new-chapter" alt="The Plan after New Chapter in The Light, with a chapter called New chapter at the end of the act." />
+
+<Shot name="ui-plan-new-scene" alt="A new empty scene at the end of the first chapter, with the cursor in its summary." />
+
+<Shot name="ui-plan-new-act" alt="A fourth act named The Return at the end of the board, with one new chapter and one new scene." />
+
+A scene summary saves by itself 3 seconds after your first edit, and when you leave the field. Type `@` in a summary to mention a Knowledge base entry. If the server refuses a new chapter or scene, a toast such as `Could not add the scene:` names the reason.
+
+## Rename a chapter
+
+To rename a chapter, double-click its title, or open the three-dot menu in the chapter header and choose Rename chapter. Type the new title and press Enter. Press Escape to keep the old one.
+
+<Shot name="ui-plan-rename-chapter" alt="The title of the first chapter in an edit box with the new title typed in." />
+
+A chapter keeps its reference in Write, such as `ch:the-lamp-room`, when you rename it. A link to the chapter in your text reads `§ Chapter 2`, with the chapter's number, and shows the title as a tooltip, so a rename changes the tooltip. The title cannot be empty. If you clear it and press Enter, the box says `The title cannot be empty.` and Codex saves nothing.
+
+<Shot name="ui-plan-renamed-chapter" alt="The first chapter with its new title, The Lamp Room, restored, after Enter." />
+
+<Shot name="ui-plan-rename-empty" alt="The chapter title box with an empty title and the message The title cannot be empty." />
+
+To rename an act, select the pencil in its header, type the new title and press Enter.
+
+<Shot name="ui-plan-rename-act" alt="The first act with its title box holding the new name The Long Light." />
+
+To rename a scene, type in the title above its summary. It saves the same way as the summary.
+
+## Move chapters and scenes
+
+A card and a chapter header each have a grip and a three-dot menu. They show when you point at the card or header, or when you Tab to them. An act has a grip that shows the same way, and a three-dot menu that always shows beside New Chapter.
+
+To move a scene, drag the grip at the top left of its card into a chapter column. A scene lands only in a chapter column. To reorder chapters, drag the grip in the chapter's own header. To reorder acts, drag the grip in the act's header. A line shows where the item will land. Press Escape while you drag to cancel. To move a chapter into another act, drop it on that act's row. The act must be open. Chapter numbers run across acts, so a move renumbers only the chapters between the old place and the new one. A chapter that goes from the end of an act to the start of the next keeps its number.
+
+<Shot name="ui-plan-drag-chapter" alt="The second chapter of The Light held over the first, with a line at its left edge showing where it will land." />
+
+<Shot name="ui-plan-moved-chapter" alt="The Light after the drop, with the former second chapter now numbered Chapter 1 and the former first chapter numbered Chapter 2." />
+
+A link to a chapter in your text reads `§ Chapter N`. After a move the link shows the chapter's new number, and the stored link does not change. The Used in column in [References](/ui/references/) lists the chapter numbers where each source is cited, so it follows the move.
+
+<Shot name="ui-plan-moved-chapter-link" alt="Write after the move, with the link in Lighting up reading § Chapter 1." />
+
+<Shot name="ui-plan-moved-chapter-references" alt="References after the second chapter moved ahead of the first, with the Used in column showing the new chapter numbers." />
+
+You can also move with the keyboard. Tab to the grip, then press Alt and an arrow:
+
+- On a chapter, Left or Right moves it before or after its neighbour in the act. Up or Down moves it into the neighbouring act, to the end of the act above or the start of the act below.
+- On a scene, Up or Down moves it one place in its chapter. Past the first or last scene, it moves into the neighbouring chapter, to the end of the chapter above or the start of the chapter below. Left or Right moves it to the end of the previous or next chapter.
+- On an act, Up or Down moves the act.
+
+<Shot name="ui-plan-key-move-chapter" alt="The second chapter of The Light moved by Alt and Down to the start of the next act." />
+
+<Shot name="ui-plan-key-move-scene" alt="The last scene of the second chapter moved by Alt and Down to the start of the third chapter." />
+
+To move a scene to a different chapter without dragging, open the card's three-dot menu, choose Move to chapter, and choose the chapter. The scene goes to the end of that chapter and takes the next scene number there. The menu has no Move to chapter item when the book has one chapter.
+
+<Shot name="ui-plan-move-scene" alt="The menu on the first scene, with Move to chapter open and a list of the other chapters." />
+
+<Shot name="ui-plan-moved-scene" alt="The first scene now at the end of the second chapter." />
+
+Everything that belongs to the scene moves with it: its text, summary, labels, linked entries, beats and source uses. If the server refuses a move, the Plan puts the card back and shows `Could not move the scene:` with the reason.
+
+## Split a scene
+
+The Plan does not split scenes. To split one, open it in [Write](/ui/write/), put the cursor in the last paragraph of the first part, press `/` and choose Split scene here. The next paragraph starts the second scene.
+
+<Shot name="ui-plan-split-scene" alt="The Plan after Split scene here on The morning round, with three scenes in Oil and Brass." />
+
+## Merge two scenes
+
+To merge a scene into the one before it, open the card's menu and choose Merge into previous scene. The earlier scene keeps its place and takes the later scene's text, summary, labels, linked entries, beats and source uses. Codex archives the later scene with no text. The first scene in a chapter has no earlier scene, so its menu has no merge option.
+
+<Shot name="ui-plan-merge" alt="The menu on the second scene of the chapter Oil and Brass, with Merge into previous scene shown." />
+
+A toast says `Scenes merged · the later scene is in Archived`. Both scenes keep their earlier text in version history, so you can bring it back from there.
+
+<Shot name="ui-plan-merged" alt="The Plan after a merge, with the toast Scenes merged and the Archived count raised by one." />
+
+### The merge is refused
+
+Codex refuses to merge while either scene has an AI draft waiting. The toast says `Could not merge the scene: Apply or discard the draft first.` and nothing changes. Open the scene in [Write](/ui/write/), apply or discard the draft, then merge again. See [AI drafts](/ui/ai-drafts/).
+
+<Shot name="ui-plan-merge-refused" alt="The toast Could not merge the scene: Apply or discard the draft first, shown after merging the scene The lens arrives." />
+
+## Archive a scene or a chapter
+
+To archive a scene, open its menu and choose Archive scene. To archive a chapter, open its menu and choose Delete chapter. Delete chapter only archives the chapter. A toast tells you what went with it, for example `Scene archived · 1 source use archived (Signals at Sea)` or `Chapter archived · 2 scenes`. Select Undo in the toast to bring it back at once.
+
+Codex archives a scene's source uses with it. A source that no scene cites any more shows as not cited in [References](/ui/references/) until you restore the scene.
+
+<Shot name="ui-plan-archived-not-cited" alt="References after archiving The morning round, with Signals at Sea under Not cited." />
+
+<Shot name="ui-plan-archive-scene" alt="The Plan after archiving a scene, with the toast and its Undo button." />
+
+<Shot name="ui-plan-delete-chapter" alt="The Plan after Delete chapter on the second chapter, with the toast Chapter archived." />
+
+<Shot name="ui-plan-undo-chapter" alt="The Plan after Undo, with the chapter Oil and Brass back in The Light." />
+
+To archive an act, open its menu and choose Delete act. The act's chapters and scenes go with it, and the toast reads `Act deleted`. If source uses go with the act, it adds how many. An archived act does not appear in the Archived list, so Undo in the toast is the only way back on the Plan. Use it before the toast closes.
+
+<Shot name="ui-plan-delete-act" alt="The Plan after Delete act on the third act, with the toast Act deleted and its Undo button." />
+
+A book always keeps one act. If you try to delete the last act, Codex refuses with `Could not delete the act: A book needs at least one act.` and nothing changes.
+
+## Restore archived items
+
+The Archived button in the toolbar shows how many archived scenes there are. Select it to open the list of archived chapters and scenes. Each archived scene shows where it was and how many source uses went with it. Select Restore on a scene or a chapter to bring it back.
+
+<Shot name="ui-plan-archived-list" alt="The Archived list open with one archived scene and its Restore button." />
+
+If a scene's chapter is archived too, Restore asks `Restore the chapter too?` Select Restore both to bring back the chapter and then the scene. Select Cancel to leave the scene archived.
+
+<Shot name="ui-plan-restore-both" alt="The prompt Its chapter Oil and Brass is archived. Restore the chapter too, with the buttons Restore both and Cancel." />
+
+<Shot name="ui-plan-restored-both" alt="The Plan after Restore both, with the chapter Oil and Brass back and the toast Scene restored." />
+
+An empty list says `Nothing archived.` A link in your text to an archived chapter reads the chapter's title. Select it to open the Plan with the Archived list open at that chapter.
+
+<Shot name="ui-plan-archived-chapter-link" alt="The Plan after selecting a link to the archived chapter Oil and Brass, with the Archived list open at that chapter." />
+
+## Imported books
+
+A book you made with Import opens on the Plan with a banner that says where it came from and what it skipped. Select the close button on the banner to dismiss it. The owner also sees Undo import, until the book is written in. Undo import asks first, then deletes the book and everything in it and returns you to the Library. You cannot undo this. See [Library](/ui/library/).
+
+## Books shared with you
+
+With the View or Comment role you can read the Plan but not change it. The grips, New Act, New Chapter, New scene, the chapter menu, the act's rename button and menu, and the buttons that add labels and entries do not appear. The scene menu stays, with Open in Write only. With the Edit role you can change everything on this page except Undo import, which only the owner sees. See [Sharing a book](/ui/sharing/).
+
+## Keyboard
+
+| Keys | What happens |
+|---|---|
+| Alt and Left or Right on a chapter grip | Moves the chapter before or after its neighbour in the act. |
+| Alt and Up or Down on a chapter grip | Moves the chapter into the neighbouring act. |
+| Alt and Up or Down on a scene grip | Moves the scene one place, then into the neighbouring chapter past the edge. |
+| Alt and Left or Right on a scene grip | Moves the scene to the end of the previous or next chapter. |
+| Alt and Up or Down on an act grip | Moves the act. |
+| Enter in a title box | Saves the title. |
+| Escape in a title box | Keeps the old title. |
+| Escape while dragging | Cancels the move. |

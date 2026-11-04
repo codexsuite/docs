@@ -1,0 +1,104 @@
+---
+title: "Tokens and scopes"
+description: "Scopes, roles, expiry and revoking."
+sidebar:
+  order: 3
+---
+
+import Shot from "../../../components/Shot.astro";
+
+A personal access token lets an agent act as you over MCP.
+
+Address: `https://<your-codex>/account`, in the Agent access section.
+
+<Shot name="agents-tokens-overview" alt="The Agent access section of the Account page, with the name field, the scope checkboxes, the expiry list and the Create token button." />
+
+## Create a token
+
+To create a token:
+
+1. In Agent access, enter a name. The name appears in the list and in History, so make it say which agent uses it.
+2. Tick the scopes. Read is ticked and cannot be turned off.
+3. Choose the expiry.
+4. Select Create token.
+
+<Shot name="agents-tokens-create" alt="The Agent access form filled in with the name Claude Code on my laptop, the write scope ticked and 90 days chosen as the expiry." />
+
+Codex then shows the token once, with a copy button and a ready `claude mcp add` command. Select Done after you copy it. Codex stores only a hash, so nobody can show the token again. If you lose it, revoke it and create another.
+
+<Shot name="agents-tokens-secret" alt="The one-time box that shows the new token, a Copy button, a Done button and the claude mcp add command." />
+
+## Scopes
+
+| Scope | Label in the form | What it allows |
+|---|---|---|
+| `codex:read` | Read your books | Listing and searching books, reading outlines, prose, drafts, the Knowledge base, References, images and revisions, and previewing layout. Every prompt and resource also needs it. |
+| `codex:write` | Edit outlines, prose and the Knowledge base | Creating and updating books and series, editing the outline and prose, beats, Knowledge base entries and links, images and figures, submitting, applying and discarding drafts, and undo. |
+| `codex:references` | Change sources, uses and permission letters | Adding, updating, merging and archiving sources, citing them, recording clearance decisions, managing permissions and drafting permission letters. |
+| `codex:generate` | Ask Codex for drafts (spends your model budget) | `draft_prose`, which starts an AI draft with your own AI integration. |
+
+Some tools need two scopes. `preview_layout` with kind `proof` and `export_for_printer` in `queue` mode need `codex:write` as well as read. `undo` needs the scope of the tool whose write it reverses. The [tool reference](/agents/tools/) lists the tools.
+
+Holding `codex:references` does not let an agent sign off a source or accept fair use. You make those decisions in References.
+
+### Error: a tool needs a scope
+
+A tool called without its scope fails with `forbidden`. The message names the tool and the scope, and the `field` is the scope:
+
+```text
+edit_prose needs the codex:write scope, which this token does not have.
+```
+
+To fix it, create a new token with the scope. A token's scopes cannot be changed later.
+
+## Roles on shared books
+
+A token acts as you, so a book shared with you works through your role on that book. A call needs both the scope for the tool and a high enough role.
+
+| Role needed | What the call does |
+|---|---|
+| View | Every read tool, every prompt and resource, `preview_layout` with kind `quick`, and `export_for_printer` in `preflight` mode. |
+| Write | Every tool that changes a book, including with `dry_run`. This covers the write, references and generate scopes. |
+| Owner | Moving a book into or out of a series, changing its series number, and creating a book in a series. |
+
+Comment gives an agent no more than view. There are no comment tools.
+
+### Error: your role is too low
+
+A write on a book shared with you to view fails with `forbidden`. The message is:
+
+```text
+This book is shared with you to view only.
+```
+
+For a book shared with you to comment, the message is `This book is shared with you to comment on, not to edit.` A call that needs the owner says `Only the book's owner can do that.` These messages have no `field`, which tells you the scope is fine and the role is the problem. Ask the book's owner to change your role in Book settings, Sharing.
+
+A book you cannot open at all returns `not_found`, the same as an id that does not exist.
+
+## Expiry
+
+Choose 30 days, 90 days, 1 year or Never. The default is 90 days. When a token expires, the next call gets 401 and the list shows `Expired` with the date in the warning colour.
+
+## Read the list
+
+Each token has a row with its name, the first characters of the token, its scopes, when it was last used and when it expires. The first characters let you match a row to a token you stored.
+
+<Shot name="agents-tokens-list" alt="The token list with two rows. One has the write scope and expires in 90 days, the other is read only and expires in 30 days. Each row has a Revoke button." />
+
+Codex records the last use at most once a minute.
+
+## Revoke a token
+
+To revoke a token, select Revoke on its row. The next call with that token gets 401. Revoking marks the token and deletes nothing, so History keeps its name.
+
+If an administrator disables your user, every token you created stops working, because a disabled user's tokens get 401.
+
+### Error: a missing or rejected token
+
+A call with no token, or with one that is unknown, revoked or expired, gets 401 `unauthorized`. The message is:
+
+```text
+Send a Codex personal access token: Authorization: Bearer cdx_pat_…. Create one under Account → Agent access.
+```
+
+[Connect an agent](/agents/connect/) lists what to check.

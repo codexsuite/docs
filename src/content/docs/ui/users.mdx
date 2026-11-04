@@ -1,0 +1,87 @@
+---
+title: "User management"
+description: "Add and manage users. Admins only."
+sidebar:
+  order: 15
+---
+
+import Shot from "../../../components/Shot.astro";
+
+Use this page to add people to your Codex, reset a password, unlock an account, disable a user, make someone an admin and revoke personal access tokens. Only admins see it.
+
+**Address:** `/settings/users`. Admins also reach it from the account menu, under **Users**.
+
+<Shot name="ui-users-overview" alt="The Users page with an Email field, a Display name field and an Add user button above a table of two users, with their status, last sign-in and token count." />
+
+The table lists every user, sorted by name. The columns are Name, Email, Admin, Status, Last sign-in, Created and Tokens. **Last sign-in** reads "Never" until the user signs in. **Tokens** counts the personal access tokens that are not revoked and have not expired. Each row has buttons for the actions below.
+
+The first admin comes from `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` on first start. See [Configuration](/start/configuration/).
+
+## Add a user
+
+Codex has no sign-up and sends no email. You create the account and pass on the password yourself.
+
+1. Enter the person's **Email**.
+2. Enter their **Display name**.
+3. Click **Add user**.
+
+<Shot name="ui-users-add" alt="The Users page with marta.quill@example.test in the Email field and Marta Quill in the Display name field, above the Add user button." />
+
+Codex shows a one-time password for the new user, with **Copy** and **Done** buttons. Copy it and give it to the person. Codex shows it once, so click **Done** only after you have passed it on. The new user signs in with it and has to choose a password before anything else opens. See [Sign in and your account](/ui/account/).
+
+<Shot name="ui-users-one-time-password" alt="The Users page after Add user, with a box that reads One-time password for marta.quill@example.test, the password hidden behind dots, and Copy and Done buttons above the new row." />
+
+The new row reads "active · must change password" under **Status** until the person has done that.
+
+A new user sees no books until a book owner shares one with them. See [Sharing a book](/ui/sharing/).
+
+If an account with that email already exists, Codex shows "A user with the email ... already exists." in red and adds nothing. Codex ignores capital letters when it compares emails. The browser refuses an address with no `@`. If Codex does not accept an address, it shows "Enter an email address such as name@example.com."
+
+<Shot name="ui-users-duplicate" alt="The Users page after adding ines.calloway@example.test again, with the message A user with the email ines.calloway@example.test already exists in red above the table." />
+
+## Reset a password
+
+If someone forgets their password, click **Reset password** on their row. Codex shows a new one-time password in the same box as for a new user. The reset signs the person out of every browser and device. It also clears a lock. They have to choose a new password at their next sign-in.
+
+<Shot name="ui-users-reset-password" alt="The Users page after Reset password on Ines Calloway, with the one-time password box above the table and the status active, must change password in her row." />
+
+## Unlock a user
+
+Ten wrong passwords in a row lock an account for 15 minutes. A locked row reads "locked" under **Status** and has an **Unlock** button. Click it to let the person try again at once. The button is only there while the account is locked.
+
+<Shot name="ui-users-locked" alt="The Users page with the row for Ines Calloway marked locked in orange and an Unlock button among her row buttons." />
+
+After you click it, the status no longer reads "locked" and the button disappears.
+
+<Shot name="ui-users-unlocked" alt="The same row after Unlock, with the status active · must change password and no Unlock button." />
+
+## Disable a user
+
+Codex has no delete, because every user owns books. Disable the account instead. A disabled user cannot sign in, and their personal access tokens stop working. Their books stay.
+
+1. Click **Disable** on the person's row. The status reads "disabled".
+2. To let them back in, click **Enable**. Their old password still works, unless you reset it.
+
+<Shot name="ui-users-disabled" alt="The Users page with the row for Ines Calloway marked disabled and the button in her row now reading Enable." />
+
+You cannot disable your own account, so Codex dims **Disable** in your own row. Codex also refuses to leave the instance with no active admin.
+
+## Make someone an admin
+
+Click **Make admin** on a row. The **Admin** column reads "Admin" and the button becomes **Remove admin**. An admin sees the **Users** item in the account menu. The change takes effect on the person's next request. You cannot remove your own admin rights, so Codex dims **Remove admin** in your own row.
+
+<Shot name="ui-users-make-admin" alt="The Users page with Admin in the Admin column of Ines Calloway's row and the button in her row now reading Remove admin." />
+
+## Revoke personal access tokens
+
+Click **Revoke tokens** on a row to stop every personal access token that person has. Use it when a laptop is lost or a person leaves a project. Codex dims the button when the **Tokens** count is 0. The person can create new tokens from their own account. See [Tokens and scopes](/agents/tokens/).
+
+<Shot name="ui-users-revoke-tokens" alt="The Users page after Revoke tokens on the admin's own row, with the Tokens count at 0 and the Revoke tokens button dimmed." />
+
+## If you are not an admin
+
+A signed-in user who opens `/settings/users` sees "Only admins can manage users" and a **Back to Library** link. The server also refuses these actions with a 403 for anyone who is not an admin.
+
+<Shot name="ui-users-not-admin" alt="The Users page for a user who is not an admin, with the heading Only admins can manage users and a Back to Library link." />
+
+If a row action fails, Codex shows the reason in red above the table and the table reloads.

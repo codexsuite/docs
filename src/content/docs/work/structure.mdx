@@ -1,0 +1,74 @@
+---
+title: "Planning the structure"
+description: "Acts, chapters, scenes, summaries and labels."
+sidebar:
+  order: 2
+---
+
+import Shot from "../../../components/Shot.astro";
+
+Mara Quill has the idea for Salt and Signal and a rough order for it. Before she writes a sentence, she puts that order on the Plan. This page follows her through it. Each step links to the [Plan](/ui/plan/) page, which lists every option on the screen.
+
+<Shot name="work-structure-board" alt="The Plan of Salt and Signal as a board. Act 1, The Light, shows the chapters The Lamp Room and Oil and Brass, each with scene cards." />
+
+## Three acts, six chapters
+
+Salt and Signal has three acts. The Light covers building and tending the lamp at Harrowmouth. The Keepers covers the families who lived at the station. The Last Watch covers the machines that take over the lamp and the keepers' last year. Each act holds two chapters, and each chapter holds two scenes, so the book starts with twelve scenes.
+
+A new book has one act. To add the others, select New Act in the toolbar and type the title in the act's header. To add a chapter, select New Chapter in the act's header. To add a scene, select New scene at the bottom of a chapter.
+
+<Shot name="work-structure-new-scene" alt="The first chapter after New scene, with a new empty card at the end and the cursor in its summary." />
+
+## Write a summary for each scene
+
+Type a sentence in each scene's summary. Mara writes what happens and who is there, for example "Edith Marrow lights the lamp for the first time as head keeper." Type `@` in a summary to mention an entry from the [Knowledge base](/ui/knowledge-base/). The summary saves a few seconds after you stop typing.
+
+Select Outline in the toolbar to see every scene as a row, in book order, with its summary, linked entries, labels and word count. Select Board to go back.
+
+<Shot name="work-structure-outline" alt="The Plan as an outline table with one row for each scene and its summary." />
+
+## Mark what needs work with labels
+
+Mara marks the scenes she has not researched with the label Needs research. Select Label on a scene card to add a label to it. Select Label in the toolbar and pick a label. Scenes without that label dim. Pick Any label to clear the filter. Select Manage labels in that menu to rename a label, add one or delete one.
+
+<Shot name="work-structure-labels" alt="The Label filter open, listing Needs research, Ready to write, Drafting and Maybe cut." />
+
+Mara treats Needs research as a reminder to find a source for the scene, which is the next stage. See [Research beside the draft](/work/research/).
+
+## Reorder and restructure
+
+Mara decides that Oil and Brass should come before The Lamp Room. Tab to the grip at the top left of the chapter, then press Alt and the Left arrow. You can also drag the grip. The chapters renumber, so Oil and Brass is now chapter 1.
+
+<Shot name="work-structure-chapter-moved" alt="The Plan after Oil and Brass moved before The Lamp Room, with the keyboard focus still on its grip." />
+
+Moving a chapter keeps its scenes, summaries, labels, linked entries and cited sources. A link to the chapter in your text still points at it and shows its new number. To link to a chapter in your text, type `/` in Write and choose Chapter reference. See [Plan](/ui/plan/) for moving scenes between chapters.
+
+<Shot name="work-structure-chapter-link" alt="Scene 2.1 in Write after Oil and Brass moved to chapter 1. The chapter link at the start of the text now reads Chapter 1." />
+
+<Shot name="work-structure-outline-moved" alt="The Outline after Oil and Brass moved to chapter 1 and Counting the oil was archived, with that scene missing from the rows." />
+
+The Outline lists the new order and leaves out the archived scene.
+
+## Archive what you cut
+
+Mara decides to cut the scene Counting the oil. Open its menu and choose Archive scene. A toast says `Scene archived`, names any source uses archived with the scene, and offers Undo. An archived scene leaves the book, and its cited sources stop counting as cited until you restore it. The Archived button in the toolbar lists the archived chapters and scenes, each with Restore.
+
+<Shot name="work-structure-scene-archived" alt="The Plan after Counting the oil was archived, with a toast that offers Undo." />
+
+Archive The morning round, which quotes Signals at Sea, and the toast says `Scene archived · 1 source use archived (Signals at Sea)`. References stops counting that quote's words until you restore the scene. In References, Signals at Sea then shows Not cited.
+
+<Shot name="work-structure-source-archived" alt="The Plan after The morning round was archived, with the toast Scene archived, 1 source use archived (Signals at Sea), and Undo." />
+
+<Shot name="work-structure-references-after" alt="References after The morning round was archived. Signals at Sea is listed as Not cited with no words quoted." />
+
+## Merge two scenes
+
+To merge a scene into the one before it, open the card's menu and choose Merge into previous scene. The earlier scene takes the text, summary, labels, entries, beats and sources of the later one. A toast says `Scenes merged · the later scene is in Archived`.
+
+<Shot name="work-structure-merged" alt="The Plan after Counting the oil was merged into The morning round, with the toast Scenes merged, the later scene is in Archived." />
+
+### Codex refuses the merge
+
+Scene 1.2, The lens arrives, has an AI draft waiting. Codex refuses the merge while either scene has one. The toast says `Could not merge the scene: Apply or discard the draft first.` and nothing changes. Open the scene in [Write](/ui/write/), apply or discard the draft, then merge again. See [AI drafts](/ui/ai-drafts/).
+
+<Shot name="work-structure-merge-refused" alt="The toast Could not merge the scene: Apply or discard the draft first, shown after merging The lens arrives." />

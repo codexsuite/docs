@@ -1,0 +1,42 @@
+name: Check tool reference
+
+# Fails when src/content/docs/agents/tools.mdx differs from the tool, prompt and
+# resource definitions on the main branch of codexsuite/codex.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-tools-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/checkout@v5
+        with:
+          repository: codexsuite/codex
+          ref: main
+          path: product
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm tools:check product

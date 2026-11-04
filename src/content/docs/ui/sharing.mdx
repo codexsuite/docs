@@ -1,0 +1,79 @@
+---
+title: "Sharing a book"
+description: "Roles and what each role can do."
+sidebar:
+  order: 14
+---
+
+import Shot from "../../../components/Shot.astro";
+
+Sharing lets other people open your book. You give each person one of three roles, and you can change or remove it at any time. Only the owner of a book can share it. The Sharing card is part of Book settings, at `/books/<id>/settings#sharing`. To open it, select the settings icon in the book's top bar, then Sharing in the list on the left.
+
+<Shot name="ui-sharing-overview" alt="The Sharing card of Salt and Signal with the owner and Ines Calloway, who can view." />
+
+The card lists the owner first, marked Owner. Under the owner come the people you shared the book with, each with an email address and a role. You cannot change or remove the owner row. A number beside Sharing in the left list counts the people besides the owner.
+
+## What each role can do
+
+| Role | What the person can do |
+| --- | --- |
+| Can view | Opens every tab of the book, read-only. |
+| Can comment | Opens every tab of the book, read-only. The card's legend says this role adds comments, but Codex has no comment tools, so it does the same as Can view. |
+| Can edit | Changes the text, plan, Knowledge base, References and settings. |
+
+Only the owner can share, move, duplicate, publish or archive the book. A person with Can edit finds Duplicate, Start a new edition, Published, Archive and the Series controls turned off, and sees no controls on the Sharing card.
+
+A person you shared a book with sees it in their [Library](/ui/library/) with a chip: View only, Comment or Edit. Inside the book, a View only or Comment only chip appears in the top bar, and the person cannot type or change anything.
+
+## Share a book with someone
+
+The person needs a Codex account first. An admin adds accounts in [User management](/ui/users/).
+
+1. Under Add people, type the person's whole email address. Codex looks up an exact match only. It does not search or suggest names.
+2. When Codex finds the account, it shows the person's name and email with a role list and an Add button. If no account has that email, the card says `No Codex user has that email.`
+3. Choose a role. The list starts at Can view.
+4. Select Add. A message confirms, for example `Shared Salt and Signal with Ines Calloway · Can comment`.
+
+<Shot name="ui-sharing-no-match" alt="The Sharing card with the message No Codex user has that email under the email field." />
+
+<Shot name="ui-sharing-match" alt="The Sharing card with Ines Calloway found by email, Can comment chosen and the Add button." />
+
+<Shot name="ui-sharing-added" alt="The Sharing card with Ines Calloway added as Can comment and the confirmation message." />
+
+If you look up many addresses in a short time, the card says `That's a lot of lookups in a short time. Wait a minute, then try the address again.`
+
+Pressing Enter in the email field also adds the person.
+
+## Change a role or remove someone
+
+To change a role, open the role list on the person's row and choose another. The change saves at once, and a message reads, for example, `Ines Calloway can now edit Salt and Signal`. Each message has an Undo link.
+
+<Shot name="ui-sharing-role" alt="The Sharing card with Ines Calloway's role changed to Can edit and the confirmation message." />
+
+To remove someone, select Remove on their row. The message reads `Removed Ines Calloway. Their open tabs go back to Library.` Each message has an Undo link.
+
+<Shot name="ui-sharing-removed" alt="The Sharing card after Ines Calloway is removed, with the message that her open tabs go back to Library." />
+
+Changes reach open tabs without a reload. When you change someone's role, their open tab shows a message and becomes editable or read-only. When you remove someone, their open tab returns to the Library and shows `<owner> stopped sharing "<book>" with you.`
+
+## Share a whole series
+
+When a book belongs to a series, the card has two lists. The first is for this book only, with the field `Add people to <book> only`. The second is for the series, with the field `Add people to every book in <series>`. A person on the series list sees every book in the series, including books you add later, and the series' Knowledge base and labels. For the series screen, see [Series](/ui/series/).
+
+<Shot name="ui-sharing-series" alt="The Sharing card with Ines Calloway added to every book in Working Coasts as Can comment." />
+
+A person with two roles gets the higher one. The row shows the other role in grey, for example `Can comment through the series`. If a person already has a role through the series, a grant on one book can only raise it. The card says `<name> has Can view through <series> already. Pick a higher role for this book.` If the person can already edit the series, the card says so and adds nothing.
+
+## When you archive or move the book
+
+Archiving a book removes the access of everyone you shared it with directly. Restoring the book does not share it again. The Archive dialog names the people who lose access. People with access through the series keep it. See [Book settings](/ui/book-settings/#archive-and-export).
+
+Moving a book into or out of a series changes who can open it. The Review move dialog says how many people gain or lose access. See [Series](/ui/series/).
+
+## What a shared person sees
+
+Anyone but the owner reads the Sharing card without the controls. Each role shows as text, email addresses do not show, and the card says `Only <owner>, the owner, can change this.`
+
+<Shot name="ui-sharing-viewer" alt="The Sharing card as Ines Calloway sees it, with roles as text and no Add or Remove controls." />
+
+For a person with Can view or Can comment, the rest of Book settings is read-only too. See [Book settings](/ui/book-settings/#when-the-book-is-shared-with-you).

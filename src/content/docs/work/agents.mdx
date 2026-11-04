@@ -1,0 +1,73 @@
+---
+title: "Writing with an agent"
+description: "Which steps an agent can do over MCP and what you keep."
+sidebar:
+  order: 8
+---
+
+import Shot from "../../../components/Shot.astro";
+
+An agent such as Claude Code can do most of the route in [The flow at a glance](/work/flow/) for you. It works through the MCP tools, and everything it does shows up in the same screens you use. This page goes through the seven stages of Salt and Signal and names the tools an agent uses at each one. It also lists the few decisions that only you can make.
+
+You need a connected agent. To connect one, see [Connect an agent](/agents/connect/). Every call runs as you, with your role on the book. See [Agents in Codex](/agents/overview/).
+
+## Create a token with the scopes the work needs
+
+Mara creates one token for the whole route. It needs `codex:write` for outlines, prose, the Knowledge base and layout, and `codex:references` for sources and permission letters. Add `codex:generate` only if the agent should start AI drafts, because each one spends your model budget. Every token has `codex:read`.
+
+<Shot name="work-agents-token" alt="The Agent access section of Account with the token name Claude Code for Salt and Signal, the write and references scopes ticked and the expiry set to 90 days." />
+
+See [Tokens and scopes](/agents/tokens/) for the steps.
+
+## Stage by stage
+
+The tool names are the ones the agent sees. The [tool reference](/agents/tools/) lists the arguments of each.
+
+| Stage | What the agent can do | Tools |
+|---|---|---|
+| Series and book | List your books, start a book or a series, change a book's settings, reorder a series. | `list_books`, `create_book`, `create_series`, `update_series`, `update_book` |
+| Structure | Read the outline and add, rename, move or cut acts, chapters and scenes in one batch. | `get_outline`, `edit_outline`, `resume_work` |
+| Research | Add entries, categories and links, find where an entry is used, and add or fix sources. | `upsert_kb_entry`, `manage_kb_category`, `link_kb_entry`, `find_kb_usages`, `merge_kb_entries`, `add_source`, `update_source` |
+| Draft | Read the prose, plan beats, edit a passage, offer or generate a draft and apply or discard it, and take a write back. | `read_manuscript`, `upsert_beat`, `edit_prose`, `draft_prose`, `submit_draft`, `resolve_draft`, `list_revisions`, `undo` |
+| Clear | Read what blocks print, cite a source, change a use, draft the permission letter and record that you sent it. | `get_clearance`, `cite_source`, `update_source_use`, `draft_permission_letter`, `manage_permission`, `export_references` |
+| Lay out | Preview the pages, render a proof of one chapter and choose the template and trim. | `preview_layout`, `update_book` |
+| Print | List what blocks the export, queue it and read the job. | `export_for_printer`, `get_job` |
+
+To pick up a book where you stopped, ask for `resume_work`. It returns the scene you last edited, every pending draft, the scenes that wait on you and the open copyright risks.
+
+## Drafts stay pending until you decide
+
+An agent can start a draft with `draft_prose`, or hand in text it wrote with `submit_draft`. Either one lands in the same Apply, Retry and Discard panel you see in Write. The shot below shows that panel on the pending draft for scene 1.2.
+
+<Shot name="work-agents-draft" alt="Scene 1.2 of Salt and Signal in Write with a pending AI draft and the buttons Apply, Retry and Discard." />
+
+`draft_prose` never applies the draft. The agent applies or discards it with `resolve_draft`. To apply, `resolve_draft` needs the scene's current version, and a stale version fails with `conflict`, so a draft cannot overwrite text you changed in the meantime. An undo can reverse an apply or a discard. If you want to read every draft first, tell the agent to stop at the pending draft. See [Drafting](/work/drafting/#apply-retry-or-discard-a-draft).
+
+## Decisions that stay with you
+
+An agent cannot make these decisions. Codex refuses the tool call, or has no tool for the step.
+
+- **Sign off a source.** `record_clearance_decision` with `sign_off` fails with `blocked` and writes nothing. The error carries the summary of uses and words and a link to References, where you select Mark as cleared. The Keeper's Ledger below is ready for that step.
+- **Accept fair use.** It fails the same way, and Codex does not keep the reason the agent sends. In References, you type the reason in the fair use form, and the source keeps it.
+- **Record a granted permission.** `manage_permission` with `record_grant` needs the signed letter as a file, so it returns `blocked` with the link to References.
+- **Send the letter.** Codex does not send mail. The agent drafts the letter, you send it, and the agent then records `mark_sent`.
+
+<Shot name="work-agents-signoff" alt="The References screen with The Keeper's Ledger selected. The panel reads Needs check, Ready to sign off, and has the button Mark as cleared." />
+
+An agent can take your decision back. `record_clearance_decision` with `reopen` removes a sign-off, and `not_a_quote` dismisses an unflagged quote. An undo cannot restore either.
+
+Sharing is also yours. There are no sharing tools. To move a book, an agent calls `update_book` or `create_series`. Both refuse with `needs_confirmation` and write nothing until the agent repeats the call with `confirm` set to true. An undo cannot reverse a move, because a book that leaves a series gets a copy of its Knowledge base entries.
+
+## Print readiness
+
+At the last stage the agent calls `export_for_printer` with `mode` set to `preflight`. The result lists what blocks the export, what only warns and what is a note, and it queues nothing. A copyright risk is a block. With a block open, `mode` `queue` fails with `blocked` and queues nothing, as the Export for printer dialog does.
+
+<Shot name="work-agents-preflight" alt="The Export for printer dialog of Salt and Signal reading 1 issue blocks export, with the Queue export button disabled." />
+
+The dialog and the tool use the same check. To clear the block, you or the agent follow the steps in [Clearing quotes and citing](/work/clearing/). The agent can draft the letter and track the reply. You send the letter and record the grant. See [Getting to print](/work/print/#error-a-risk-blocks-the-export) for the message.
+
+The worker builds a queued export, and the agent cannot undo it. It needs a host that can print. See [Requirements](/start/requirements/).
+
+## Prompts to start from
+
+Codex offers the prompts `resume`, `draft-scene`, `print-readiness` and `triage-references`. The `print-readiness` prompt walks through the copyright clearance one source at a time, then the layout preview and the preflight. See [Example prompts](/agents/prompts/).

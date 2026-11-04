@@ -1,0 +1,57 @@
+---
+title: "Agents in Codex"
+description: "An agent acts as a person, with that person's access."
+sidebar:
+  order: 1
+---
+
+An agent is an AI client, such as Claude Code or Cursor, that works on your books through the Codex MCP server. You give it a token, and it reads and edits Codex the way you would, within the access you chose.
+
+Use an agent when you want it to read a manuscript, plan an outline, fill the Knowledge base, start AI drafts or check References while you stay in Write.
+
+Address: `https://<your-codex>/mcp`. Clients connect to it over HTTP. You create the token in the app at `/account`, under Agent access.
+
+## What an agent can do
+
+An agent calls tools. A tool is one action, such as `get_outline`, `edit_prose` or `cite_source`. The [tool reference](/agents/tools/) lists every tool, prompt and resource with its arguments.
+
+The tools fall into four groups, and each group needs one scope on the token.
+
+| Scope | What it allows |
+|---|---|
+| `codex:read` | Reading books, outlines, prose, drafts, the Knowledge base and References. Every token has it. |
+| `codex:write` | Editing outlines, prose, beats, the Knowledge base, books, series and images, and applying or discarding drafts. |
+| `codex:references` | Changing sources, uses, clearance decisions and permission letters. |
+| `codex:generate` | Asking Codex for AI drafts, which spends your model budget. |
+
+[Tokens and scopes](/agents/tokens/) explains how to choose them.
+
+## An agent acts as you
+
+A token belongs to the person who created it. Every call runs as that person, so an agent sees your own books and the books shared with you, and nothing else. Codex reports a book you cannot open as not found.
+
+Sharing roles apply on top of scopes. A call needs both the scope for the tool and a high enough role on the book. A token with `codex:write` on a book shared with you to view fails with `forbidden`. [Tokens and scopes](/agents/tokens/) lists which role each kind of call needs.
+
+## What an agent cannot do
+
+- It cannot sign off a source or accept fair use. You make those decisions in References.
+- It cannot change sharing. There are no sharing tools.
+- It cannot comment on a book. Comment access gives an agent read access only.
+- It cannot use the token anywhere else. The token works on `/mcp` and nowhere in the rest of the app.
+
+## Prompts and resources
+
+Codex also offers four prompts and six resources to clients that support them. A resource is a document the agent can read, such as an outline. A prompt is a ready-made instruction, such as picking up where you left off. [Example prompts](/agents/prompts/) shows how to run them and what to say to the agent.
+
+## Over HTTP, use ids
+
+The connection is stateless, so Codex keeps no session between requests. A display number such as `5.2` always means the scene that has that number now. When an agent edits several scenes in a row, ask it to use the ids that the tools return.
+
+:::note[Planned]
+Signing in to an MCP client with OAuth instead of a token is planned. Today every client needs a personal access token.
+:::
+
+## Next steps
+
+- [Connect an agent](/agents/connect/) to create a token and add the server to your client.
+- [Tokens and scopes](/agents/tokens/) to choose access, expiry and how to revoke.

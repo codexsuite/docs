@@ -1,0 +1,151 @@
+---
+title: "AI settings"
+description: "Prompt templates, models and provider keys for your account."
+sidebar:
+  order: 3
+---
+
+import Shot from "../../../components/Shot.astro";
+
+Use this page to connect the AI provider that writes your drafts and to manage your prompt templates. Both belong to your account, not to a book. Each user connects their own provider and keeps their own templates.
+
+**Address:** `/settings/ai`. Open it from the account menu, under **AI**.
+
+<Shot name="ui-ai-settings-overview" alt="The AI page with an AI providers card that lists one provider, Fake model, marked Default, and a Prompt templates card that lists Continue writing, Write in Joel's voice and Paraphrase, each marked Built in." />
+
+The page has two cards. **AI providers** lists the providers you have connected, with a **Connect** button. **Prompt templates** lists the templates that tell the model what to do. [Beats and AI drafts](/ui/ai-drafts/) shows where Write uses both.
+
+## Connect a provider
+
+Codex has no server-wide AI key. You bring your own. Codex encrypts your key and never shows it again.
+
+1. Click **Connect**.
+2. Choose the **Provider**: **OpenAI-compatible**, **OpenRouter** or **Anthropic**.
+3. Enter a **Label**, such as "Gateway". It can hold up to 100 characters.
+4. For **OpenAI-compatible**, enter the **Base URL**, such as `https://api.example.com/v1`. The other two providers have a fixed address, so the field is not there.
+5. Enter your **API key**.
+
+<Shot name="ui-ai-settings-connect" alt="The Connect an AI provider dialog with the three provider buttons, the label Gateway, the base URL http://fake-model:4010/v1 and the API key hidden behind dots." />
+
+6. Click **Test connection**. Codex asks the provider for its list of models. It shows "Connected: 1 model" and lists the models it found.
+7. Choose the **Default model** from the list. Codex picks the first one for you.
+8. Click **Save**.
+
+<Shot name="ui-ai-settings-connect-tested" alt="The Connect an AI provider dialog after Test connection, with Connected: 1 model in green and fake-model chosen as the default model." />
+
+The new provider appears in the list. Your first provider becomes the default. Each row shows the label, the kind, a **Default** badge, the base URL, a hint of the key, the default model and when you last used it. The hint shows at most the key's prefix and its last four characters, never the whole key.
+
+<Shot name="ui-ai-settings-connected" alt="The AI providers card with two rows, Gateway and Fake model, both showing a key hint, a default model and a Last used time." />
+
+Changing the provider, the base URL or the key after a test clears the result, so test again.
+
+If you skip the test, the default model is a text field. Type the model's id.
+
+### If the test fails
+
+When the test fails, the dialog shows the reason in red beside **Test connection** and stays open. Codex saves nothing until you click **Save**, and **Save** still works after a failed test. Codex uses one fixed sentence for each kind of failure, and never repeats what the provider sent back:
+
+- "`<Provider>` rejected the API key. Check it in Settings → AI."
+- "`<Provider>` reports no credit left on this account. Check the plan and credits with the provider."
+- "`<Provider>` is busy right now. Try again in a moment."
+- "`<Provider>` could not use this request. Check the model and the beat, then try again."
+- "`<Provider>` could not be reached. Try again in a moment."
+
+For an OpenAI-compatible provider, `<Provider>` reads "The OpenAI-compatible provider". The other two use their own names. A base URL that answers but has no model list gets the "could not use this request" sentence, as in this shot. An address that does not answer gets "could not be reached".
+
+<Shot name="ui-ai-settings-connect-failed" alt="The Connect an AI provider dialog with the base URL http://fake-model:4010/v2 and, beside Test connection, the red message The OpenAI-compatible provider could not use this request. Check the model and the beat, then try again." />
+
+Codex also refuses some base URLs before it asks the provider:
+
+- A URL that does not start with `https://` gets "Use an https:// address." The field shows "https:// only" under it.
+- A URL with a user name, a password, a query or a `#fragment` gets "The address can't contain a user name, password, query or #fragment."
+- A host that is not on the public internet gets "`<host>` is not on the public internet. The server owner can allow local endpoints with CODEX_AI_ALLOW_LOCAL_ENDPOINTS."
+- A host name that does not resolve gets "Couldn't find `<host>`. Check the address."
+
+To connect a model on your own network, such as Ollama, the person who runs your Codex sets `CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true`. See [Configuration](/start/configuration/). Even then, Codex never allows link-local addresses.
+
+If you save without a label or a key, Codex shows "Give the connection a label and a key."
+
+If the server has no key folder, Codex cannot save a key and answers "AI integrations need a key folder. Set CODEX_DATA_PROTECTION_DIR in the server settings." The person who runs Codex fixes that. The quick start sets it for you.
+
+## Manage a provider
+
+Each row has these buttons.
+
+- **Test** asks the provider for its models again and keeps the list. The result appears above the row's buttons, in green or red. A failed test also leaves "Last error: ..." on the row.
+- **Make default** appears on rows that are not the default. Codex uses the default provider for a beat when you have not chosen another.
+- **Change default model** opens the model list, with **Save** and **Cancel**. The list holds the models from the last **Test** on this row. The test in the Connect dialog does not fill it. Until you run **Test**, you get a text field for the model's id.
+- **Replace key** opens a field for a new key. The old key stops working in Codex when you save.
+- **Rename** changes the label.
+- **Remove** asks "Remove `<label>`? Its key is deleted." Click **Remove** again to confirm.
+
+<Shot name="ui-ai-settings-test" alt="The Fake model row with Connected: 1 model in green under its details, above the row buttons." />
+
+<Shot name="ui-ai-settings-change-model" alt="The Fake model row after Change default model, with a model list showing fake-model beside Save and Cancel buttons." />
+
+<Shot name="ui-ai-settings-replace-key" alt="The Fake model row after Replace key, with a hidden key field filled in beside Save and Cancel buttons." />
+
+When you connect a second provider, **Make default** moves the **Default** badge and moves that row to the top.
+
+<Shot name="ui-ai-settings-make-default" alt="The AI providers card after Make default on Gateway, with the Default badge on Gateway and a Make default button still on the Fake model row." />
+
+If you remove the default provider, your oldest remaining provider becomes the default. Removing a provider deletes its key. Drafts that it already wrote stay where they are.
+
+<Shot name="ui-ai-settings-remove" alt="The Fake model row after Remove, with the question Remove Fake model? Its key is deleted, and a red Remove button and a Cancel button." />
+
+## Prompt templates
+
+A template is the instruction Codex sends with your beat. Three come with Codex: **Continue writing**, **Write in Joel's voice** and **Paraphrase**. Each has a **Built in** badge, and you cannot change them. Duplicate one to make your own.
+
+### Make your own template
+
+1. Click **Duplicate** on the template to start from.
+2. Type a name for the copy, up to 100 characters.
+3. Click **Duplicate** again. Codex opens the copy in an editor.
+
+<Shot name="ui-ai-settings-duplicate" alt="The Continue writing row after Duplicate, with a name field holding Lighthouse voice and Duplicate and Cancel buttons under it." />
+
+The editor has a name field and a large **Prompt** box. A copy of a built-in template starts as its instruction followed by five variables. Codex fills in each variable when it builds a draft:
+
+| Variable | What Codex puts there |
+| --- | --- |
+| `{{beat}}` | The text of the beat. When there is no beat, "Continue the scene." |
+| `{{context}}` | The Knowledge base entries you added to the beat, one line each with their summary. |
+| `{{style_guide}}` | The book's style guide. Empty when the book has none. |
+| `{{previous_prose}}` | The text of the scene before the beat, at most the last 6000 characters. |
+| `{{length}}` | The target length in words. |
+
+Click a variable button under the prompt to add it to the end of the prompt. A line under the box reads "About `<number>` tokens". It estimates the size of the template alone, at about four characters to a token. The draft adds the beat and the context.
+
+<Shot name="ui-ai-settings-editor" alt="The template editor for Lighthouse voice with the prompt text, the variable buttons {{beat}}, {{context}}, {{style_guide}}, {{previous_prose}} and {{length}}, a token estimate and Save and Cancel buttons." />
+
+A template you write is the whole prompt. Codex sends your text with the variables filled in and adds nothing else. A built-in template is different, because Codex builds the rest of the prompt around its instruction.
+
+4. Edit the prompt.
+5. Click **Save**. The editor closes.
+
+If the prompt has no `{{beat}}`, Codex warns "The model will not see the beat" and still lets you save. If the prompt is empty, Codex shows "The prompt cannot be empty" and dims **Save**. **Cancel** closes the editor and drops your edits. A copy made with **Duplicate** stays in the list.
+
+<Shot name="ui-ai-settings-editor-no-beat" alt="The template editor with a prompt that has no {{beat}}, the warning The model will not see the beat in orange above the Save button." />
+
+<Shot name="ui-ai-settings-editor-empty" alt="The template editor with an empty prompt, the message The prompt cannot be empty in red above a dimmed Save button." />
+
+Your own templates appear under the built-in ones, in alphabetical order. Each has **Edit**, **Delete** and **Duplicate** buttons. **Delete** removes the template at once, with no confirmation. **Edit** opens the editor again. Drafts you already generated keep the prompt Codex sent for them.
+
+<Shot name="ui-ai-settings-template-saved" alt="The Prompt templates card with Lighthouse voice listed under the three built-in templates, with Edit, Delete and Duplicate buttons." />
+
+Your template names have to differ from each other. They also have to differ from the built-in names, ignoring capital letters. A repeated name gives "You already have a template with that name." A built-in name gives "A built-in template already has that name."
+
+<Shot name="ui-ai-settings-duplicate-conflict" alt="The Continue writing row after trying to duplicate it as Paraphrase, with the message A built-in template already has that name in red beside the Cancel button." />
+
+## Use them in Write
+
+Write lists your saved templates and the models of your providers. On a beat, select the template and model button beside **Generate prose**. The list has your templates on the left and the models of each provider you connected on the right.
+
+<Shot name="ui-ai-settings-in-write" alt="The template and model list open on a beat in Write, with the templates Continue writing, Write in Joel's voice, Paraphrase and Lighthouse voice on the left and the models of Fake model and Gateway on the right." />
+
+Write the beat. Codex turns off **Generate prose** while the beat is empty. Choose your template and a model, then select **Generate prose**. When the draft appears, select **Show what was sent**. It names your template, the model and the provider, and shows the prompt with the variables filled in.
+
+<Shot name="ui-ai-settings-generated" alt="A draft under a beat in Write with Show what was sent open, reading Template: Lighthouse voice, Model: fake-model (Gateway), above the prompt with the beat filled in." />
+
+[Beats and AI drafts](/ui/ai-drafts/) covers the rest, including what Codex shows when a draft fails.

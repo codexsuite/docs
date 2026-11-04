@@ -1,0 +1,43 @@
+---
+title: "Codex documentation"
+description: "Install Codex, learn every screen, connect agents and take a book from idea to print."
+sidebar:
+  order: 1
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Codex is a self-hosted writing studio for non-fiction books and series. You plan acts, chapters and scenes, keep your research beside the draft, check every quote against copyright limits and export a print-ready PDF. It runs as an app image and a worker image, plus a `postgres:18` database. Novels work too.
+
+:::note[Not that Codex]
+Codex at codexsuite.app is an independent, open-source writing studio for authors. It is not affiliated with OpenAI or its Codex coding agent.
+:::
+
+:::tip[Fastest path]
+To run Codex on your own machine, you need Docker with Compose. Download the two quick start files:
+
+```sh
+mkdir codex && cd codex
+curl -fsSLO https://github.com/codexsuite/docs/raw/main/examples/quickstart/docker-compose.yml
+curl -fsSLo .env https://github.com/codexsuite/docs/raw/main/examples/quickstart/.env.example
+```
+
+Open `.env` and set `POSTGRES_PASSWORD`, `CODEX_ADMIN_EMAIL` and `CODEX_ADMIN_PASSWORD` (at least 10 characters). Then start it:
+
+```sh
+docker compose up -d
+```
+
+Open `http://localhost:8080` and sign in with the admin email and password. The [quick start](/start/quickstart/) explains each step. Printing needs a kernel feature that some hosts lack, so see the [requirements](/start/requirements/).
+:::
+
+## Where to go
+
+<CardGrid>
+  <LinkCard title="Get started" description="Run Codex, configure it, add users and put it behind TLS." href="/start/overview/" />
+  <LinkCard title="Using the app" description="One page for each screen, with the steps for its common tasks." href="/ui/navigation/" />
+  <LinkCard title="Agents and MCP" description="Create a token and let an agent work in your books over MCP." href="/agents/overview/" />
+  <LinkCard title="Working with Codex" description="Follow one book from idea to print." href="/work/flow/" />
+</CardGrid>
+
+The [reference](/reference/glossary/) section has the glossary and the release notes.

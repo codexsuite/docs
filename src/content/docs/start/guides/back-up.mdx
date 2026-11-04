@@ -1,0 +1,118 @@
+---
+title: "Export and back up a book"
+description: "Export a manuscript and make a backup you can restore."
+sidebar:
+  order: 5
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+Codex makes two kinds of copy from Book settings. A manuscript export is a Word, Markdown or EPUB file for an editor or a beta reader. A backup is a `.zip` that Codex can import again. This guide makes both from Salt and Signal and restores the backup as a new book. For a PDF to send to a printer, use [Export a print-ready PDF](/start/guides/export-pdf/) instead.
+
+Address: `https://<your-codex>/books/<book id>/settings#archive`. Open the book, select Book settings in the book bar, and find Archive & export. You need the Edit role on the book or higher.
+
+<Shot name="start-guides-back-up-overview" alt="The Archive & export card of Salt and Signal, with the Export source and Export manuscript rows." />
+
+## Export a manuscript
+
+1. In Archive & export, select Export manuscript.
+2. Choose Word, Markdown or EPUB.
+3. Choose the scope, Full manuscript or One chapter. For One chapter, pick the chapter from the list that appears.
+4. Tick Include beats to add each beat's instruction as a quote that starts with `Beat:`. Tick Include summaries to put each scene's summary above its text in italics.
+5. Select Export.
+
+<Shot name="start-guides-back-up-manuscript" alt="The Export manuscript dialog with Word chosen, Full manuscript as the scope and the line 1 source is at risk. This export is not gated." />
+
+The dialog opens on Word and Full manuscript, with both boxes off. If sources in References have a risk, the dialog counts them and says `This export is not gated.` The export goes ahead anyway. Only the print export waits for References.
+
+<Shot name="start-guides-back-up-chapter" alt="The Export manuscript dialog with Markdown chosen, One chapter as the scope, a chapter picked and Include summaries ticked." />
+
+A row for the job appears under the description of Export manuscript. It reads Queued, then Running, then `Done` and the file name, with a Download link. The list updates itself, and a reload keeps it.
+
+<Shot name="start-guides-back-up-manuscript-done" alt="The Export manuscript row showing Word (.docx) with Done and the file name and a Download link." />
+
+### What the file holds
+
+- A title block with the book's title and author.
+- One heading for each act, only when you export the full manuscript.
+- One heading for each chapter, written `Chapter 1: Title`. A chapter that is not numbered keeps its plain title.
+- The scenes of a chapter in order, with a line of `* * *` between them. The export leaves out an empty scene.
+- Link text in place of Knowledge base and chapter links. The link itself is gone.
+- Source markers as footnotes in Chicago style, one for the first use of each citation. With APA or Harvard, they become `(Author Year, locator)` in the text. A Bibliography of the cited sources ends the file. To change the citation style, open Citations & permissions in Book settings.
+- Headings inside a scene, moved down two levels so they sit below the chapter heading.
+
+The export skips archived acts, chapters and scenes.
+
+### What the file leaves out
+
+These exports leave out images and raw LaTeX blocks. The job row lists what the export left out, for example `1 raw-LaTeX block skipped` or `2 figures not included (images are not part of this export)`. Word and EPUB files come from the Markdown through Pandoc inside the print sandbox, so they need the host support that [Requirements](/start/requirements/) describes. The Markdown file does not.
+
+### When an export does not start
+
+| What you see | Meaning |
+|---|---|
+| `Nothing to export. This book has no chapters.` | Every chapter is archived, or the book has none. Export stays off. Add a chapter first. |
+| `An export is already running` | A job of the same format is queued or running. Export stays off until it finishes. Other formats can run at the same time. |
+| Export is off with One chapter chosen | Pick a chapter from the list. |
+| `Failed` and an error, with a Retry button | The conversion failed. Retry opens the dialog on the same format. The dialog does not keep the scope or the boxes, so set them again. |
+
+## Make a backup
+
+A backup holds the book's acts, chapters, scenes, beats, Knowledge base, References and labels. To make one:
+
+1. In Archive & export, select Export .zip. There is no dialog.
+2. Wait for the line under the description of Export source to read `Export succeeded.` The button is off while the job runs.
+3. Select Download.
+
+<Shot name="start-guides-back-up-backup-done" alt="The Export source row reading Export succeeded, with the Download link and a note about pending AI drafts and images." />
+
+The next line lists what the backup left out, such as `1 pending AI draft is not included · 0 images not included`.
+
+### What the backup holds
+
+The `.zip` has these files.
+
+| File | Holds |
+|---|---|
+| `book.json` | Title, author, status, target words, series name and number, citation style and publication settings. |
+| `structure.json` | Acts, chapters, scenes, beats, and the links from scenes and beats to Knowledge base entries. |
+| `manuscript/` | One `.md` file for each scene, in act and chapter folders. |
+| `knowledge-base.json` | Categories, entries with aliases and fields, related links and scene additions. |
+| `references.json` | Sources with their sign-offs and fair-use dates, uses, permission requests and quote flags. |
+| `labels.json` | Labels and the scenes that carry them. |
+| `manifest.json` | Title, author, the format version and the scene files in order. |
+
+It leaves out images, archived acts, chapters and scenes, prose history, pending AI drafts and the uses they hold, layout settings, link-check results and the history of each source.
+
+## Restore a backup
+
+A restore always makes a new book. It never changes the book you made the backup from.
+
+1. In the Library, select Import.
+2. Choose Codex backup (.zip).
+3. Select the drop area and pick the file, then select Next.
+
+<Shot name="start-guides-back-up-restore" alt="The Import dialog with Codex backup chosen and salt-and-signal.zip picked." />
+
+Step 2 of 2 in the dialog reads the file and shows what it will create. Codex writes nothing yet.
+
+<Shot name="start-guides-back-up-restore-preview" alt="The import preview for the backup of Salt and Signal, listing its chapters, scenes, Knowledge base entries, sources and labels." />
+
+Select Import book. The restored book opens on its Plan with the import banner. It has the title of the backup. When you already own a book with that title, Codex adds ` (restored)` to the end.
+
+<Shot name="start-guides-back-up-restored" alt="The Plan of Salt and Signal (restored), with the import banner counting acts, chapters, scenes, Knowledge base entries and sources." />
+
+Sources come back with their sign-offs and permission requests, so References shows the same clearance. A pending AI draft does not come back, and neither do the source uses that belonged to it, so a source that only the draft cited comes back with no uses. Each scene with prose has one `import` revision in its history, because prose history is not in a backup.
+
+### When a restore is rejected
+
+| Message | What to do |
+|---|---|
+| `This is not a Codex backup: it has no book.json.` | Pick the `.zip` that Export .zip made. |
+| `This backup was made by a newer Codex. Update Codex to restore it.` | Update your Codex images, then try again. |
+
+[Import a manuscript](/start/guides/import/) covers the other sources in the same dialog, and how to undo an import.
+
+## Back up the whole installation
+
+A book backup does not cover users or AI settings. To protect the installation, back up the three places Codex stores data, as [Production](/start/production/) describes.

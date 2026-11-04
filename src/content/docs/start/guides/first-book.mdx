@@ -1,0 +1,65 @@
+---
+title: "Your first book in 10 minutes"
+description: "Create a book, add an act, chapters and scenes, and write a scene."
+sidebar:
+  order: 1
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+This guide creates a book with a chapter, a scene and some prose. You need a running Codex and an account signed in to it. If you have not set one up, follow the [quick start](/start/quickstart/) first.
+
+<Shot name="start-guides-first-book-overview" alt="The Plan of the new book Lamp Room Notes, with one chapter and one scene whose summary is filled in." />
+
+## Create the book
+
+1. Open the Library at `/`.
+2. Select Create Novel. The `+ New book` tile does the same.
+3. Type a title. This guide uses `Lamp Room Notes`.
+4. Leave Series on `None (standalone)`.
+5. In Target words, enter `60000`. The field starts at 80,000 and takes any whole number above 0. You can change it later.
+6. Select Create book.
+
+To put the book in a series, open the series and select `+ Add book`. See [Series](/ui/series/).
+
+<Shot name="start-guides-first-book-new-book" alt="The New book dialog with the title Lamp Room Notes and a target of 60000 words." />
+
+If the title is empty, the dialog says `Give the book a title.` and creates nothing.
+
+## Look at the empty Plan
+
+The new book opens on its [Plan](/ui/plan/) with one empty act. The act says `No chapters yet.`, and the Knowledge base sidebar is empty. Act, chapter and scene are the three levels of a book in Codex. An act holds chapters, and a chapter holds scenes.
+
+<Shot name="start-guides-first-book-empty-plan" alt="The Plan of a new book with one empty act that says No chapters yet." />
+
+## Add a chapter
+
+Select New Chapter in the act's header. Codex adds Chapter 1 at the end of the act, titled New chapter.
+
+<Shot name="start-guides-first-book-chapter" alt="The Plan with Chapter 1 added to the act and no scenes in it yet." />
+
+To rename the chapter, double-click its title, type the new title and press Enter. See [Plan](/ui/plan/#rename-a-chapter).
+
+## Add a scene and its summary
+
+1. Select New scene at the bottom of the chapter. The new card takes focus in its summary.
+2. Type a sentence about what happens in the scene.
+
+<Shot name="start-guides-first-book-scene" alt="A new scene card in Chapter 1 with the cursor in its empty summary." />
+
+Codex saves the summary 3 seconds after your first edit, and again when you click away from the card. The save indicator at the top of the screen changes from Unsaved to Saved.
+
+## Write the scene
+
+1. Select Write in the bar at the top of the book. To open one particular scene, hover over its card on the Plan, select the three dots and choose Open in Write.
+2. Click in the scene's text and type.
+
+<Shot name="start-guides-first-book-write" alt="The Write screen showing Chapter 1 with the first scene and a line of prose typed into it." />
+
+Codex saves the text about every 3 seconds while you type, and when you click away. Wait for the indicator to say Saved before you close the tab. If the server fails a save, the indicator says Unsaved with a Retry button. With no connection it says `Offline · 1 change waiting`, and the edit saves by itself when the connection returns. Codex keeps your text in this browser until a save works.
+
+## What to do next
+
+- Add more chapters and scenes, then drag them into order. See [Plan](/ui/plan/).
+- Add people and places to the Knowledge base, then select + Codex on a scene card to link one to that scene. See [Knowledge base](/ui/knowledge-base/).
+- Start from a manuscript you already have instead. See [Import a manuscript](/start/guides/import/).

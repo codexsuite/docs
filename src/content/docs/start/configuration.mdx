@@ -1,0 +1,306 @@
+---
+title: "Configuration reference"
+description: "Every operator-facing CODEX_ variable, grouped, with defaults."
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Codex reads its settings from environment variables that start with `CODEX_`. This page lists every one that an operator sets. The product README has a table of the same variables, and a nightly check fails when the two list different variables or groups.
+
+In Compose, set a variable under `environment` for the service that needs it. The [quick start](/start/quickstart/) file already sets the ones you need to begin. The examples below use the same `- NAME=value` form.
+
+The `codex` (web) service takes the Database, First admin, Files and keys, Worker, AI, MCP and Logging groups. The `worker` service takes Database, Files and keys, Worker, Print and Logging. Set the Print group on the worker, because it builds PDFs and has Tectonic. The web image needs the Print variables only for Quick preview and template thumbnails.
+
+<Aside type="caution" title="Printing needs Landlock ABI 4">
+  Print features need Landlock ABI 4, which arrived in Linux 6.7. `codex-sandbox` refuses to run without it, and no variable turns it off. On an older kernel, including WSL2 on kernel 6.6, these features fail. In the web process, Quick preview and template thumbnails fail. In the worker, proofs, Export for printer, and Word and EPUB export fail. Markdown export and the source archive do not use the sandbox, so they still work. [Requirements](/start/requirements/) has a command that tests your host.
+</Aside>
+
+## Database
+
+Both services connect to the same PostgreSQL 18 database.
+
+### `CODEX_DB_CONNECTION`
+
+The Npgsql connection string for the database. Every session runs at UTC, whatever the string says.
+
+Default: none. Codex needs it to start.
+
+```
+- CODEX_DB_CONNECTION=Host=postgres;Port=5432;Database=codex;Username=postgres;Password=${POSTGRES_PASSWORD}
+```
+
+Set it on the web and worker services. Point it at your own PostgreSQL server if you do not use the Compose database.
+
+### `CODEX_DB_MIGRATE`
+
+Whether this process applies the schema and migrations at start. The app never applies demo content.
+
+Default: `true`.
+
+```
+- CODEX_DB_MIGRATE=false
+```
+
+Set it to `false` on the worker, so only the web service migrates.
+
+## First admin
+
+### `CODEX_ADMIN_EMAIL`
+
+With `CODEX_ADMIN_PASSWORD`, creates the first admin on boot. If a user with that email exists and has no password, Codex gives them this password and makes them an admin.
+
+Default: none.
+
+```
+- CODEX_ADMIN_EMAIL=admin@example.com
+```
+
+Set it once on a new install. Remove both variables after your first sign-in. Codex does not change a user who already has a password, so keeping the variables does no harm. The password stays in your Compose file, though.
+
+### `CODEX_ADMIN_PASSWORD`
+
+The password for that admin. Both variables must be set, or neither takes effect.
+
+Default: none.
+
+```
+- CODEX_ADMIN_PASSWORD=choose-a-long-passphrase
+```
+
+Codex refuses to start when the password is shorter than 10 or longer than 128 characters. See [Users and sign-in](/start/sign-in/) for what happens after the first sign-in.
+
+## Files and keys
+
+The web and worker containers share both folders. Mount the same volumes into both.
+
+### `CODEX_BLOB_ROOT`
+
+The folder for uploads, renditions and exports. A relative path resolves against the app folder.
+
+Default: none. Codex needs it to start.
+
+```
+- CODEX_BLOB_ROOT=/data/blobs
+```
+
+Mount a volume there and include it in your backups. [Files and the worker](/start/worker/) explains why both services need it.
+
+### `CODEX_DATA_PROTECTION_DIR`
+
+The folder for the key ring that encrypts the AI keys users save. Store it outside the database, so a database dump alone cannot decrypt the keys.
+
+Default: none. Without it, Codex cannot save AI keys, and saving one returns "AI integrations need a key folder."
+
+```
+- CODEX_DATA_PROTECTION_DIR=/data/keys
+```
+
+Set it on the web and worker services, on a volume you keep. If you lose the folder, users must enter their AI keys again. See [AI providers](/start/ai/).
+
+## Worker
+
+### `CODEX_ROLE`
+
+What this process does. `web` serves the app and claims no print jobs. `worker` claims render and export jobs. `all` does both in one process.
+
+Default: `web`.
+
+```
+- CODEX_ROLE=worker
+```
+
+Set `worker` on the worker service. A web-only process queues proofs and exports and never builds them, so a job waits until a worker claims it.
+
+### `CODEX_EVENTS_LISTEN`
+
+Whether this process listens for book events that other processes publish. The web process listens so that open browsers update. Every process publishes whatever this says.
+
+Default: `true`. The worker image does not change it.
+
+```
+- CODEX_EVENTS_LISTEN=false
+```
+
+Set it to `false` on the worker. The worker starts neither the quote-flag scanner nor the book events relay, so listening only holds one database connection.
+
+## AI
+
+### `CODEX_AI_ALLOW_LOCAL_ENDPOINTS`
+
+Lets users point an AI integration at `http://` and private-network addresses, such as Ollama or LM Studio. Only the value `true` turns it on. Recreate the container to apply a new value. Codex refuses link-local addresses either way.
+
+Default: off.
+
+```
+- CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true
+```
+
+Set it on the web service when you run a model on your own machine or network. Leave it off if users only call hosted providers. With it off, a base URL must be `https://` and public.
+
+## Print
+
+Set the Print variables on the worker. The worker image already has pandoc, Tectonic and `codex-sandbox`, so most installs set none of them.
+
+### `CODEX_TEMPLATES_ROOT`
+
+The folder of the built-in layout template packages. A relative path resolves against the app folder.
+
+Default: `../../templates`, which is `/templates` in the images.
+
+```
+- CODEX_TEMPLATES_ROOT=/templates
+```
+
+You rarely set this. Change it only if you mount your own copy of the packages.
+
+### `CODEX_TEMPLATE_CACHE`
+
+Where Codex unpacks template packages from their stored zip files.
+
+Default: a folder named `codex-template-cache` in the temp folder.
+
+```
+- CODEX_TEMPLATE_CACHE=/var/cache/codex/templates
+```
+
+Set it when the temp folder is small or is wiped between runs.
+
+### `CODEX_RENDER_WORK`
+
+The parent folder of the per-job work folders. Codex creates each one readable by its owner only and deletes it after the job.
+
+Default: a folder named `codex-render` in the temp folder.
+
+```
+- CODEX_RENDER_WORK=/var/cache/codex/render
+```
+
+Set it to put the work on a larger disk.
+
+### `CODEX_RENDER_TIMEOUT_SECONDS`
+
+The wall-clock limit for one Tectonic run, in seconds. Pandoc gets a third of it.
+
+Default: `300`.
+
+```
+- CODEX_RENDER_TIMEOUT_SECONDS=900
+```
+
+Raise it when a long book fails on a slow host. [Troubleshooting](/start/troubleshooting/) lists the PDF errors.
+
+### `CODEX_RENDER_MAX_PDF_MB`
+
+The largest PDF a run may write, in megabytes. A bigger PDF fails the run, even if Tectonic finished.
+
+Default: `1024`, sized for a full book at 300 dpi.
+
+```
+- CODEX_RENDER_MAX_PDF_MB=512
+```
+
+Lower it to protect a small disk. Raise it only if a book with many full-page images fails on size.
+
+### `CODEX_RENDER_MAX_PROCS`
+
+The process and thread limit for a run. The kernel counts every process and thread of the user, so raise the limit when that user runs other services.
+
+Default: `4096`.
+
+```
+- CODEX_RENDER_MAX_PROCS=8192
+```
+
+The worker container runs little else, so you set this only when the worker shares a user with other busy services.
+
+### `CODEX_TECTONIC`
+
+The path to Tectonic, or a name Codex looks up on `PATH`. Codex looks it up when a run starts, so Codex still starts on a host without Tectonic. Each PDF run then fails with the message "Print rendering needs tectonic, which is not installed on this server (set CODEX_TECTONIC)."
+
+Default: `tectonic`.
+
+```
+- CODEX_TECTONIC=/usr/local/bin/tectonic
+```
+
+Set it only if you build your own worker image with Tectonic somewhere else.
+
+### `CODEX_TECTONIC_CACHE`
+
+Tectonic's bundle cache. Codex mounts it read-only during a run, so a run has no network and cannot change the cache.
+
+Default: `~/.cache/Tectonic`, or `/var/cache/tectonic` in the worker image.
+
+```
+- CODEX_TECTONIC_CACHE=/var/cache/tectonic
+```
+
+Set it when you keep the cache on a separate volume.
+
+### `CODEX_PANDOC`
+
+The path to pandoc, or a name Codex looks up on `PATH`.
+
+Default: `pandoc`.
+
+```
+- CODEX_PANDOC=/usr/local/bin/pandoc
+```
+
+Set it only if you build your own worker image with pandoc somewhere else.
+
+### `CODEX_SANDBOX`
+
+The path to `codex-sandbox`, or a name Codex looks up on `PATH`. The sandbox wraps every pandoc and Tectonic run. There is no way to turn it off.
+
+Default: `codex-sandbox`.
+
+```
+- CODEX_SANDBOX=/usr/local/bin/codex-sandbox
+```
+
+Set it only if you build your own worker image with the sandbox somewhere else. The kernel requirement above still applies.
+
+## MCP
+
+### `CODEX_MCP_MAX_GENERATIONS`
+
+How many Codex drafts one MCP client may start. Codex counts each token's drafts over a sliding hour and refuses the next with `rate_limited`. Only `draft_prose` counts, because it spends the author's model budget. The count lives in memory, so a restart resets it.
+
+Default: `20`.
+
+```
+- CODEX_MCP_MAX_GENERATIONS=50
+```
+
+Raise it if an agent hits `rate_limited` during normal work. Lower it to cap what a token can spend. See [Tokens and scopes](/agents/tokens/).
+
+## Logging
+
+Logs go to the console, so `docker logs` works. Set `CODEX_SEQ_URL` to send them to a Seq server as well, and `CODEX_SEQ_API_KEY` if that server requires a key.
+
+### `CODEX_SEQ_URL`
+
+The Seq server URL. Logs go to the console only until this is set.
+
+Default: none.
+
+```
+- CODEX_SEQ_URL=http://seq:5341
+```
+
+Set it when you run Seq. See [Logs and monitoring](/start/observability/).
+
+### `CODEX_SEQ_API_KEY`
+
+The API key for Seq.
+
+Default: none.
+
+```
+- CODEX_SEQ_API_KEY=your-seq-api-key
+```
+
+Set it when your Seq server requires a key. Codex uses it only when `CODEX_SEQ_URL` is set.

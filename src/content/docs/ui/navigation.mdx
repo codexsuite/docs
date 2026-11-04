@@ -1,0 +1,128 @@
+---
+title: "Navigating Codex"
+description: "The book workspace, moving between screens, deep links, themes and search."
+sidebar:
+  order: 1
+---
+
+import Shot from "../../../components/Shot.astro";
+
+This page covers the bar at the top of every book, how to open a book, how to jump to a book or series with the command palette, how to switch theme, and the deep links you can add to an address.
+
+**Address:** `/` for the Library, `/books/<id>/plan` and the other book screens, `/account` for your account.
+
+<Shot name="ui-navigation-overview" alt="The Plan screen for Salt and Signal. The book bar runs across the top with the back arrow, the gear, the book title, the Plan, Write, References and Layout tabs and the account avatar. The Knowledge base sidebar is on the left." />
+
+## The book bar
+
+These items are on the bar of every book screen, from left to right:
+
+- A back arrow with no label. Its tooltip reads "Back to Library", or "Back to" and the series name when the book is in a series.
+- A gear. It opens [Book settings](/ui/book-settings/).
+- The cover, title and author of the book. On Plan, Write and Layout, a button beside them shows or hides the Knowledge base sidebar. The sidebar starts shown on Plan and Write and hidden on Layout.
+- The tabs **Plan**, **Write**, **References** and **Layout**. A thin divider separates References from the first two.
+- At the far right, your avatar.
+
+Each screen adds its own items between the tabs and the avatar. Plan and Write add a scope selector and word counts. References adds counts of sources, citations and quoted words. Layout adds the word count and a page estimate. Plan, Write, Layout and Book settings add the save status. Write also adds **Format** and **Focus**.
+
+References shows a count when sources need attention. Layout shows a count of the issues that block a print export. Both counts disappear at zero.
+
+If the owner shared the book with you to read, a **View only** chip replaces the save status. If the owner shared it with you to comment, the chip reads **Comment only**. Hover the chip to see the owner's name. See [Sharing a book](/ui/sharing/).
+
+<Shot name="ui-navigation-view-only" alt="The Plan screen for Salt and Signal signed in as a reader, with a View only chip at the right end of the book bar." />
+
+## Open a book
+
+1. Open the Library at `/`.
+2. Click the book's tile. A book in a series is inside the series stack. Click the stack to open the series screen, then click the book.
+
+<Shot name="ui-navigation-library-tile" alt="The Working Coasts series screen with the tiles for Salt and Signal and Tide Tables." />
+
+A book opens on the screen you used last in it. Codex remembers this in your browser. If your browser has no record, Codex opens the screen the server has on record for the book. If the server has none, Codex opens Plan. Codex never reopens a book on Book settings.
+
+## Move between screens
+
+Click a tab in the book bar. The highlighted Knowledge base entry stays highlighted while you move between Plan, Write and References.
+
+To go from a scene on Plan to the same scene in Write:
+
+1. Hover the scene card and click its **⋯** button.
+2. Choose **Open in Write**.
+
+<Shot name="ui-navigation-open-in-write" alt="The menu on scene 1.2 in Plan, listing Open in Write, Labels, Move to chapter, Merge into previous scene and Archive scene." />
+
+From the keyboard, press `Tab` until the scene's menu button has focus, then press `Enter`. Press `Tab` to reach **Open in Write**, then press `Enter`.
+
+Write opens at that scene, and the scene flashes. The address now ends in `#scene=1.2`. The draft panel in the shot below is open because the scene has an AI draft waiting. To apply that draft, see [Beats and AI drafts](/ui/ai-drafts/).
+
+<Shot name="ui-navigation-deep-link" alt="The Write screen scrolled to scene 2 of chapter 1, with the draft panel for the pending AI draft open under the beat." />
+
+To go back, click the back arrow. It leads to the Library or the series, not to the previous screen.
+
+## Jump with the command palette
+
+Press `Ctrl+K`, or `Cmd+K` on a Mac, on any screen. The palette lists your books, your series and four actions: **New book**, **New series…**, **Import a book…** and **Toggle theme**.
+
+1. Type part of a name. The list filters as you type.
+2. Press `Enter` to run the highlighted row, or click a row.
+3. Press `Esc`, or click outside the palette, to close it.
+
+A book row opens the book on the screen it last used. A series row opens the series screen. If nothing matches, the palette says "Nothing matches."
+
+<Shot name="ui-navigation-palette" alt="The command palette over the Library with the word Salt typed in the search field and Salt and Signal highlighted under Books." />
+
+The Library bar and the bar on the Account, Change password, AI and Users pages also have a button that opens the palette. It shows ⌘K on every system, including Windows and Linux. Book screens have no button, only the shortcut.
+
+## Search for a book
+
+The Library has a search box labelled "Search name or series…". It filters the shelf when you pause typing and puts your text in the address as `/?q=text`. See [Library](/ui/library/).
+
+## Switch between light and dark
+
+Codex follows your operating system until you choose. Open the command palette and run **Toggle theme**. Codex saves the choice in your browser, so it applies to every screen and stays after a reload. Codex does not save it to your account, so another browser starts from its own setting.
+
+## Deep links
+
+The address of a Codex screen can point at one place on it. Add the target after a `#`. Scenes and chapters use the numbers you see on screen.
+
+| Address ending | What it does |
+|---|---|
+| `#scene=5.2` | Scrolls to scene 2 of chapter 5 and flashes it. Works on Plan, Write and Layout. |
+| `#chapter=5` | Scrolls to chapter 5 and flashes it. Works on Plan, Write and Layout. |
+| `#kb=<entry>` | Highlights a Knowledge base entry. |
+| `#entry=<entry>` | Opens the entry window. Works only where the Knowledge base sidebar is showing. |
+| `#scene=5.2&ref=<source>` on Write | Opens the card for that source marker. |
+| `#<source>` on References | Selects a source. |
+| `#new` on References | Starts a new source. |
+| `#book`, `#series`, `#writing`, `#citations`, `#rules`, `#letters`, `#layout`, `#sharing`, `#archive` on Book settings | Scrolls to that section. |
+| `/#series=<id>` | Opens the series screen. |
+| `/?book=new` | Opens the New book dialog on the Library. |
+| `/?import=1` | Opens the Import dialog on the Library. |
+
+An `<entry>` or `<source>` here is the id Codex puts in the address when you click that item. To share a link, click the item, then copy the address from your browser.
+
+## When a link does not work
+
+### A link that does not make sense
+
+If the target is malformed, the book workspace shows **This link doesn't make sense** and says what is wrong. For example, `#scene=abc` gives `Scene "abc" is not a number such as 5.2.` and `#chapter=5.2` gives `Chapter "5.2" is not a number such as 5.`
+
+Click **Open the screen without the link target** to open the same screen with no target. Codex ignores a `name=value` target it does not know, such as `#colour=red`, and shows no error. A bare word it does not know, such as `#colour` on Plan, gives this same page with `"colour" does not mean anything on this screen.`
+
+<Shot name="ui-navigation-bad-link" alt="The error page for a malformed link: This link doesn't make sense, the sentence Scene abc is not a number such as 5.2, and a link that opens the screen without the target." />
+
+### A book that does not exist
+
+If the id in `/books/<id>/...` matches no book, you see **That book doesn't exist**. You see the same page for a book you have no access to, so Codex does not say which books exist. Click **Back to Library**.
+
+<Shot name="ui-navigation-unknown-book" alt="The error page for an unknown book: That book doesn't exist, with a Back to Library link." />
+
+## Keyboard shortcuts
+
+| Keys | What they do |
+|---|---|
+| `Ctrl+K` or `Cmd+K` | Opens or closes the command palette. |
+| `Enter` | Runs the highlighted row in the palette. |
+| `Esc` | Closes the palette. |
+
+Every shortcut in Codex is on [Keyboard shortcuts](/reference/keyboard/).

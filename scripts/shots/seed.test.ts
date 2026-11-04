@@ -1,0 +1,46 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { composeSeed } from "./seed.ts";
+import type { AdminSession, SeedResult } from "./types.ts";
+
+const session = { baseUrl: "http://test" } as AdminSession;
+
+test("SeedComposesBothModulesAndSnapshots", async () => {
+  const calls: string[] = [];
+  const seed = composeSeed({
+    async seedStructure(s) {
+      calls.push("seedStructure");
+      assert.equal(s, session);
+      return {
+        seriesId: "s",
+        bookIds: { saltAndSignal: "b1", tideTables: "b2" },
+        sceneIds: { "1.1": "sc" },
+        actIds: { A: "a" },
+        chapterIds: { "1": "c" },
+        entryIds: { E: "e" },
+        viewer: { id: "v", email: "v@x" },
+      };
+    },
+    async seedReferences(s, book) {
+      calls.push("seedReferences");
+      assert.equal(s, session);
+      assert.deepEqual(book, { id: "b1", sceneIds: { "1.1": "sc" }, entryIds: { E: "e" } });
+      return { sourceIds: { S: "src" }, useIds: { u: "use" }, aiIntegrationId: "ai", templateSlug: "t" };
+    },
+    async snapshot() {
+      calls.push("snapshot");
+    },
+    async restoreSnapshot() {
+      calls.push("restoreSnapshot");
+    },
+  });
+
+  const result = await seed.seedDemo(session);
+  assert.deepEqual(calls, ["seedStructure", "seedReferences", "snapshot"]);
+  assert.deepEqual(Object.keys(result).sort(), [
+    "actIds", "aiIntegrationId", "bookIds", "chapterIds", "entryIds", "sceneIds", "seriesId", "sourceIds", "templateSlug", "useIds", "viewer",
+  ]);
+
+  await seed.restoreFixtures(session, result as SeedResult);
+  assert.deepEqual(calls.slice(3), ["restoreSnapshot"]);
+});

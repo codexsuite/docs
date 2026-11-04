@@ -1,0 +1,96 @@
+---
+title: "AI providers"
+description: "Provider kinds, how keys are stored, base URL rules and local endpoints."
+sidebar:
+  order: 8
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Shot from "../../../components/Shot.astro";
+
+Codex writes drafts with an AI provider that each user connects. There is no server-wide key. A user with no connection who asks for a draft gets the message "Connect an AI provider in Settings → AI to write drafts." The Write screen shows a shorter prompt, "Connect an AI provider in Settings to draft prose."
+
+<Aside type="note">
+  `CODEX_ANTHROPIC_API_KEY` is gone. If it is still set on your host, it changes nothing.
+</Aside>
+
+This page covers what the person who runs the server sets up. To connect a provider and write drafts, see [AI settings](/ui/ai-settings/) and [AI drafts](/ui/ai-drafts/).
+
+## Give the server a key folder
+
+Codex encrypts every saved key with files in a key folder. Set `CODEX_DATA_PROTECTION_DIR` to that folder on both the `codex` and the `worker` service. The quick start Compose file sets it to `/data/keys` and mounts the `codex-keys` volume there.
+
+Without the setting, the server still starts, but saving or using a key fails with "AI integrations need a key folder. Set CODEX_DATA_PROTECTION_DIR in the server settings."
+
+## Connect a provider
+
+Each user opens Settings → AI at `/settings/ai`, selects Connect, and fills in the dialog. The page lists each connection with its base URL, key hint and default model, and buttons to test it, change its model, replace its key, rename it or remove it.
+
+<Shot name="start-ai-overview" alt="The AI providers page with one OpenAI-compatible connection named Fake model, marked Default, with its base URL, key hint, default model and the buttons Test, Change default model, Replace key, Rename and Remove. The Prompt templates section is below." />
+
+<Shot name="start-ai-connect" alt="The Connect an AI provider dialog with three provider buttons, a Label field, a Base URL field, an API key field and a Test connection button." />
+
+Codex supports three kinds.
+
+| Kind | Base URL | Use it for |
+|---|---|---|
+| OpenAI-compatible | Required | Any service that uses the Chat Completions format, such as OpenAI, a gateway, Ollama, LM Studio or vLLM. |
+| OpenRouter | Not allowed | OpenRouter. Codex uses its fixed address. |
+| Anthropic | Not allowed | Anthropic. Codex uses its fixed address. |
+
+The label is 1 to 100 characters. The key is 1 to 1000 characters. The default model can be up to 200 characters, and you can type any model id.
+
+Test connection in the dialog asks the provider for its models. On success the dialog shows "Connected" and the number of models, and the Default model field offers them.
+
+The Test button on a connection in the list runs the same check on a saved key.
+
+<Shot name="start-ai-test" alt="The AI providers list with a Fake model connection and the result of Test connection under the connection details." />
+
+The first connection a user adds becomes their default. Removing a connection archives it and clears its stored key. If it was the default, the oldest remaining connection takes over.
+
+## How keys are stored
+
+- Codex stores each key encrypted with the files in the key folder. The browser only ever gets a short hint, such as `sk-…abcd`.
+- The key folder is separate from the database. A database dump alone cannot decrypt the keys.
+- The app and the worker must use the same key folder.
+- Back up the key folder with the database. If you lose it, every user enters their keys again, and a test or draft answers `not_configured` until they do.
+- Codex never returns, logs or prints a key in an error message or an MCP result.
+
+## Base URL rules
+
+Codex checks a base URL when a user saves, edits or tests a connection, and again before every request. By default the address must meet these rules.
+
+- It starts with `https://`.
+- It has no user name, password, query string or `#fragment`.
+- Every address the host name resolves to is on the public internet. Private ranges, loopback, link-local and the cloud metadata address are refused.
+
+Codex checks each address it connects to, ignores proxies and never follows a redirect, so Codex refuses the connection when a host's DNS answer changes to a refused address.
+
+## Use a model on your own network
+
+To reach Ollama, LM Studio or another server on your network, set `CODEX_AI_ALLOW_LOCAL_ENDPOINTS=true` on the `codex` service. Recreate the container to apply the new value.
+
+With it on, `http://` and private addresses are allowed. Link-local addresses such as 169.254.169.254 are still refused, and so are addresses with a user name, password, query or fragment.
+
+Inside a container, `localhost` is the container itself. Use the address of the machine that runs the model.
+
+<Shot name="start-ai-address-refused" alt="The Connect an AI provider dialog after Test connection, with a message that the address 169.254.169.254 is a link-local address, which is never allowed." />
+
+## Provider errors
+
+When a call to the provider fails, Codex shows fixed wording and never the provider's reply.
+
+| What happened | Message |
+|---|---|
+| The provider rejected the key. | "Anthropic rejected the API key. Check it in Settings → AI." The name is Anthropic, OpenRouter or "The OpenAI-compatible provider". |
+| The account has no credit. | "Anthropic reports no credit left on this account. Check the plan and credits with the provider." |
+| The provider is busy. | "Anthropic is busy right now. Try again in a moment." |
+| The provider refused the request. | "Anthropic could not use this request. Check the model and the beat, then try again." |
+| The provider did not answer. | "Anthropic could not be reached. Try again in a moment." |
+
+For fixes, see [Troubleshooting](/start/troubleshooting/).
+
+## Next steps
+
+- To set the variables above, see the AI and Files and keys groups in the [configuration reference](/start/configuration/).
+- To back up the key folder, see [Install for production](/start/production/).

@@ -1,0 +1,84 @@
+---
+title: "Example prompts"
+description: "Prompts to paste into an agent connected to Codex over MCP."
+sidebar:
+  order: 5
+---
+
+These prompts assume an agent is [connected](/agents/connect/) and the book is Salt and Signal from the running example. Change the names to your own. Each prompt says which scopes the token needs.
+
+## Built-in prompts
+
+Codex offers four prompts that an MCP client lists next to its commands. Each reads your book first, then tells the agent which tools to use and what to ask you. They need only the read scope. When the agent makes a change, the tool checks the token's own scope.
+
+In Claude Code, type `/` to find them as `/codex:resume` and the others, or type `/mcp__codex__resume`. Add the argument after the name. An argument cannot contain a space, because Claude Code splits arguments on whitespace. A book title of several words does not work, so use an id.
+
+| Prompt | What it does | Argument |
+|---|---|---|
+| `resume` | Briefs you on the last scene, pending AI drafts, scenes waiting on you and References risks, then offers the first pending draft. The agent applies nothing until you say so. | `book`, optional |
+| `draft-scene` | Reads a scene, proposes beats, and after you agree starts one AI draft per beat. Drafts stay pending for you to review in Write. | `scene`, and `book`, optional |
+| `print-readiness` | Works through the copyright clearance that blocks print, one source at a time, then checks the layout and the printer's preflight. | `book`, optional |
+| `triage-references` | Walks the unflagged quotes and the uses added after sign-off, one at a time. | `book`, optional |
+
+For example:
+
+```text
+/mcp__codex__draft-scene <scene id>
+```
+
+`draft-scene` needs the write and generate scopes in practice, because the agent adds beats and starts drafts. `print-readiness` and `triage-references` need the references scope to make fixes. The agent never signs off a source or accepts fair use. It gives you the source and its link, and you decide in References.
+
+## Pick up where you left off
+
+The token needs the read scope.
+
+```text
+Resume my work on Salt and Signal. Tell me the scene I was last on, any pending AI drafts and what is waiting on me.
+```
+
+## Plan the structure
+
+The token needs the read and write scopes.
+
+```text
+Read the outline of Salt and Signal. Propose a tighter one-sentence summary for each scene in chapter 3, and show me the list before you change anything.
+```
+
+## Build the Knowledge base
+
+The token needs the read and write scopes.
+
+```text
+Search Salt and Signal for every mention of Edith Marrow, including Mrs Marrow and E. Marrow. If she has no Knowledge base entry, create one in People with those aliases, then link it to each scene that mentions her.
+```
+
+## Check the sources
+
+The token needs the read scope.
+
+```text
+Show the clearance for Salt and Signal. List each source with its status and what blocks print. Do not change anything.
+```
+
+## Draft a permission letter
+
+The token needs the read and references scopes.
+
+```text
+Signals at Sea by R. Okafor has a quote over the publisher's word limit in scene 2.1. Draft a permission letter to Tidewater Review for that quote. Show me the letter and wait.
+```
+
+## Start an AI draft
+
+The token needs the read, write and generate scopes. A draft spends your model budget and waits for your review.
+
+```text
+Propose beats for scene 1.2 of Salt and Signal. When I agree, start one AI draft per beat. Leave every draft pending.
+```
+
+## Tips
+
+- Name the book. The default is your most recently edited book, which may be one shared with you.
+- Ask the agent to show a plan before it writes, because a plan is quicker to correct than an edit. The `undo` tool reverses a write within 24 hours. It fails if someone edited the prose again after that write.
+- Ask for ids. After a listing, tell the agent to use the ids it returned, not display numbers. Over HTTP a number means whatever scene has it now.
+- Start with a read-only token. When a task needs more, create a new token with the extra scope.

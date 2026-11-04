@@ -1,0 +1,90 @@
+---
+title: "Writing a series"
+description: "Group books, keep their order and share a Knowledge base across them."
+sidebar:
+  order: 7
+---
+
+import Shot from "../../../components/Shot.astro";
+
+This page follows the series Working Coasts, which holds Salt and Signal and Tide Tables. Mara Quill writes both. A series gives her one Knowledge base for the two books, so she records a lighthouse keeper once and uses the entry in either book.
+
+A series can start with no books, and you add them later. For every control on the Series screen, see [Series](/ui/series/).
+
+<Shot name="work-series-overview" alt="The Working Coasts series screen with its two books, Salt and Signal and Tide Tables, and the totals for books and words." />
+
+## Start a series from books you already have
+
+To make a series from standalone books, open the Library and select New series.
+
+1. Type a name in the Name field.
+2. Tick the standalone books that belong in it. The line under the list shows the order you picked them in, and the books take the numbers 001, 002 and so on in that order.
+3. Select Create series.
+
+<Shot name="work-series-new" alt="The New series dialog with the name Harbour Walks, the standalone books Lamp Room Notes and Chart House Journal ticked, and Create series at the bottom." />
+
+The shot above uses two extra books so that the Library has standalone books to pick. The picked books leave the Standalone group and join the series stack. Select the stack to open the series.
+
+<Shot name="work-series-created" alt="The Harbour Walks series screen with Lamp Room Notes as Book 001 and Chart House Journal as Book 002." />
+
+## Add a book or take one out
+
+Both start in the book. Open the book, select Book settings, then the Series section.
+
+1. In the Series list, choose the series, or choose None (standalone) to take the book out.
+2. Select `Review move…`. The dialog lists each step. A book that leaves keeps a copy of the series' Knowledge base entries and labels.
+3. Select Move book.
+
+<Shot name="work-series-take-out" alt="The Review move dialog for Salt and Signal leaving Working Coasts, with Edith Marrow's entry to copy." />
+
+A book you add joins as the next number. When a book leaves, Codex renumbers the books after it. See [Series](/ui/series/#add-an-existing-book-or-take-one-out).
+
+<Shot name="work-series-left" alt="The Working Coasts series screen after Salt and Signal left, with Tide Tables as Book 001." />
+
+<Shot name="work-series-joined" alt="The Working Coasts series screen after Lamp Room Notes joined as Book 003." />
+
+## Put the books in order
+
+Book numbers follow the order in Series settings. To change it, open the series from the Library, select Series settings, and move a book with the arrows beside it. Select Save and the numbers change in both books.
+
+<Shot name="work-series-reorder" alt="The Series settings dialog for Working Coasts with the Book order list. Tide Tables has moved above Salt and Signal." />
+
+<Shot name="work-series-reordered" alt="The Working Coasts series screen with Tide Tables as Book 001 and Salt and Signal as Book 002." />
+
+## Share Knowledge base entries
+
+A series has a Knowledge base of its own. Entries in it show in every book of the series, under the heading `From Working Coasts`. Each book's own entries stay under `This book`.
+
+Edith Marrow is the keeper in Salt and Signal. She also runs the light in Tide Tables, so Mara moves her to the series.
+
+1. Open Salt and Signal and select Edith Marrow in the Knowledge base sidebar.
+2. Select the three dots in the entry window, then Move to series.
+3. Read the question, `Move Edith Marrow to the series?`, and select Move.
+
+<Shot name="work-series-promote" alt="The Edith Marrow entry in Salt and Signal with the question Move Edith Marrow to the series? and the buttons Cancel and Move." />
+
+The entry now has a Series badge. Mentions and links in Salt and Signal keep working. Open Tide Tables and the entry is in its sidebar, with the same aliases, summary and text.
+
+<Shot name="work-series-shared-entry" alt="Edith Marrow open in Tide Tables, with the Series badge, the aliases Mrs Marrow and E. Marrow, and the sidebar group From Working Coasts." />
+
+An edit to a series entry from either book changes it for both, because there is one entry.
+
+<Shot name="work-series-edited" alt="Edith Marrow open in Salt and Signal with the summary edited from Tide Tables." />
+
+If the series already has an entry with the same name, Codex asks before it merges the two. See [Move an entry to a series](/ui/knowledge-base/#move-an-entry-to-a-series).
+
+## Check what the books share
+
+A book in a series sends the series' style guide with every AI draft, followed by its own. On this version no screen and no agent tool can set a series style guide, so a series you create has none. Put the style guide in the Writing section of each book's settings. See [Book settings](/ui/book-settings/).
+
+A book in a series takes its citation style, quote limit and other publication settings from the series unless it sets its own. No screen or agent tool sets the series' values, so a series you create has none, and its books start on Codex's defaults, Chicago and a 300-word quote limit. Book settings marks each inherited value with a Series chip. Change a value there and it applies to that book only, marked `This book`. Select the × to go back.
+
+## Delete a series
+
+Deleting a series keeps its books. They become standalone, and Codex copies the series entries and labels onto each book first, so Edith Marrow stays in both. See [Delete a series](/ui/series/#delete-a-series).
+
+## Ask an agent to do it
+
+An agent can create a series, rename it and reorder its books with `create_series` and `update_series`. To move books, it uses `create_series` with `books`, or `update_book` with `series` or `make_standalone`. Both refuse with `needs_confirmation` and write nothing until the agent calls again with `confirm` set to true. An undo cannot reverse a move, because a book that leaves a series gets a copy of its Knowledge base entries. See [Writing with an agent](/work/agents/).
+
+The next page is [Writing with an agent](/work/agents/). To go back to the start of the route, see [The flow at a glance](/work/flow/).

@@ -1,0 +1,169 @@
+---
+title: "Print templates"
+description: "The templates a book can use for print."
+sidebar:
+  order: 12
+---
+
+import Shot from "../../../components/Shot.astro";
+
+A print template sets how the book looks on paper. Use this page to choose a template, make your own copy of one, download its files, upload a changed version and move a book to it. The controls are in Book settings, in the Layout & print section. The address is `/books/<book id>/settings#layout`. Options, proofs, preflight and exports are on [Layout](/ui/layout/).
+
+<Shot name="ui-templates-overview" alt="The Layout & print section of Book settings with the template list open. Fantasy RPG (5e style), Manuscript and Novel (6 x 9) each have a thumbnail, a version and the Use, Fork and Download buttons. Novel (6 x 9) is marked In use." />
+
+## The three built-in templates
+
+Every Codex install has three templates. They are part of the app. You cannot change or archive them, but you can fork and download them.
+
+| Template | Trims | Look |
+|---|---|---|
+| Novel (6 x 9) | 6x9, 5.5x8.5 | A trade paperback with a single column. Source notes print as footnotes. Raw LaTeX blocks are kept. |
+| Manuscript | us-letter, a4 | The standard format for submissions. Source notes print as author and date in brackets. Raw LaTeX blocks are dropped. It has a Typeface option, courier or times. |
+| Fantasy RPG (5e style) | us-letter, a4 | Two columns with boxes, in the style of the fifth edition game books. Source notes print as footnotes. Raw LaTeX blocks are kept. |
+
+## See which template a book uses
+
+The Template row at the top of the section shows the template's name, the version the book pins, and a list to change it. Below it are the trim sizes the template supports and its options.
+
+<Shot name="ui-templates-pinned" alt="The Layout & print section with Show templates (3) and Upload template (.zip) buttons. The Template row says Novel (6 x 9), Pinned to v1.0.0, and the Trim size row has 6x9 chosen." />
+
+A book pins one version of its template. When a newer version appears, the book keeps the old one until you apply the new one. A render, a proof and an export all use the pinned version. An export that waits in the queue keeps the version it started with, even if you upgrade the book meanwhile.
+
+## Use another template
+
+To change the template, choose Show templates and then Use on the card you want. You can also use the list in the Template row.
+
+<Shot name="ui-templates-use" alt="The section after Use on the Manuscript card. The Template row says Manuscript, Pinned to v1.0.0. The trim buttons are us-letter and a4, and the option is Typeface with courier chosen. The Novel card now has a Use button again." />
+
+The trim list and the options change to the ones the new template offers. Your text stays as it is. When you choose a template that the book used before, Codex restores the version and the settings it had then. When you choose one for the first time, Codex pins its newest version.
+
+## Fork a template
+
+A fork is your own copy of a template. Make one when you want to change the class, the wrapper, the filters or the preview style.
+
+To fork a template, follow these steps.
+
+1. Choose Show templates.
+2. Choose Fork… on the card of the template you want to copy.
+3. Type a name for the copy.
+4. Choose Fork.
+
+<Shot name="ui-templates-fork-dialog" alt="The Fork Novel (6 x 9) v1.0.0 dialog with the name Working Coasts novel typed in. The text under it says that books keep the version they are pinned to." />
+
+The copy appears at the end of the list with `(yours)` after its name. Its version is 1.0.0, and the card says where it came from, such as `Forked from Novel (6 × 9) v1.0.0`. Its slug is the original slug followed by `-fork`. If you already have that slug, Codex adds a number, such as `novel-6x9-fork-2`. Only you can see your templates.
+
+<Shot name="ui-templates-forked" alt="The new card Working Coasts novel (yours), v1.0.0, Forked from Novel (6 x 9) v1.0.0, with Use, Fork, Download, Upload new version and Archive buttons." />
+
+Forking does not change any book. To use the fork, choose Use on its card.
+
+## Download a template
+
+To download a template, choose Download on its card. Your browser saves the package as a `.zip` named after the slug and the version, such as `novel-6x9-fork-1.0.0.zip`. You can download any template, built-in or yours.
+
+<Shot name="ui-templates-download" alt="The card of Working Coasts novel (yours) with the Download button, below the three built-in cards." />
+
+[The package format](#the-package-format) lists the files in the zip.
+
+## Upload a template
+
+After you change the files, pack them again into a `.zip` with `template.json` at its top level. You can upload the zip in two ways.
+
+- **Upload template (.zip)…** adds a new template. Its slug must not be in use by a built-in template or by any template of yours, archived ones included.
+- **Upload new version…** on one of your cards adds a version to that template. The slug must stay the same, and `version` must be higher than the newest one.
+
+Raise `version` in `template.json` and add a line to `changelog` for each change. Codex shows the changelog when it offers the upgrade.
+
+<Shot name="ui-templates-upload-new" alt="The template list after the upload of harbour-novel.zip. A new card, Harbour novel (yours), v1.0.0, sits below Novel (6 x 9)." />
+
+The server checks the package before it unpacks anything. When it refuses the package, a red message appears under the Upload template button. [When an upload is refused](#when-an-upload-is-refused) lists the messages.
+
+## Upgrade a book to a new version
+
+When a template has a newer version than the one a book uses, the card says `v1.1.0 available`, and the Template row shows `v1.1.0 is available. This book uses v1.0.0.` It lists the changelog lines of the new version. The built-in templates offer a new version after an update of Codex. Your own templates offer one after you upload it.
+
+<Shot name="ui-templates-upgrade-offer" alt="The Template row of Working Coasts novel (yours) says Pinned to v1.0.0 and v1.1.0 available. The box under it says v1.1.0 is available, lists the changelog line Outer margin is 0.75 in., and has Preview v1.1.0 and Apply v1.1.0 buttons." />
+
+To upgrade, follow these steps.
+
+1. Choose Preview v1.1.0. A dialog shows a page of the book in the new version. The dialog says the book stays on its version until you apply, and that other books keep their own version.
+2. Choose Apply v1.1.0 to pin the book to the new version, or Keep v1.0.0 to close the dialog and change nothing.
+
+<Shot name="ui-templates-upgrade-preview" alt="The dialog Previewing Working Coasts novel v1.1.0 with a preview page of The Lamp Room. The buttons are Keep v1.0.0 and Apply v1.1.0." />
+
+After Apply, the Template row says `Pinned to v1.1.0`. The book keeps the trim and the options that the new version still offers. Other books stay on the version they use.
+
+<Shot name="ui-templates-upgraded" alt="The Template row of Working Coasts novel (yours) saying Pinned to v1.1.0. The card says v1.1.0 and In use." />
+
+## Archive a template
+
+Choose Archive on one of your cards to hide it from the list. While the book you have open uses the template, Archive is off, and holding the pointer over it shows `This book uses it. Choose another template first.` While another book uses it, Codex refuses with a red message that names the book. Built-in templates have no Archive button. An archived slug stays taken, so you cannot upload a new template with it.
+
+## When an upload is refused
+
+When the package fails a check, the red message under the Upload template button says why.
+
+A file that is not a zip, such as a text file with a .zip name, gets `The template package is not a .zip file.`
+
+<Shot name="ui-templates-upload-rejected" alt="The red message The template package is not a .zip file. under the Upload template button." />
+
+A package whose slug is taken gets `A template with the slug 'novel-6x9' already exists (a built-in or one of yours, archived ones included). Upload this as a new version of yours, or change "slug" in template.json.`
+
+<Shot name="ui-templates-upload-rejected-slug" alt="The red message under the Upload template button saying that a template with the slug novel-6x9 already exists." />
+
+These messages begin with `The template package was refused:` and name the reason.
+
+- A name that is not a plain relative path, or an entry that points outside the package.
+- A link or other file that is not a plain file.
+- A file listed twice, or a damaged zip.
+- More than 1000 files, a file over 32 MB, or more than 64 MB unpacked.
+
+A zip over 25 MB gets `A template package is at most 25 MB.` A zip with no manifest gets `The template package has no template.json at its top level.` A new version with another slug gets `The package's slug is '<slug>', but this is a new version of '<template>'. Set "slug": "<template>" in template.json.`
+
+If the zip is fine but the package cannot compile, the message begins with `The template package has problems:` and lists them. Examples are a missing wrapper, a trim that Codex does not know, or a version that is not three numbers. A new version that is not higher gets `Version 1.0.0 is not newer than v1.0.0 of <name>. Raise "version" in template.json.`
+
+## The package format
+
+A package is a folder, or a `.zip` of one, with `template.json` at the top.
+
+| Path | What it holds |
+|---|---|
+| `template.json` | The manifest. |
+| `wrapper.tex` | The pandoc template that wraps the book. It receives the body, the title and the book's metadata. |
+| `filters/*.lua` | Lua filters, run in the order the manifest lists them. |
+| `preview.css` | Optional. The style of Quick preview. Without it, Quick preview uses the house style. |
+| `tex/` | Classes, styles, fonts and images. Codex copies them into the folder of each compile. |
+| `sample.md` | Markdown that draws the thumbnail on the card. |
+
+`template.json` has these fields.
+
+| Field | Meaning |
+|---|---|
+| `slug` | Lower-case letters, digits and hyphens. For a new template it must be free. For a new version it must match the template. |
+| `name` | The name on the card. |
+| `version` | Three numbers, such as `1.1.0`. |
+| `engine` | `tectonic`. No other engine compiles today. |
+| `trims` | The trims the template supports. Known trims are `us-letter`, `8.5x11`, `a4`, `6x9` and `5.5x8.5`. |
+| `page` | `columns` (1 to 3), `columnGap`, and `margins` with `top`, `bottom`, `inner` and `outer`. All lengths are in inches, from 0 to 3. |
+| `citations` | `footnote` or `author-date`. |
+| `rawLatex` | `true` keeps raw LaTeX blocks. `false` drops them. The preview lists them either way. |
+| `filters` | The Lua filters, as paths inside the package. |
+| `options` | The options the book can change. Each has a `type` of `boolean` or `choice`, a `default`, a `label` and, for a choice, its `choices`. |
+| `directives` | How the template draws each directive, as a short text that the picker and preflight show. |
+| `files` | The files of the package, each with a `description`. Every file listed here must be in the package, except `preview.css`. `wrapper.tex` and every filter must be in the package, listed here or not. |
+| `changelog` | One line for each change. It shows beside `available`. |
+
+To see a real manifest, download the Manuscript template and open its `template.json`. It has every field except `changelog`.
+
+## What the sandbox refuses
+
+A template holds code, so Codex runs every compile in a sandbox. Built-in templates and your own go through the same path. A compile can write only in its own private folder. It can read that folder, the Tectonic bundle cache and a few system paths such as fonts.
+
+- A filter cannot start a program or a shell.
+- A compile cannot open a network connection.
+- A compile cannot read the files of the app, of other jobs or of other users.
+- The environment of a compile holds no password and no key.
+- A compile that runs too long, or makes too large a file, stops.
+
+Thumbnails and previews of your templates draw in a frame in your browser that runs no scripts and loads nothing from the network.
+
+The sandbox needs Landlock ABI 4, which arrived in Linux 6.7. When the host has no Landlock, or an older version, the sandbox refuses to start, and nothing compiles. Codex never falls back to a compile without it. A proof or an export then fails with the message `The print sandbox could not start:` followed by the sandbox's own message. [Requirements](/start/requirements/) has a one-line check to run before you install.

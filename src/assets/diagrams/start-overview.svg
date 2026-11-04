@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 250" role="img" aria-labelledby="t d" font-family="var(--font-sans)" font-size="14" fill="none" stroke="currentColor" stroke-width="1.5">
+  <title id="t">How a Codex book is organised</title>
+  <desc id="d">A series holds books. A book holds acts, an act holds chapters, and a chapter holds scenes. Sources and knowledge base entries attach to scenes.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="currentColor" stroke="none"/>
+    </marker>
+  </defs>
+  <g style="color:var(--color-muted)">
+    <path d="M130 62H170" marker-end="url(#arrow)"/>
+    <path d="M290 62H330" marker-end="url(#arrow)"/>
+    <path d="M450 62H490" marker-end="url(#arrow)"/>
+    <path d="M610 62H650" marker-end="url(#arrow)"/>
+    <path d="M710 84L560 170" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+    <path d="M710 84L700 170" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  </g>
+  <g style="fill:var(--color-surface);stroke:var(--color-border)">
+    <rect x="10" y="40" width="120" height="44" rx="8"/>
+    <rect x="170" y="40" width="120" height="44" rx="8"/>
+    <rect x="330" y="40" width="120" height="44" rx="8"/>
+    <rect x="490" y="40" width="120" height="44" rx="8"/>
+    <rect x="650" y="40" width="120" height="44" rx="8"/>
+  </g>
+  <g style="fill:var(--color-accent-soft);stroke:var(--color-border)">
+    <rect x="500" y="170" width="120" height="44" rx="8"/>
+    <rect x="640" y="170" width="120" height="44" rx="8"/>
+  </g>
+  <g style="fill:var(--color-text);stroke:none" text-anchor="middle" dominant-baseline="middle">
+    <text x="70" y="62">Series</text>
+    <text x="230" y="62">Book</text>
+    <text x="390" y="62">Act</text>
+    <text x="550" y="62">Chapter</text>
+    <text x="710" y="62">Scene</text>
+    <text x="560" y="192">Source</text>
+    <text x="700" y="192">Entry</text>
+  </g>
+  <g style="fill:var(--color-muted);stroke:none" font-size="12" text-anchor="middle">
+    <text x="150" y="52">holds</text>
+    <text x="310" y="52">holds</text>
+    <text x="470" y="52">holds</text>
+    <text x="630" y="52">holds</text>
+    <text x="500" y="130" text-anchor="end">attach to scenes</text>
+  </g>
+</svg>

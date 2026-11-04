@@ -1,0 +1,33 @@
+name: Caddy example check
+
+# Validates examples/caddy/Caddyfile with the caddy:2 image.
+on:
+  pull_request:
+  push:
+    branches: [main, feat/cdx-1-docs-site]
+  schedule:
+    # Weekly, so a change in Caddy that rejects the file shows up here.
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  caddy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Validate the Caddyfile
+        run: pnpm exec tsx scripts/checks/caddy.ts

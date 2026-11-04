@@ -1,15 +1,100 @@
 name: Capture shots
 
-# Placeholder. GitHub lists a dispatchable workflow only when the file is on the
-# default branch. TODO: the capture runner replaces this file on the feature branch.
+# Dispatched by `pnpm shots:ci`. One leg per page key, each with its own stack from the published
+# images, so no page sees another page's data. Each leg uploads an artifact named "shots-<key>".
+# A failed leg does not cancel the others, and the run fails if any leg fails.
 on:
   workflow_dispatch:
+    inputs:
+      page:
+        description: Page key, such as ui-library, or all (every page in the page map that has a spec)
+        required: true
+        type: string
+      shot:
+        description: Only shots whose name starts with this
+        required: false
+        default: ""
+        type: string
+      tag:
+        description: Lets the dispatcher find its own run
+        required: false
+        default: ""
+        type: string
+
+run-name: Capture ${{ inputs.page }} ${{ inputs.tag }}
 
 permissions:
   contents: read
 
+concurrency:
+  group: capture-${{ inputs.tag || github.run_id }}
+
 jobs:
-  placeholder:
-    runs-on: ubuntu-latest
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - run: echo "Capture runs from the feature branch."
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Choose the pages
+        id: matrix
+        env:
+          PAGE: ${{ inputs.page }}
+        run: |
+          matrix=$(pnpm --silent exec tsx scripts/shots/matrix.ts "$PAGE")
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  capture:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install the browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Capture
+        env:
+          PAGE: ${{ matrix.page }}
+          SHOT: ${{ inputs.shot }}
+        run: |
+          args=(--page "$PAGE" --out "$RUNNER_TEMP/shots")
+          if [ -n "$SHOT" ]; then args+=(--shot "$SHOT"); fi
+          pnpm shots "${args[@]}"
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: shots-${{ matrix.page }}
+          path: ${{ runner.temp }}/shots/*.webp
+          if-no-files-found: error
+
+      - name: Remove anything left behind
+        if: always()
+        run: |
+          docker ps -aq | xargs -r docker rm -f
+          docker volume ls -q | xargs -r docker volume rm

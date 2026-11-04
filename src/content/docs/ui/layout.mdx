@@ -1,0 +1,160 @@
+---
+title: "Layout"
+description: "Live preview, proofs, preflight and export."
+sidebar:
+  order: 11
+---
+
+import Shot from "../../../components/Shot.astro";
+
+Layout shows how a book looks on the printed page. Use it to preview a chapter or the whole book, run a proof with the real print engine, check what blocks an export, and make the PDF for the printer. The screen is at `/books/<book id>/layout`, and the book bar has a Layout tab. A number on the tab counts the issues that block export.
+
+<Shot name="ui-layout-overview" alt="Layout for Salt and Signal showing chapter 1, The Lamp Room, on a 6 by 9 page in Quick mode. The right panel shows the Novel (6 x 9) template with two options, both Off." />
+
+The toolbar is under the book bar. From the left it has the scope list, the Quick and Proof buttons, the template list, the trim list, Export for printer, the Print issues box, the Single and Spread buttons and the zoom list. The side panel has four tabs: Template, Issues, Preflight and Exports. The book bar shows the word count and the page estimate for the whole book, such as `741 words · ≈ 14 pages in Novel 6×9`.
+
+People with the view role can use Quick preview and read every tab. A proof and Export for printer need the write role. The template and trim lists are the book's settings. A viewer can see them but cannot change them. [Print templates](/ui/templates/) explains the templates.
+
+## Preview the pages
+
+Quick preview lays the text out in your browser, in the look of the pinned template. It is live. The page changes a moment after you edit the text, and the status bar reads `Updating…` while it does. Quick preview is an estimate. A proof is the exact view.
+
+To choose what to preview, use the first list in the toolbar. It holds Whole book, then each chapter with its scenes under it. A dot marks a scene. The screen opens on the first chapter.
+
+<Shot name="ui-layout-scope" alt="The scope list set to Whole book. The page rail at the left lists four pages and the preview shows the chapter The Lamp Room followed by Oil and Brass." />
+
+To see two pages side by side, choose Spread. Choose Single to go back. The first page sits alone on the right, and the pages after it pair up. The list at the right of the toolbar sets the zoom.
+
+<Shot name="ui-layout-spread" alt="The Spread button selected for the whole book at 50% zoom. The first page sits alone on the right, and the next two pages are side by side below it." />
+
+The page rail on the left has one button per page. A click scrolls to that page. A dot on a button marks a page that has a print issue. The Print issues box turns the markers on the pages on and off. It is on at first.
+
+## Change a template option
+
+The Template tab shows the pinned template, its engine, its version and its column count. Under them are the options that template offers. Novel (6 x 9) has two, Drop cap on each chapter's first paragraph and Table of contents. Manuscript has a Typeface choice instead. Each option is a row of buttons. A choice applies to this book only and does not change your text.
+
+To add a table of contents, choose On beside Table of contents. The preview redraws, and the status bar reads `Updating…` until it finishes.
+
+<Shot name="ui-layout-option" alt="The Template tab with Table of contents set to On. Drop cap on each chapter's first paragraph is still Off." />
+
+To pick a different template or trim, use the lists in the toolbar. To fork, download or upload a template, use [Print templates](/ui/templates/).
+
+## Inspect a block
+
+A click on a block in the preview outlines it and opens a card at the bottom right of the canvas, under the last page. Scroll down if the card is out of view. The label above the outline names the scene, such as `Ch 1 · Sc 1`. The card repeats that label and has an Open in Write link that jumps to that scene.
+
+<Shot name="ui-layout-block" alt="A click on the first paragraph of chapter 1 outlines it in blue under the label Ch 1 · Sc 1. The card at the bottom right says Ch 1 · Sc 1 and has an Open in Write link." />
+
+The card changes with the block.
+
+- A figure shows the image's file name, its size in pixels, the size it takes on the page and its effective dpi at the current trim.
+- A spell or stat block shows the Knowledge base entry it prints from.
+- A raw LaTeX block says that it is for the print build only and shows the code.
+
+## Place figures and opener art
+
+A figure is an image in a scene. To add one in Write, type `/` and choose Figure, then pick the image and a placement: Column, Full page, Spread or Top of page. The placement changes the figure's size on the page, so it changes the effective dpi.
+
+Opener art is a full-page image before an act or a chapter. To set it, open ⋯ on the act or chapter in Plan, choose Opener art…, pick an image, add a caption if you want one, and choose Save. Only Fantasy RPG (5e style) prints opener art. Novel (6 x 9) and Manuscript leave it out.
+
+## Find print issues
+
+Issues lists what the current preview found. It has two kinds of line.
+
+- `Low resolution`, a file name and the image's effective dpi, for an image that prints below the resolution the export needs. Each line has a Show on page link and an Open in Write link.
+- A flag with its detail. The flags are `Raw LaTeX block`, `Unknown directive`, `Image missing`, `Knowledge base entry missing` and `Reference missing`.
+
+When the preview has none, the tab says `No print issues in this preview.`
+
+<Shot name="ui-layout-issues" alt="The Issues tab for chapter 1, which says No print issues in this preview." />
+
+This example has one small image in scene 1.1.
+
+<Shot name="ui-layout-figure-issue" alt="The Issues tab lists a low-resolution image, lamp-room.png, with Show on page and Open in Write links." />
+
+Select the figure in the preview to inspect its size and effective dpi.
+
+<Shot name="ui-layout-figure" alt="The block card lists lamp-room.png, its pixels, its placed size and its effective dpi." />
+
+Issues covers the current scope only. [Preflight](#run-preflight) checks the whole book.
+
+## Run a proof
+
+A proof compiles one chapter with the real print engine, so it shows the exact type, hyphenation and page breaks. It leaves out the contents and cross-references. The engine takes several seconds.
+
+To run a proof, choose a chapter or a scene in the scope list, then choose Proof. The Proof button is off for Whole book, and for readers without the write role. Hold the pointer over it to see which reason applies. The status bar reads `Compiling…` while the engine runs, and a toast says `Proof finished.` when the pages appear.
+
+<Shot name="ui-layout-proof" alt="Proof mode for chapter 1. The page shows the chapter heading, with Chapter 1 above the title, in the print engine's type. The banner above it has Download, Log and Re-render." />
+
+The banner above the pages says `Proof · chapter only, no contents or cross-references`, then gives the template's slug, its version and the trim. It has three buttons.
+
+- **Download** saves the proof as a PDF.
+- **Log** shows the engine's log under the banner.
+- **Re-render** compiles the chapter again.
+
+A proof of the same text, template, trim and options as an earlier proof opens from the cache, and the banner says `cached`. When the chapter changes after a proof, the banner says `Out of date: the chapter changed after this proof`. Choose Re-render to refresh it.
+
+<Shot name="ui-layout-proof-log" alt="The proof's Log open under the banner. It lists the engine's startup lines, such as the memoir class and the etoolbox package." />
+
+Read the log when a proof fails or the type looks wrong. Choose Log again to close it. Choose Quick to go back to the live preview.
+
+## Run preflight
+
+Preflight checks the whole book before you export. It has up to three groups. Blocks export lists copyright risks and images whose file is missing, and these stop an export. Warnings lists low-resolution images, unknown directives, raw LaTeX the template skips, and missing entries and references. Notes lists raw LaTeX the template keeps. A line about a scene has an Open in Write link, and a copyright risk has an Open in References link. When nothing blocks, the tab says `Ready to export`.
+
+Salt and Signal starts with one block. The source Signals at Sea quotes more words than the limit allows, and its permission letter is still a draft.
+
+<Shot name="ui-layout-preflight" alt="The Preflight tab. It says 1 issue blocks export. Under Blocks export (1) it lists Signals at Sea: copyright risk (permission drafted), with an Open in References link." />
+
+A copyright risk blocks export until you record a grant, cut the quote or rewrite it as a paraphrase. [References](/ui/references/#record-a-grant) shows how to record a grant, and [Count quoted words](/ui/references/#count-quoted-words) shows the other two.
+
+## Export for the printer
+
+Export for printer makes a PDF of the whole book with the pinned template and trim. It runs in the background on the server.
+
+To export, follow these steps.
+
+1. Choose Export for printer in the toolbar. A dialog opens with the template, the trim and the format PDF.
+2. Choose a bleed. The choices are None, 3 mm and 0.125 in. A printer that wants the image to reach the trim edge asks for a bleed.
+3. Tick Crop marks if you want them. The box only works with a bleed.
+4. Choose Print 300 dpi or Screen 150 dpi.
+5. Read the verdict under the options. The dialog runs the same checks as Preflight.
+6. Choose Queue export.
+
+The dialog also shows the size of the PDF, such as `About 1 MB`.
+
+<Shot name="ui-layout-export-blocked" alt="The Export for printer dialog with None chosen for bleed. The verdict says 1 issue blocks export and lists Signals at Sea. The Queue export button is off." />
+
+While an issue blocks export, Queue export stays off. Fix the issue to get a print file, or tick Export a draft with DRAFT across every page. That box turns Queue export on and stamps DRAFT on every page of the PDF. A draft is for proofreading, not for the printer.
+
+To export a draft, tick Export a draft with DRAFT across every page, then choose Queue export. The panel switches to the Exports tab and shows the job.
+
+<Shot name="ui-layout-export-draft" alt="The Exports tab with one finished export. Its details end in DRAFT, and it has Download, Export again with these settings and Log buttons." />
+
+To export for print, first clear the block. After you record the grant for Signals at Sea in References, the count on the References tab turns from red to amber, the number on the Layout tab goes away, and the verdict in the dialog says `Ready to export`. [Getting to print](/work/print/) covers every step from the first risk to the print file.
+
+<Shot name="ui-layout-export-ready" alt="The Export for printer dialog with 0.125 in bleed and Print 300 dpi chosen. The verdict says Ready to export, and Queue export is on." />
+
+Choose Queue export. The Exports tab shows the job with a progress bar, then `Done`, the page count and the file size.
+
+## Follow your exports
+
+Exports lists every export of the book, newest first. A running export shows a progress bar and a Cancel button. A finished one shows `Done`, the page count and the size. Under that line are the settings the job used, such as `novel-6×9 v1.0.0 · 6×9 · 0.125 in bleed · 300 dpi`. A draft ends in DRAFT. A failed job shows `Failed` and the engine's error. A line such as `3 overfull lines in the log` means some text runs past the margin. Open the log to find it.
+
+<Shot name="ui-layout-exports" alt="The Exports tab with the finished print export. It shows Done, 19 pages and 44 KB, the settings 0.125 in bleed and 300 dpi, and the Download, Export again with these settings and Log buttons." />
+
+Each export has these buttons.
+
+- **Download** saves the PDF.
+- **Export again with these settings** opens the dialog with the same bleed, crop marks, quality and draft setting. This button needs the write role.
+- **Log** shows the engine's log for that job.
+
+The export in the example has 19 pages, and the estimate in the book bar says about 14. The export's count is exact.
+
+To repeat an export after you change the text, choose Export again with these settings, check the verdict and choose Queue export.
+
+<Shot name="ui-layout-export-again" alt="The Export for printer dialog opened from Export again with these settings. It has the same 0.125 in bleed and Print 300 dpi as the first export, and says Ready to export." />
+
+## If an export fails
+
+Every print job runs in a sandbox that needs Landlock ABI 4, which arrived in Linux 6.7. On a host without it, a proof or an export fails with `The print sandbox could not start:` followed by the sandbox's message. An export shows the text after `Failed`. A proof shows it under `The proof did not compile`, with the log open. Quick preview fails too, with `The preview could not be made`. Codex never compiles without the sandbox. [Requirements](/start/requirements/) has a one-line check to run before you install.
