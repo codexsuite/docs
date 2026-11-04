@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-// Builds a throwaway page that uses <Shot> and reads the built HTML. Run after `pnpm build` is not needed.
+// Builds a throwaway page that uses <Shot> into dist-shot-test and reads the built HTML.
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const pageFile = `${root}src/content/docs/zz-shot-test.mdx`;
 const out = `${root}dist-shot-test`;
@@ -14,8 +14,11 @@ let html = "";
 let log = "";
 
 before(async () => {
-  const png = await sharp({ create: { width: 40, height: 20, channels: 3, background: "#456" } }).webp().toBuffer();
-  for (const f of shots) writeFileSync(f, png);
+  // Different bytes per theme, because the build names a file by its content hash.
+  for (const [i, f] of shots.entries()) {
+    const background = i === 0 ? "#ddd" : "#222";
+    writeFileSync(f, await sharp({ create: { width: 40, height: 20, channels: 3, background } }).webp().toBuffer());
+  }
   writeFileSync(
     pageFile,
     [
@@ -50,10 +53,16 @@ test("ShotShowsThemeVariant", () => {
   assert.match(dark, /zz-shot-test-here-dark\.[\w-]+\.webp/);
   assert.match(light, /alt="Both themes exist"/);
   // The built CSS hides the dark image by default and the light one under data-theme="dark".
-  const css = [...html.matchAll(/href="(\/_astro\/[^"]+\.css)"/g)].map((m) => readFileSync(`${out}${m[1]}`, "utf8")).join("\n");
-  assert.match(css, /\.shot \.shot-dark\{display:none\}/);
-  assert.match(css, /\[data-theme=dark\] \.shot \.shot-light\{display:none\}/);
-  assert.match(css, /\[data-theme=dark\] \.shot \.shot-dark\{display:block\}/);
+  // Astro inlines small stylesheets and links big ones, so read both.
+  const css = [
+    ...[...html.matchAll(/<style[^>]*>([^<]*)<\/style>/g)].map((m) => m[1]!),
+    ...[...html.matchAll(/href="(\/_astro\/[^"]+\.css)"/g)].map((m) => readFileSync(`${out}${m[1]}`, "utf8")),
+  ].join("\n");
+  const rules = (css.match(/[^{}]*shot[^{}]*\{[^}]*\}/g) ?? []).join("\n");
+  // The minifier merges selectors, so look at the declarations that hide and show each image.
+  assert.match(rules, /\.shot \.shot-dark(,[^{]*)?\{display:none\}/);
+  assert.match(rules, /(\.shot \.shot-dark,)?:root\[data-theme=dark\] \.shot \.shot-light(,[^{]*)?\{display:none\}/);
+  assert.match(rules, /:root\[data-theme=dark\] \.shot \.shot-dark\{display:block\}/);
 });
 
 test("ShotPlaceholderRendersWhenFilesMissing", () => {
