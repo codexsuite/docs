@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { checkPage } from "./page.ts";
 import { parseGithubRef } from "./links-main.ts";
+import { checkRepoDocs } from "./slop.ts";
 import { makeRoot, page, pageA } from "./fixture.ts";
 
 const run = (body: string) => {
@@ -49,4 +50,14 @@ test("LinkCheckChecksMainPathsAgainstTrackedFiles", () => {
 test("LinkCheckParsesRefs", () => {
   assert.deepEqual(parseGithubRef("https://github.com/a/b/blob/main/x/y.md?plain=1#L2"), { repo: "a/b", kind: "blob", ref: "main", path: "x/y.md" });
   assert.equal(parseGithubRef("https://github.com/a/b/pull/4"), null);
+});
+
+test("LinkCheckFailsOnBranchLinkInRepoDocuments", () => {
+  const root = makeRoot({
+    "README.md": `[x](${docs}/blob/feat/x/README.md)\n`,
+    "AGENTS.md": "[y](https://github.com/codexsuite/codex/blob/dev/README.md)\n",
+    "docs/notes.md": `[ok](https://github.com/codexsuite/codex/blob/main/README.md)\n`,
+  });
+  const problems = checkRepoDocs(root).filter((p) => p.check === "links-main");
+  assert.deepEqual(problems.map((p) => p.slug).sort(), ["AGENTS.md", "README.md"]);
 });

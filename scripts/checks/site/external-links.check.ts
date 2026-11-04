@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseGithubRef } from "../links-main.ts";
+import { externalUrlsIn, isDeadLink, type LinkResult } from "./external-urls.ts";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url)).replace(/\/$/, "");
 
@@ -12,6 +12,7 @@ const skip = [
   /^https?:\/\/([a-z0-9-]+\.)*example(\.com|\.org|\.net)?(:|\/|$)/,
   /^https?:\/\/docs\.codexsuite\.app(:|\/|$)/,
   /^https?:\/\/github\.com\/codexsuite\/docs(\/|$)/,
+  /^https?:\/\/raw\.githubusercontent\.com\/codexsuite\/docs(\/|$)/,
 ];
 
 function walk(dir: string): string[] {
@@ -22,18 +23,22 @@ function walk(dir: string): string[] {
 }
 
 export function externalUrls(): Map<string, string> {
-  const files = [...walk(`${root}/src/content/docs`), `${root}/README.md`, ...walk(`${root}/docs`).filter((f) => f.endsWith(".md"))];
+  const files = [
+    ...walk(`${root}/src/content/docs`),
+    `${root}/README.md`,
+    `${root}/AGENTS.md`,
+    ...walk(`${root}/docs`).filter((f) => f.endsWith(".md") && !f.endsWith("/unslop.md")),
+  ];
   const urls = new Map<string, string>();
   for (const file of files) {
-    for (const m of readFileSync(file, "utf8").matchAll(/https?:\/\/[^\s)<>"'\]`}]+/g)) {
-      const url = m[0].replace(/[.,;:]+$/, "").replace(/#.*$/, "");
+    for (const url of externalUrlsIn(readFileSync(file, "utf8"))) {
       if (!skip.some((re) => re.test(url)) && !urls.has(url)) urls.set(url, file.slice(root.length + 1));
     }
   }
   return urls;
 }
 
-async function status(url: string): Promise<number | string> {
+async function status(url: string): Promise<LinkResult> {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await fetch(url, {
@@ -48,10 +53,11 @@ async function status(url: string): Promise<number | string> {
       }
       return res.status;
     } catch (e) {
-      if (attempt === 2) return e instanceof Error ? e.message : String(e);
+      const cause = e instanceof Error ? (e.cause as { code?: string } | undefined) : undefined;
+      if (attempt === 2 || cause?.code === "ENOTFOUND") return { code: cause?.code };
     }
   }
-  return "no answer after three tries";
+  return { code: undefined };
 }
 
 test("ExternalLinksResolve", async () => {
@@ -63,17 +69,9 @@ test("ExternalLinksResolve", async () => {
       for (let next = queue.shift(); next; next = queue.shift()) {
         const [url, file] = next;
         const result = await status(url);
-        if (typeof result !== "number" || result >= 400) failures.push(`${url} (${file}) answered ${result}`);
+        if (isDeadLink(result)) failures.push(`${url} (${file}) answered ${JSON.stringify(result)}`);
       }
     }),
   );
   assert.deepEqual(failures, []);
-});
-
-test("ExternalLinksNameMain", () => {
-  const bad = [...externalUrls()].filter(([url]) => {
-    const ref = parseGithubRef(url);
-    return ref && ref.ref !== "main";
-  });
-  assert.deepEqual(bad, []);
 });

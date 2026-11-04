@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { linkProblems } from "./links-main.ts";
 import type { PageCheck, Problem } from "./types.ts";
 
 /**
@@ -15,6 +16,9 @@ export const unslopSha256 = "f686e9bc70c3a84b5a68d187df52b4adfc628508963f594fddf
 const generatedMarker = /\{\s*\/\*\s*generated\s*\*\/\s*\}/;
 
 /** Proper nouns that keep a capital letter inside a sentence-case heading. */
+// Page tasks may append a real product or proper noun here when it trips the heading rule,
+// even though they do not own this file. On a rebase conflict in this list, keep both sides.
+// Do not add ordinary words.
 export const properNouns = new Set(
   [
     "Codex", "Claude", "Code", "Docker", "Compose", "Caddy", "Postgres", "PostgreSQL", "Cloudflare", "GitHub",
@@ -112,10 +116,27 @@ export interface ProseLine {
   frontmatter: boolean;
 }
 
-/** Returns the prose lines of a file with code, targets and exempt regions blanked. Keeps line numbers. */
+/** Lines (1-based) of the generated markers that sit outside fenced code. */
+function markerLines(lines: string[]): number[] {
+  const found: number[] = [];
+  let fence: string | null = null;
+  lines.forEach((raw, n) => {
+    const f = /^\s*(`{3,}|~{3,})/.exec(raw);
+    if (fence) {
+      if (f && f[1]!.startsWith(fence[0]!) && f[1]!.length >= fence.length) fence = null;
+    } else if (f) fence = f[1]!;
+    else if (generatedMarker.test(raw)) found.push(n + 1);
+  });
+  return found;
+}
+
+/**
+ * Returns the prose lines of a file with code, targets and exempt regions blanked. Keeps line numbers. */
 export function proseLines(source: string): ProseLine[] {
   const lines = source.split("\n");
   const out: ProseLine[] = [];
+  // An odd number of markers exempts nothing. scanProse reports it.
+  const paired = markerLines(lines).length % 2 === 0;
   let i = 0;
   if (lines[0] === "---") {
     const end = lines.indexOf("---", 1);
@@ -141,10 +162,11 @@ export function proseLines(source: string): ProseLine[] {
       continue;
     }
     if (generatedMarker.test(raw)) {
-      generated = !generated;
+      if (paired) generated = !generated;
       continue;
     }
-    if (generated || /^(import|export)\s/.test(raw)) continue;
+    // Only the table rows between two markers are generated. Prose there is still read.
+    if ((generated && /^\s*\|/.test(raw)) || /^(import|export)\s/.test(raw)) continue;
     const text = raw
       .replace(/`[^`]*`/g, " ")
       .replace(/\]\([^)]*\)/g, "] ")
@@ -175,6 +197,10 @@ export function titleCaseWords(heading: string): string[] {
 /** Applies the mechanical rules to the text of one file. */
 export function scanProse(source: string): { line: number; message: string }[] {
   const found: { line: number; message: string }[] = [];
+  const markers = markerLines(source.split("\n"));
+  if (markers.length % 2 === 1) {
+    found.push({ line: markers[markers.length - 1]!, message: "a generated marker has no partner. Add the closing marker or remove it" });
+  }
   for (const { line, text, frontmatter } of proseLines(source)) {
     for (const r of lineRules) {
       r.re.lastIndex = 0;
@@ -217,13 +243,13 @@ export function checkUnslopCopy(root: string): Problem[] {
     : [{ check: "unslop-copy", slug: "docs/unslop.md", message: `the file hash is ${actual}, not the recorded ${unslopSha256}` }];
 }
 
-/** README.md, AGENTS.md and docs/*.md, plus the Unslop copy. */
+/** README.md, AGENTS.md and docs/*.md, plus the Unslop copy. Branch links fail here as they do in pages. */
 export function checkRepoDocs(root: string): Problem[] {
   const problems = checkUnslopCopy(root);
   for (const file of repoDocFiles(root)) {
-    for (const f of scanProse(readFileSync(`${root}/${file}`, "utf8"))) {
-      problems.push({ check: "slop", slug: file, line: f.line, message: f.message });
-    }
+    const source = readFileSync(`${root}/${file}`, "utf8");
+    for (const f of scanProse(source)) problems.push({ check: "slop", slug: file, line: f.line, message: f.message });
+    for (const f of linkProblems(root, source)) problems.push({ check: "links-main", slug: file, line: f.line, message: f.message });
   }
   return problems;
 }

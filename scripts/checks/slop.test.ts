@@ -99,3 +99,20 @@ test("UnslopCopyMatchesHash", () => {
   const edited = makeRoot({ "docs/unslop.md": "# Unslop\n\nedited\n" });
   assert.match(checkRepoDocs(edited)[0]!.message, /not the recorded/);
 });
+
+test("SlopCheckFailsOnAnUnpairedGeneratedMarker", () => {
+  const found = scanProse("{/* generated */}\n\nThis is crucial.\n");
+  assert.equal(found.length, 2, JSON.stringify(found));
+  assert.ok(found.some((f) => /generated/.test(f.message)));
+  assert.ok(found.some((f) => /rule 7/.test(f.message)));
+});
+
+test("SlopCheckExemptsOnlyTableRowsBetweenGeneratedMarkers", () => {
+  const found = scanProse(
+    ["{/* generated */}", "This is crucial.", "| a | pivotal |", "{/* generated */}", "", "This is crucial."].join("\n"),
+  );
+  assert.deepEqual(
+    found.map((f) => f.line),
+    [2, 6],
+  );
+});
