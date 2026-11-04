@@ -34,19 +34,4 @@ export const shots: ShotSpec[] = [
       await page.getByTestId("library-series-delete-impact").waitFor();
     },
   },
-  {
-    name: "ui-series-delete-refused",
-    route: (ctx: SeedResult) => `/#series=${ctx.seriesId}`,
-    steps: async (page, ctx) => {
-      await openSettings(page);
-      await page.getByTestId("library-series-delete").click();
-      await page.getByTestId("library-series-delete-dialog").waitFor();
-      await page.getByTestId("library-series-delete-impact").waitFor();
-      // Delete the series from outside the dialog, so the dialog's own request meets a series that is gone.
-      const gone = await page.request.delete(`/api/series/${ctx.seriesId}`, { headers: { "x-codex-client": "docs" } });
-      if (!gone.ok()) throw new Error(`DELETE /api/series answered ${gone.status()}.`);
-      await page.getByTestId("library-series-delete-confirm").click();
-      await page.getByTestId("library-series-delete-error").waitFor();
-    },
-  },
 ];
