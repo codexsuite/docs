@@ -179,6 +179,7 @@ export const shots: ShotSpec[] = [
       await open(page);
       await duplicate(page, "Continue writing", copyName);
       await page.getByTestId("ai-editor").waitFor();
+      await page.getByTestId("ai-editor-save").scrollIntoViewIfNeeded();
     },
   },
   {
@@ -189,6 +190,7 @@ export const shots: ShotSpec[] = [
       await duplicate(page, "Continue writing", copyName);
       await page.getByTestId("ai-editor-body").fill("Write the scene in the keeper's plain, salted voice.");
       await page.getByTestId("ai-editor-warning").waitFor();
+      await page.getByTestId("ai-editor-save").scrollIntoViewIfNeeded();
     },
   },
   {
@@ -199,6 +201,7 @@ export const shots: ShotSpec[] = [
       await duplicate(page, "Continue writing", copyName);
       await page.getByTestId("ai-editor-body").fill("");
       await page.getByTestId("ai-editor-error").waitFor();
+      await page.getByTestId("ai-editor-save").scrollIntoViewIfNeeded();
     },
   },
   {
