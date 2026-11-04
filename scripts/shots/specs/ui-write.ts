@@ -239,6 +239,25 @@ export const shots: ShotSpec[] = [
       await page.locator("[data-testid^='write-replace-item-']").filter({ hasText: "Locked: inside a cited passage" }).waitFor();
     },
   },
+  {
+    name: "ui-write-replace-spans-link",
+    route: writeRoute,
+    steps: async (page, ctx) => {
+      await page.goto("/");
+      const sceneId = ctx.sceneIds["1.1"];
+      const response = await page.request.get(`/api/scenes/${sceneId}/prose`);
+      if (!response.ok()) throw new Error(`Read prose returned ${response.status()}`);
+      const { body, version } = (await response.json()) as { body: string; version: number };
+      const saved = await page.request.put(`/api/scenes/${sceneId}/prose`, {
+        data: { body: `${body.trimEnd()}\n\nKeeper [Edith](kb:${ctx.entryIds["Edith Marrow"]}) checked the lamp.\n`, version },
+      });
+      if (!saved.ok()) throw new Error(`Save prose returned ${saved.status()}`);
+      await openReplace(page, ctx, "Keeper Edith", "Head keeper");
+      await page.locator("[data-testid^='write-replace-item-'][data-status='spans_link']")
+        .filter({ hasText: "Locked: spans a link" }).waitFor();
+      await page.getByTestId("write-replace-all").and(page.locator(":disabled")).waitFor();
+    },
+  },
   { name: "ui-write-replaced", route: writeRoute, steps: replaceAll },
   {
     name: "ui-write-replaced-one",
