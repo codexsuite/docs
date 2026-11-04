@@ -7,7 +7,7 @@ sidebar:
 
 import Shot from "../../../components/Shot.astro";
 
-A scene beat is a card inside a scene where you describe what happens next. Codex sends the beat, the text before it and the context entries you pick to your AI provider. It shows the reply as a draft under the beat, and nothing reaches the scene until you apply it. You need an AI provider connected first. See [AI settings](/ui/ai-settings/).
+A scene beat is a card inside a scene where you describe what happens next. Codex sends the beat, the text before it and the context entries you add to your AI provider. It shows the reply as a draft under the beat, and nothing reaches the scene until you apply it. You need an AI provider connected first. See [AI settings](/ui/ai-settings/).
 
 **Address:** `/books/<id>/write`. Beats and drafts are in [Write](/ui/write/). A link ending in `#scene=1.2` opens that scene.
 
@@ -47,7 +47,7 @@ While a draft waits, **Generate prose** reads **Regenerate**. **Regenerate** use
 
 This is the full path, in a scene that already has text.
 
-1. Put the caret in the scene where the beat should go, type `/scene`, and choose **Scene beat** from the **AI** group of the `/` menu. A beat card appears.
+1. Put the caret in the scene where the beat should go and press `Enter` to start a new line. Type `/scene` and choose **Scene beat** from the **AI** group of the `/` menu. A beat card appears.
 2. Type what happens in the box on the card, for example `Tobias Venn explains to Edith Marrow why the Fresnel lens turns so slowly.` Codex saves the instruction when you leave the box or generate. You can also give the beat a title.
 
 <Shot name="ui-ai-drafts-new-beat" alt="A new scene beat at the end of scene 1.1 with the instruction typed in and the Generate prose button under it." />
@@ -56,11 +56,11 @@ This is the full path, in a scene that already has text.
 
 <Shot name="ui-ai-drafts-beat-options" alt="The beat with 400 chosen as its length and a chip for Tobias Venn beside the Context button." />
 
-4. Select the name of the template and model beside **Generate prose**. A list opens with the prompt templates on the left and your provider's models on the right. Choose a template such as **Write in Joel's voice**, then choose a model. The list closes after you pick a model. Codex remembers the choice for this beat until you reload the page.
+4. Select the name of the template and model beside **Generate prose**. A list opens with the prompt templates on the left and your provider's models on the right. Choose a template such as **Write in Joel's voice**, then choose a model. The list closes after you choose a model. Codex remembers the choice for this beat until you reload the page.
 
 <Shot name="ui-ai-drafts-picker" alt="The template and model list open on the beat, with the templates Continue writing, Write in Joel's voice and Paraphrase and the model fake-model." />
 
-5. Select **Generate prose**, or press `Ctrl+Enter` in the instruction box. The button stays dimmed until the instruction is saved, which happens when you leave the box. While the model writes, a panel titled `Generating…` streams the text in. Its **Stop** button ends the draft early and keeps the text received so far, and the panel reads `Stopped` until you reload the page. If no text has arrived, Stop leaves no draft. When the model finishes, the panel becomes a draft with the four buttons.
+5. Select **Generate prose**, or press `Ctrl+Enter` in the instruction box. The button stays dimmed until Codex saves the instruction, which happens when you leave the box. While the model writes, a panel titled `Generating…` streams the text in. Its **Stop** button ends the draft early and keeps the text received so far, and the panel reads `Stopped` until you reload the page. If no text has arrived, Stop leaves no draft. When the model finishes, the panel becomes a draft with the four buttons.
 
 <Shot name="ui-ai-drafts-generated" alt="The beat with Write in Joel's voice chosen and, under it, the AI draft." />
 
@@ -106,7 +106,7 @@ Use this when a scene has only a summary. The steps use a new scene in chapter 1
 
 ## Continue writing
 
-To get a draft from the end of a scene, with no beat, put the caret in the scene, type `/cont` and choose **Continue writing**. Codex writes from where the text stops. The draft panel appears at the end of the scene. **Apply** adds the draft to the end of the scene. Codex uses the template **Continue writing** and your default provider.
+To get a draft from the end of a scene, with no beat, start a new line in the scene, type `/cont` and choose **Continue writing**. Codex writes from where the text stops. The draft panel appears at the end of the scene. **Apply** adds the draft to the end of the scene. Codex uses the template **Continue writing** and your default provider.
 
 <Shot name="ui-ai-drafts-continue" alt="The end of scene 2.1 with an AI draft panel below the last paragraph." />
 
