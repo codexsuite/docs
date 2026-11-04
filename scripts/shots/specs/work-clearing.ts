@@ -242,7 +242,12 @@ export const shots: ShotSpec[] = [
       await page.getByTestId(`write-cite-option-${ctx.sourceIds[signals]}`).click();
       await page.getByTestId("editing-save-status").and(page.locator("[data-state='saved']")).waitFor();
       await page.goto(sourceRoute(ctx));
-      await page.getByTestId("refs-verdict-reason").filter({ hasText: "Ready to sign off" }).waitFor();
+      try {
+        await page.getByTestId("refs-verdict-reason").filter({ hasText: "Ready to sign off" }).waitFor({ timeout: 10000 });
+      } catch {
+        const seen = await page.locator("[data-testid^='refs-verdict-'], [data-testid^='refs-use-'], [data-testid='refs-panel-title']").allInnerTexts();
+        throw new Error(`The verdict did not read Ready to sign off. Seen: ${JSON.stringify(seen)}`);
+      }
     },
   },
   {
