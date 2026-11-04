@@ -445,17 +445,12 @@ export const shots: ShotSpec[] = [
         .filter({ hasText: "§ Chapter 1" });
       await link.first().waitFor();
       await link.first().evaluate((element) => element.scrollIntoView({ block: "center" }));
-      await link.first().evaluate(
-        (element) =>
-          new Promise<void>((resolve) => {
-            const check = () => {
-              const box = element.getBoundingClientRect();
-              if (box.top > 0 && box.bottom < window.innerHeight) resolve();
-              else requestAnimationFrame(check);
-            };
-            check();
-          }),
-      );
+      await page.waitForFunction(() => {
+        const element = [...document.querySelectorAll("[data-testid='write-chapter-ref']")].find((e) => e.textContent?.includes("§ Chapter 1"));
+        if (!element) return false;
+        const box = element.getBoundingClientRect();
+        return box.top > 0 && box.bottom < window.innerHeight;
+      });
     },
   },
   {
