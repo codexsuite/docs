@@ -17,7 +17,7 @@ Address: `https://<your-codex>/account`, in the Agent access section.
 
 To create a token:
 
-1. In Agent access, enter a name. The name appears in the list and in History, so make it say which agent uses it.
+1. In Agent access, enter a name. The name appears in the token list, so make it say which agent uses it.
 2. Tick the scopes. Read is ticked and cannot be turned off.
 3. Choose the expiry.
 4. Select Create token.
@@ -89,7 +89,7 @@ Codex records the last use at most once a minute.
 
 ## Revoke a token
 
-To revoke a token, select Revoke on its row. The next call with that token gets 401. Revoking marks the token and deletes nothing, so History keeps its name.
+To revoke a token, select Revoke on its row. The next call with that token gets 401. Codex marks the token as revoked and removes it from the token list.
 
 If an administrator disables your user, every token you created stops working, because a disabled user's tokens get 401.
 
