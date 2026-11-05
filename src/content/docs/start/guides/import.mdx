@@ -7,7 +7,7 @@ sidebar:
 
 import Shot from "../../../../components/Shot.astro";
 
-Use Import to turn files you already have into a new Codex book. Import never changes your files, and it never adds to an existing book. Each import makes a new book. This guide imports a small Markdown folder, reads the preview, checks the result and undoes the import. You need a running Codex and an account signed in to it.
+Use Import to turn files you already have into a new Codex book. Import leaves your files unchanged and creates a new book each time. This guide imports a small Markdown folder, reads the preview, checks the result and undoes the import. You need a running Codex and an account signed in to it.
 
 <Shot name="start-guides-import-overview" alt="The Plan of the imported book Harbour Log, with the import banner above the board." />
 
@@ -19,7 +19,7 @@ Codex reads five sources.
 |---|---|---|
 | Markdown folder | A folder | `act-NN-*` folders that hold `chapter-NN-*` folders, which hold `scene-NN.md` files. |
 | Pandoc book folder | A folder | Chapter files in the order of a pandoc `.yaml` file, or `Chapter 1.md`, `Chapter 2.md` and so on. The dialog uploads only the images the chapters use. |
-| Novelcrafter export | One `.zip` | The acts, chapters, scenes and codex entries that Novelcrafter exports. |
+| Novelcrafter export | One `.zip` | The acts, chapters, scenes and Knowledge base entries that Novelcrafter exports. |
 | Word document | One `.docx` | Heading 1 starts a chapter and Heading 2 starts a scene. A section break also splits a scene. |
 | Codex backup | One `.zip` | A backup made by Export source in [Book settings](/ui/book-settings/). It restores the book with its Knowledge base, References and labels. |
 
