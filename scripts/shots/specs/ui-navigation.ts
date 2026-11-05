@@ -25,7 +25,7 @@ export const shots: ShotSpec[] = [
     steps: async (page, ctx) => {
       await page.getByTestId("shell-search-box").fill("Salt");
       await page.waitForURL(/\?q=Salt/);
-      await page.getByTestId(`shell-tile-${ctx.bookIds.saltAndSignal}`).waitFor();
+      await page.getByTestId(`shell-series-stack-${ctx.seriesId}`).waitFor();
     },
   },
   {
