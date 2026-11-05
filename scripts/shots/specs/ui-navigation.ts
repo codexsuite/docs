@@ -4,6 +4,31 @@ const unknownBookId = "00000000-0000-0000-0000-000000000000";
 
 export const shots: ShotSpec[] = [
   {
+    name: "ui-navigation-theme",
+    route: "/",
+    steps: async (page) => {
+      await page.getByTestId("library-new-book").waitFor();
+      for (let i = 0; i < 2; i++) {
+        await page.keyboard.press("Control+k");
+        await page.getByTestId("library-palette-input").fill("Toggle theme");
+        await page.getByTestId("library-palette-action-theme").click();
+        await page.getByTestId("shell-command-palette").waitFor({ state: "detached" });
+      }
+      await page.keyboard.press("Control+k");
+      await page.getByTestId("library-palette-input").fill("Toggle theme");
+      await page.getByTestId("library-palette-action-theme").waitFor();
+    },
+  },
+  {
+    name: "ui-navigation-search",
+    route: "/",
+    steps: async (page, ctx) => {
+      await page.getByTestId("shell-search-box").fill("Salt");
+      await page.waitForURL(/\?q=Salt/);
+      await page.getByTestId(`shell-series-stack-${ctx.seriesId}`).waitFor();
+    },
+  },
+  {
     name: "ui-navigation-overview",
     route: (ctx) => `/#series=${ctx.seriesId}`,
     steps: async (page, ctx) => {

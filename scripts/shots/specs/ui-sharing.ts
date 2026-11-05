@@ -1,5 +1,6 @@
 import type { Locator, Page } from "playwright";
-import type { SeedResult, ShotSpec } from "../types.ts";
+import type { AdminSession, SeedResult, ShotSpec } from "../types.ts";
+import { signInViewer } from "../viewer.ts";
 
 /** Sharing a book: Book settings, Sharing card of Salt and Signal. Ines Calloway starts with Can view on the book. */
 
@@ -47,6 +48,68 @@ async function addViewer(page: Page, ctx: SeedResult, role: "view" | "comment" |
 
 export const shots: ShotSpec[] = [
   {
+    name: "ui-sharing-live-access",
+    route,
+    steps: async (page, ctx) => {
+      const origin = new URL(page.url()).origin;
+      const cookie = (await page.context().cookies(origin))
+        .filter((c) => c.name.startsWith("codex.auth"))
+        .map((c) => `${c.name}=${c.value}`).join("; ");
+      const admin: AdminSession = {
+        baseUrl: origin,
+        cookie,
+        api: (method, path, body) => fetch(`${origin}${path}`, {
+          method,
+          headers: { cookie, "x-codex-client": "docs", ...(body === undefined ? {} : { "content-type": "application/json" }) },
+          body: body === undefined ? undefined : JSON.stringify(body),
+        }),
+      };
+      const viewer = await signInViewer(admin, ctx.viewer.id);
+      const browser = page.context().browser();
+      if (!browser) throw new Error("The viewer needs a browser context.");
+      const second = await browser.newContext({ baseURL: origin });
+      try {
+        await second.addCookies(viewer.cookie.split("; ").map((pair) => {
+          const i = pair.indexOf("=");
+          return { name: pair.slice(0, i), value: pair.slice(i + 1), url: origin };
+        }));
+        const tab = await second.newPage();
+        const joined = new Promise<void>((resolve) => {
+          tab.on("websocket", (socket) => {
+            let invocationId: string | undefined;
+            socket.on("framesent", ({ payload }) => {
+              for (const record of String(payload).split("\x1e").filter(Boolean)) {
+                const message = JSON.parse(record) as { target?: string; invocationId?: string };
+                if (message.target === "JoinBook") invocationId = message.invocationId;
+              }
+            });
+            socket.on("framereceived", ({ payload }) => {
+              for (const record of String(payload).split("\x1e").filter(Boolean)) {
+                const message = JSON.parse(record) as { type?: number; invocationId?: string };
+                if (invocationId && message.type === 3 && message.invocationId === invocationId) resolve();
+              }
+            });
+          });
+        });
+        await tab.goto(`/books/${ctx.bookIds.saltAndSignal}/write`);
+        await tab.getByTestId("shell-role-chip").waitFor();
+        const scene = tab.getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`);
+        await scene.locator('[data-testid="prose-editor"][contenteditable="false"]').waitFor();
+        await joined;
+        await openSharing(page);
+        await page.getByTestId("settings-sharing-role").first().selectOption("write");
+        await tab.getByText("You can edit this book now. Typing works again.").waitFor();
+        await tab.getByTestId("shell-role-chip").waitFor({ state: "detached" });
+        await scene.locator('[data-testid="prose-editor"][contenteditable="true"]').waitFor();
+        await page.getByTestId("settings-sharing-remove").first().click();
+        await tab.getByTestId("shell-library-page").waitFor();
+        await tab.getByText(/stopped sharing.*with you/).waitFor();
+      } finally {
+        await second.close();
+      }
+    },
+  },
+  {
     name: "ui-sharing-overview",
     route,
     steps: openSharing,
@@ -67,6 +130,7 @@ export const shots: ShotSpec[] = [
       await clearToasts(page);
       await lookUp(page, ctx.viewer.email, "settings-sharing-match");
       await page.getByTestId("settings-sharing-match-role").first().selectOption("comment");
+      await page.getByTestId("settings-sharing-match").first().scrollIntoViewIfNeeded();
     },
   },
   {
@@ -82,6 +146,7 @@ export const shots: ShotSpec[] = [
     route,
     steps: async (page, ctx) => {
       await addViewer(page, ctx, "view");
+      await page.getByText("Shared Salt and Signal with Ines Calloway · Can view").first().waitFor();
       await clearToasts(page);
       await page.getByTestId("settings-sharing-role").first().selectOption("write");
       await page.getByText("Ines Calloway can now edit Salt and Signal").first().waitFor();
