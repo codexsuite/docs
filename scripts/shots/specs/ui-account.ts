@@ -28,6 +28,15 @@ export const shots: ShotSpec[] = [
     },
   },
   {
+    name: "ui-account-name-saved",
+    route: "/account",
+    steps: async (page) => {
+      await page.getByTestId("auth-account-display-name").fill("Alex");
+      await page.getByTestId("auth-account-save-name").click();
+      await page.getByTestId("auth-account-name-saved").waitFor();
+    },
+  },
+  {
     name: "ui-account-sign-in",
     route: "/login",
     steps: async (page) => {

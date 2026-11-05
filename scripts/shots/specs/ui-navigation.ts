@@ -4,6 +4,15 @@ const unknownBookId = "00000000-0000-0000-0000-000000000000";
 
 export const shots: ShotSpec[] = [
   {
+    name: "ui-navigation-search",
+    route: "/",
+    steps: async (page, ctx) => {
+      await page.getByTestId("shell-search-box").fill("Salt");
+      await page.waitForURL(/\?q=Salt/);
+      await page.getByTestId(`shell-tile-${ctx.bookIds.saltAndSignal}`).waitFor();
+    },
+  },
+  {
     name: "ui-navigation-overview",
     route: (ctx) => `/#series=${ctx.seriesId}`,
     steps: async (page, ctx) => {

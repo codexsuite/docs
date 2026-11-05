@@ -389,6 +389,7 @@ export const shots: ShotSpec[] = [
       await page.getByTestId(`kb-related-option-${ctx.entryIds["Tobias Venn"]}`).click();
       const chip = page.getByTestId(`kb-related-chip-${ctx.entryIds["Tobias Venn"]}`);
       await chip.waitFor();
+      await chip.hover();
       await page.getByTestId(`kb-related-remove-${ctx.entryIds["Tobias Venn"]}`).click();
       await chip.waitFor({ state: "detached" });
     },
