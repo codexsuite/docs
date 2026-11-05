@@ -127,6 +127,7 @@ export const shots: ShotSpec[] = [
       await clearToasts(page);
       await lookUp(page, ctx.viewer.email, "settings-sharing-match");
       await page.getByTestId("settings-sharing-match-role").first().selectOption("comment");
+      await page.getByTestId("settings-sharing-match").first().scrollIntoViewIfNeeded();
     },
   },
   {
@@ -142,6 +143,7 @@ export const shots: ShotSpec[] = [
     route,
     steps: async (page, ctx) => {
       await addViewer(page, ctx, "view");
+      await page.getByText("Shared Salt and Signal with Ines Calloway · Can view").first().waitFor();
       await clearToasts(page);
       await page.getByTestId("settings-sharing-role").first().selectOption("write");
       await page.getByText("Ines Calloway can now edit Salt and Signal").first().waitFor();
