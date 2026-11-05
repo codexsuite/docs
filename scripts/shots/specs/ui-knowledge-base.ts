@@ -381,6 +381,19 @@ export const shots: ShotSpec[] = [
     },
   },
   {
+    name: "ui-knowledge-base-related-removed",
+    route: entryRoute("Edith Marrow"),
+    steps: async (page, ctx) => {
+      await openEntry(page, ctx, "Edith Marrow");
+      await page.getByTestId("kb-related-add").click();
+      await page.getByTestId(`kb-related-option-${ctx.entryIds["Tobias Venn"]}`).click();
+      const chip = page.getByTestId(`kb-related-chip-${ctx.entryIds["Tobias Venn"]}`);
+      await chip.waitFor();
+      await page.getByTestId(`kb-related-remove-${ctx.entryIds["Tobias Venn"]}`).click();
+      await chip.waitFor({ state: "detached" });
+    },
+  },
+  {
     name: "ui-knowledge-base-move-to-series",
     route: entryRoute("Fresnel lens"),
     steps: async (page, ctx) => {
