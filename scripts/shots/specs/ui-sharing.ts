@@ -93,11 +93,14 @@ export const shots: ShotSpec[] = [
         });
         await tab.goto(`/books/${ctx.bookIds.saltAndSignal}/write`);
         await tab.getByTestId("shell-role-chip").waitFor();
+        const scene = tab.getByTestId(`write-scene-${ctx.sceneIds["1.1"]}`);
+        await scene.locator('[data-testid="prose-editor"][contenteditable="false"]').waitFor();
         await joined;
         await openSharing(page);
         await page.getByTestId("settings-sharing-role").first().selectOption("write");
         await tab.getByText("You can edit this book now. Typing works again.").waitFor();
         await tab.getByTestId("shell-role-chip").waitFor({ state: "detached" });
+        await scene.locator('[data-testid="prose-editor"][contenteditable="true"]').waitFor();
         await page.getByTestId("settings-sharing-remove").first().click();
         await tab.getByTestId("shell-library-page").waitFor();
         await tab.getByText(/stopped sharing.*with you/).waitFor();
