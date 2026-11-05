@@ -26,6 +26,8 @@ Labels include *Needs research*.
 | Harrowmouth | Places | The Mouth | An invented town on the coast. |
 | Fresnel lens | Ideas | The lens, the optic | The lens in the lamp room. |
 
+The research guide adds the alias **Edie** to Edith Marrow as a step. The seed starts with the aliases in the table.
+
 ## Sources
 
 | Source | Author | Publisher | Year | Status |
